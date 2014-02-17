@@ -1,0 +1,2 @@
+void game_loop();
+
