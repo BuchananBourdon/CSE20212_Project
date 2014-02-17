@@ -1,6 +1,0 @@
-//test 
-
-#include <stdio.h>
-
-printf("testing...\n");
-
