@@ -2,7 +2,7 @@
 
 #include <SDL/SDL.h>
 
-#include "game_loop.h"
+#include "Game.h"
 
 int main() {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -10,6 +10,7 @@ int main() {
 
 	SDL_SetVideoMode(640,480,30,SDL_HWSURFACE | SDL_DOUBLEBUF);
 
-	game_loop();
+	Game game;
+	game.play();
 }
 

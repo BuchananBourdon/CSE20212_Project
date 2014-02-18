@@ -2,7 +2,8 @@ CXXFLAGS = -g -Wall -Werror
 
 LIBS = -lSDL
 
-CXXSRCS = main.cpp game_loop.cpp
+CXXSRCS = main.cpp Game.cpp GameSimulation.cpp LocalPlayer.cpp \
+	NetworkPlayer.cpp Order.cpp
 
 DEPS = $(CXXSRCS:.cpp=.d)
 OBJS = $(CXXSRCS:.cpp=.o)
