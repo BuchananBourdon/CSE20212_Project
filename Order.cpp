@@ -28,7 +28,7 @@ Order *Order::deserialize(Uint8 *data) {
 	// Header: [Uint8 type][Uint32 time][Uint8 player][Uint16 id]
 	const int headersize = 1 + 4 + 1 + 2;
 
-	Uint8 type = *data;
+	Uint8 type = *(Uint8 *) (data + 0);
 
 	// Do we know this type?
 	if(type >= deserializers.size()) {
