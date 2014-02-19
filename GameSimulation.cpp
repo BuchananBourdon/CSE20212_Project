@@ -12,19 +12,16 @@
 using namespace std;
 
 // Default constructor: one local player and one network player
-GameSimulation::GameSimulation() {
-	players[0] = new LocalPlayer(*this,0);
-	players[1] = new NetworkPlayer(*this,1,"127.0.0.1:9999",true);
-
-	turnid = 0;
+GameSimulation::GameSimulation(Player *(&_players)[2])
+	: players(_players), turnid(0) {
+	simstart = SDL_GetTicks();
 
 	image = SDL_CreateRGBSurface(SDL_HWSURFACE,640,480,0,0,0,0,0);
 }
 
-// Destructor: get rid of the player objects
+// Destructor: get rid of the image
 GameSimulation::~GameSimulation() {
-	delete players[0];
-	delete players[1];
+	if(image) SDL_FreeSurface(image);
 }
 
 void GameSimulation::broadcastPlayerTurn(PlayerTurn &playerturn) {
@@ -78,7 +75,7 @@ void GameSimulation::update() {
 	players[1]->update();
 
 	// Have we already done this turn?
-	if(SDL_GetTicks() < turnid*100) return;
+	if(SDL_GetTicks() - simstart < turnid*100) return;
 
 	Turn &turn = turns.front();
 
@@ -99,5 +96,10 @@ void GameSimulation::update() {
 
 	// Next turn!
 	turnid++;
+}
+
+// Return the testing image
+SDL_Surface *GameSimulation::getImage() {
+	return image;
 }
 

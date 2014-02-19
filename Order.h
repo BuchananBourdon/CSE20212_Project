@@ -3,7 +3,13 @@ class Order;
 #ifndef ORDER_H
 #define ORDER_H
 
+#include <vector>
+
+#include <SDL/SDL.h>
+
 #include "GameSimulation.h"
+
+using namespace std;
 
 class Order {
 public:
@@ -13,12 +19,22 @@ public:
 
 	bool operator<(const Order &); // For sorting
 
-	virtual void execute(GameSimulation &) = 0; // Update the simulation
+	Order *deserialize(Uint8 *); // Import from byte stream
+
+	virtual void execute(GameSimulation &) = 0;  // Update the simulation
+	virtual void serialize(vector<Uint8> &) = 0; // Export to byte stream
 
 protected:
-	long time;  // When the order was given
-	int player; // Who gave the order
-	int id;     // Unique, player-assigned id
+	typedef Order *(*deserializer_func_t)(Uint8 *, Uint32, Uint8, Uint16);
+
+	static Uint8 addDeserializer(deserializer_func_t); // Returns unique id
+
+private:
+	Uint32 time;  // When the order was given
+	Uint8 player; // Who gave the order
+	Uint16 id;    // Unique, player-assigned id
+
+	vector<deserializer_func_t> deserializers; // One per derived class
 };
 
 #endif

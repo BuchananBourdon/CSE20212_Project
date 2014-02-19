@@ -7,8 +7,7 @@ using namespace std;
 
 class LocalPlayer : public Player {
 public:
-	LocalPlayer(GameSimulation &_ownersim, int _id)
-		: Player(_ownersim, _id) {}
+	LocalPlayer(int);
 
 	// From Player
 	virtual void update();

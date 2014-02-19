@@ -18,15 +18,17 @@ class GameSimulation {
 	friend class Order;
 
 public:
-	GameSimulation(); // Default constructor
+	GameSimulation(Player *(&)[2]); // Default constructor
 	~GameSimulation();
 
 	void broadcastPlayerTurn(PlayerTurn &); // Process and distribute
 	void update();                          // Update the simulation
+	SDL_Surface *getImage();                // Just for testing
 
 private:
-	Player *players[2]; // Who's giving the orders around here?
+	Player *(&players)[2]; // Who's giving the orders around here?
 
+	Uint32 simstart;     // The dawn of time
 	unsigned int turnid; // Which turn now?
 	list<Turn> turns;    // Future turns
 

@@ -13,8 +13,7 @@ using namespace std;
 
 class Player {
 public:
-	Player(GameSimulation &_ownersim, int _id) // Default constructor
-		: ownersim(_ownersim), id(_id) {};
+	Player(int _id) : id(_id) {};
 	virtual ~Player() {};
 
 	virtual void receivePlayerTurn(PlayerTurn &) {}; // Only if you care
@@ -22,8 +21,6 @@ public:
 	virtual void update() = 0; // Handle events and such
 
 protected:
-	GameSimulation &ownersim;
-
 	int id;
 };
 

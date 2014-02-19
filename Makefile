@@ -1,6 +1,6 @@
-CXXFLAGS = -g -Wall -Werror
+CXXFLAGS = -g -Wall -Werror -Wno-parentheses
 
-LIBS = -lSDL
+LIBS = -lSDL -lSDL_net
 
 CXXSRCS = main.cpp Game.cpp GameSimulation.cpp LocalPlayer.cpp \
 	NetworkPlayer.cpp Order.cpp

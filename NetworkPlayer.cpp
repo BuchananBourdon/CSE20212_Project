@@ -5,23 +5,17 @@
 using namespace std;
 
 // Constructor: listen for/contact a remote host
-NetworkPlayer::NetworkPlayer(GameSimulation &_ownersim, int _id,
-	string address, bool listen) : Player(_ownersim,_id) {
-	if(listen) {
-		cerr << "listening on " << address << endl;
-		// TODO: listen for a connection
-	} else {
-		cerr << "attempting to connect to " << address << endl;
-		// TODO: connect to a game host
-	}
+NetworkPlayer::NetworkPlayer(UDPsocket _socket, int _id)
+	: Player(_id), socket(_socket) {
+	// TODO: implement NetworkPlayer::NetworkPlayer()
 }
 
-// Send this to the remote host
+// Send this to the remote player
 void NetworkPlayer::receivePlayerTurn(PlayerTurn &playerturn) {
 	// TODO: implement NetworkPlayer::receivePlayerTurn()
 }
 
-// Check for anything new from the remote host
+// Check for anything new from the remote player
 void NetworkPlayer::update() {
 	// TODO: implement NetworkPlayer::update()
 }
