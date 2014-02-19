@@ -36,11 +36,11 @@ Order *Order::deserialize(Uint8 *data) {
 		return NULL;
 	}
 
-	Uint32 time = *(Uint32 *) (data + 1);
+	Uint32 time = SDLNet_Read32(data + 1);
 
 	Uint8 player = *(Uint8 *) (data + 5);
 
-	Uint16 id = *(Uint16 *) (data + 6);
+	Uint16 id = SDLNet_Read16(data + 6);
 
 	return deserializers[type](data + headersize,time,player,id);
 }
