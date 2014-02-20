@@ -13,15 +13,18 @@ using namespace std;
 
 class Player {
 public:
-	Player(int _id) : id(_id) {};
+	Player(Uint8 _id) : id(_id), ownersim(NULL) {};
 	virtual ~Player() {};
+
+	virtual void setOwnerSimulation(GameSimulation *sim) { ownersim = sim; }
 
 	virtual void receivePlayerTurn(PlayerTurn &) {}; // Only if you care
 
 	virtual void update() = 0; // Handle events and such
 
 protected:
-	int id;
+	Uint8 id;
+	GameSimulation *ownersim;
 };
 
 #endif

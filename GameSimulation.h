@@ -23,7 +23,9 @@ public:
 
 	void broadcastPlayerTurn(PlayerTurn &); // Process and distribute
 	void update();                          // Update the simulation
-	SDL_Surface *getImage();                // Just for testing
+
+	Uint32 getTicks();       // Since the dawn of time
+	SDL_Surface *getImage(); // Just for testing
 
 private:
 	Player *(&players)[2]; // Who's giving the orders around here?

@@ -3,7 +3,7 @@ CXXFLAGS = -g -Wall -Werror -Wno-parentheses
 LIBS = -lSDL -lSDL_net
 
 CXXSRCS = main.cpp Game.cpp GameSimulation.cpp LocalPlayer.cpp \
-	NetworkPlayer.cpp Order.cpp
+	MouseMoveOrder.cpp NetworkPlayer.cpp Order.cpp PlayerTurn.cpp
 
 DEPS = $(CXXSRCS:.cpp=.d)
 OBJS = $(CXXSRCS:.cpp=.o)

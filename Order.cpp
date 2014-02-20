@@ -6,6 +6,8 @@
 
 using namespace std;
 
+vector<deserializer_func_t> Order::deserializers;
+
 // Compare this and that--first on time, then on player number
 bool Order::operator<(const Order &that) {
 	// Sanity check
@@ -24,11 +26,10 @@ bool Order::operator<(const Order &that) {
 }
 
 // Read the header, then delegate the rest to a derived class
-Order *Order::deserialize(Uint8 *data) {
+Order *Order::deserialize(Uint8 **data) {
 	// Header: [Uint8 type][Uint32 time][Uint8 player][Uint16 id]
-	const int headersize = 1 + 4 + 1 + 2;
 
-	Uint8 type = *(Uint8 *) (data + 0);
+	Uint8 type = **data;
 
 	// Do we know this type?
 	if(type >= deserializers.size()) {
@@ -36,12 +37,23 @@ Order *Order::deserialize(Uint8 *data) {
 		return NULL;
 	}
 
-	Uint32 time = SDLNet_Read32(data + 1);
+	*data += 1;
 
-	Uint8 player = *(Uint8 *) (data + 5);
+	Uint32 time = SDLNet_Read32(*data);
+	*data += 4;
 
-	Uint16 id = SDLNet_Read16(data + 6);
+	Uint8 player = **data;
+	*data += 1;
 
-	return deserializers[type](data + headersize,time,player,id);
+	Uint16 id = SDLNet_Read16(data);
+	*data += 2;
+
+	return deserializers[type](data,time,player,id);
+}
+
+// Register a deserializer and return its id
+Uint8 Order::addDeserializer(deserializer_func_t deserializer) {
+	deserializers.push_back(deserializer);
+	return deserializers.size() - 1;
 }
 

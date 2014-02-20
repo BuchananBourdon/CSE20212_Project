@@ -14,9 +14,12 @@ using namespace std;
 // Default constructor: one local player and one network player
 GameSimulation::GameSimulation(Player *(&_players)[2])
 	: players(_players), turnid(0) {
+	players[0]->setOwnerSimulation(this);
+	players[1]->setOwnerSimulation(this);
+
 	simstart = SDL_GetTicks();
 
-	image = SDL_CreateRGBSurface(SDL_HWSURFACE,640,480,0,0,0,0,0);
+	image = SDL_CreateRGBSurface(SDL_HWSURFACE,640,480,32,0,0,0,0);
 }
 
 // Destructor: get rid of the image
@@ -24,6 +27,7 @@ GameSimulation::~GameSimulation() {
 	if(image) SDL_FreeSurface(image);
 }
 
+// Disseminate a player's turn and store it for later simulation
 void GameSimulation::broadcastPlayerTurn(PlayerTurn &playerturn) {
 	// Sanity checks
 	if(playerturn.turnid < turnid) {
@@ -96,6 +100,11 @@ void GameSimulation::update() {
 
 	// Next turn!
 	turnid++;
+}
+
+// Return the number of milliseconds that this simulation has been active
+Uint32 GameSimulation::getTicks() {
+	return SDL_GetTicks() - simstart;
 }
 
 // Return the testing image
