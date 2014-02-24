@@ -13,16 +13,16 @@ NetworkPlayer::NetworkPlayer(UDPsocket _socket, Uint8 _id)
 	: Player(_id), socket(_socket) {}
 
 // Send this to the remote player
-void NetworkPlayer::receivePlayerTurn(PlayerTurn &playerturn) {
+void NetworkPlayer::receivePlayerTurn(PlayerTurn *playerturn) {
 	// Don't send our own turn back!
-	if(playerturn.playerid == id) return;
+	if(playerturn->playerid == id) return;
 
 	Uint8 buffer[maxpacketsize];
 
 	UDPpacket packet;
 	packet.data = buffer;
 
-	vector<Uint8> data = playerturn.serialize();
+	vector<Uint8> data = playerturn->serialize();
 
 	packet.len = data.size() + 8;
 	if(packet.len > maxpacketsize) {
@@ -34,7 +34,7 @@ void NetworkPlayer::receivePlayerTurn(PlayerTurn &playerturn) {
 	memcpy(packet.data,"rkapturn",8);
 	memcpy(packet.data + 8,&data[0],data.size());
 
-	SDLNet_UDP_Send(socket,-1,&packet);
+	SDLNet_UDP_Send(socket,0,&packet);
 
 	// TODO: implement retry in NetworkPlayer::receivePlayerTurn()
 }
@@ -52,9 +52,10 @@ void NetworkPlayer::update() {
 		if(strncmp((char *) packet.data,"rkapturn",8) != 0) return;
 
 		Uint8 *dataptr = packet.data + 8;
-		PlayerTurn playerturn
+		PlayerTurn *playerturn
 			= PlayerTurn::deserialize(&dataptr);
 		ownersim->broadcastPlayerTurn(playerturn);
+		if(playerturn) delete playerturn;
 	}
 }
 

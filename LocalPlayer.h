@@ -13,6 +13,7 @@ using namespace std;
 class LocalPlayer : public Player {
 public:
 	LocalPlayer(Uint8);
+	~LocalPlayer();
 
 	// From Player
 	virtual void setOwnerSimulation(GameSimulation *);
@@ -30,7 +31,7 @@ private:
 	static int turnevents;
 
 	static SDL_mutex *turnsmutex;
-	static vector<PlayerTurn> turns;
+	static vector<PlayerTurn *> turns;
 };
 
 #endif

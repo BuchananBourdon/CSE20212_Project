@@ -18,7 +18,7 @@ public:
 
 	virtual void setOwnerSimulation(GameSimulation *sim) { ownersim = sim; }
 
-	virtual void receivePlayerTurn(PlayerTurn &) {}; // Only if you care
+	virtual void receivePlayerTurn(PlayerTurn *) {}; // Only if you care
 
 	virtual void update() = 0; // Handle events and such
 

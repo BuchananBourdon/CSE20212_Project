@@ -21,7 +21,7 @@ public:
 	GameSimulation(Player *(&)[2]); // Default constructor
 	~GameSimulation();
 
-	void broadcastPlayerTurn(PlayerTurn &); // Process and distribute
+	void broadcastPlayerTurn(PlayerTurn *); // Process and distribute
 	void update();                          // Update the simulation
 
 	Uint32 getTicks();       // Since the dawn of time
@@ -32,7 +32,7 @@ private:
 
 	Uint32 simstart;     // The dawn of time
 	unsigned int turnid; // Which turn now?
-	list<Turn> turns;    // Future turns
+	list<Turn *> turns;    // Future turns
 
 	// Game state
 	SDL_Surface *image; // Just for testing

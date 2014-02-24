@@ -13,7 +13,7 @@ using namespace std;
 
 // Default constructor: one local player and one network player
 GameSimulation::GameSimulation(Player *(&_players)[2])
-	: players(_players), turnid(0) {
+	: players(_players), turnid(2) {
 	players[0]->setOwnerSimulation(this);
 	players[1]->setOwnerSimulation(this);
 
@@ -24,21 +24,27 @@ GameSimulation::GameSimulation(Player *(&_players)[2])
 
 // Destructor: get rid of the image
 GameSimulation::~GameSimulation() {
+	while(turns.size()) {
+		if(turns.front())
+			delete turns.front();
+		turns.pop_front();
+	}
+
 	if(image) SDL_FreeSurface(image);
 }
 
 // Disseminate a player's turn and store it for later simulation
-void GameSimulation::broadcastPlayerTurn(PlayerTurn &playerturn) {
+void GameSimulation::broadcastPlayerTurn(PlayerTurn *playerturn) {
 	// Sanity checks
-	if(playerturn.turnid < turnid) {
+	if(playerturn->turnid < turnid) {
 		cerr << "error: old turn broadcast from player "
-			<< playerturn.playerid << endl;
+			<< playerturn->playerid << endl;
 		return;
 	}
 
-	if(0 < playerturn.playerid || playerturn.playerid > 1) {
+	if(playerturn->playerid < 0 || playerturn->playerid > 1) {
 		cerr << "error: turn broadcast from unknown player "
-			<< playerturn.playerid << endl;
+			<< playerturn->playerid << endl;
 		return;
 	}
 
@@ -47,26 +53,28 @@ void GameSimulation::broadcastPlayerTurn(PlayerTurn &playerturn) {
 	players[1]->receivePlayerTurn(playerturn);
 
 	// Store it for later simulation
-	unsigned int turnindex = playerturn.turnid - turnid;
+	unsigned int turnindex = playerturn->turnid - turnid;
 	if(turnindex < turns.size()) { // Add to an existing turn
-		list<Turn>::iterator turniter = turns.begin();
+		list<Turn *>::iterator turniter = turns.begin();
 		advance(turniter,turnindex);
 
-		turniter->players[playerturn.playerid] = true;
-		turniter->orders.insert(turniter->orders.end(),
-			playerturn.orders.begin(),playerturn.orders.end());
+		(*turniter)->players[playerturn->playerid] = true;
+		(*turniter)->orders.insert((*turniter)->orders.end(),
+			playerturn->orders.begin(),playerturn->orders.end());
 	} else { // Add a new turn
-		Turn turn = Turn();
-
-		turn.players[playerturn.playerid] = true;
-		turn.orders = playerturn.orders;
-
 		// Add in any skipped turns
 		while(turnindex > turns.size()) {
 			cerr << "warning: possible dropped packet for turn "
-				<< playerturn.turnid << endl;
-			turns.push_back(Turn());
+				<< (turnid + turns.size()) << endl;
+			turns.push_back(new Turn());
 		}
+
+		// Add this turn
+		Turn *turn = new Turn();
+
+		turn->players[playerturn->playerid] = true;
+		turn->orders.insert(turn->orders.end(),
+			playerturn->orders.begin(),playerturn->orders.end());
 
 		turns.push_back(turn);
 	}
@@ -81,22 +89,24 @@ void GameSimulation::update() {
 	// Have we already done this turn?
 	if(SDL_GetTicks() - simstart < turnid*100) return;
 
-	Turn &turn = turns.front();
+	Turn *turn = turns.front();
 
 	// Can we actually do this turn?
-	if(!turn.players[0] || !turn.players[1])
+	if(!turn->players[0] || !turn->players[1])
 		return; // We don't have all the players' orders yet
 
-	turns.pop_front();
-
 	// Put all the orders in a well-defined order (he, he, :-)
-	sort(turn.orders.begin(),turn.orders.end());
+	sort(turn->orders.begin(),turn->orders.end());
 
 	// Follow the players' orders
-	for(unsigned int i = 0; i < turn.orders.size(); i++)
-		turn.orders[i]->execute(*this);
+	for(unsigned int i = 0; i < turn->orders.size(); i++)
+		if(turn->orders[i])
+			turn->orders[i]->execute(*this);
 
 	// TODO: simulate
+
+	turns.pop_front();
+	delete turn;
 
 	// Next turn!
 	turnid++;

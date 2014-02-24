@@ -1,28 +1,33 @@
+#include <iostream>
+
 #include <SDL/SDL_net.h>
 
 #include "PlayerTurn.h"
 
+using namespace std;
+
 // Destructor: free all the orders
 PlayerTurn::~PlayerTurn() {
-	for(unsigned int i = 0; i < orders.size(); i++)
-		if(orders[i]) delete orders[i];
+//	for(unsigned int i = 0; i < orders.size(); i++)
+//		if(orders[i]) delete orders[i];
 }
 
-PlayerTurn PlayerTurn::deserialize(Uint8 **data) {
+PlayerTurn *PlayerTurn::deserialize(Uint8 **data) {
 	int turnid = SDLNet_Read32(*data);
 	*data += 4;
 
 	int playerid = **data;
 	*data += 1;
 
+	PlayerTurn *playerturn = new PlayerTurn(turnid,playerid);
+
 	int numorders = SDLNet_Read16(*data);
 	*data += 2;
 
-	vector<Order *> orders(numorders);
 	for(int i = 0; i < numorders; i++)
-		orders.push_back(Order::deserialize(data));
+		playerturn->orders.push_back(Order::deserialize(data));
 
-	return PlayerTurn(turnid,playerid,orders);
+	return playerturn;
 }
 
 vector<Uint8> PlayerTurn::serialize() {

@@ -1,8 +1,13 @@
+#include <cmath>
+
 #include <SDL/SDL_net.h>
 
 #include "MouseMoveOrder.h"
 
 int MouseMoveOrder::deserializerid = -1;
+
+// Gets the deserializer registered
+static MouseMoveOrder staticmousemoveorder(0,0,0,0,0,0,0);
 
 // Constructor
 MouseMoveOrder::MouseMoveOrder(Uint32 _time, Uint8 _player, Uint16 _id,
@@ -43,41 +48,48 @@ void MouseMoveOrder::execute(GameSimulation &simulation) {
 
 	int x = startx, y = starty;
 
-	while(x != endx || y != endy) {
-		// Color in this pixel
-		*(((Uint32 *) image->pixels) + (y*image->pitch + x)) = color;
+	SDL_LockSurface(image);
 
-		// Move to the next pixel
-		if((x - startx)*(endy - starty) < (y - starty)*(endx - startx))
-			x++;
-		else y++;
+	// Really naive "line" drawing algorithm
+	for(int i = 0; i < 640; i++) {
+		// Calculate this point
+		x = round(startx + (float) i/(640 - 1)*(endx - startx));
+		y = round(starty + (float) i/(640 - 1)*(endy - starty));
+
+		// Color in this pixel
+		*(Uint32 *) ((char *) image->pixels + y*image->pitch + x*4)
+			= color;
 	}
+
+	SDL_UnlockSurface(image);
 }
 
 // Export to byte stream
 vector<Uint8> MouseMoveOrder::serialize() {
 	vector<Uint8> data;
 
+	data.push_back(deserializerid);
+
 	data.push_back(0); data.push_back(0);
 	data.push_back(0); data.push_back(0);
-	SDLNet_Write32(time,&data[0]);
+	SDLNet_Write32(time,&data[1]);
 
 	data.push_back(player);
 
 	data.push_back(0); data.push_back(0);
-	SDLNet_Write16(id,&data[5]);
+	SDLNet_Write16(id,&data[6]);
 
 	data.push_back(0); data.push_back(0);
-	SDLNet_Write16(startx,&data[7]);
+	SDLNet_Write16(startx,&data[8]);
 
 	data.push_back(0); data.push_back(0);
-	SDLNet_Write16(starty,&data[9]);
+	SDLNet_Write16(starty,&data[10]);
 
 	data.push_back(0); data.push_back(0);
-	SDLNet_Write16(endx,&data[11]);
+	SDLNet_Write16(endx,&data[12]);
 
 	data.push_back(0); data.push_back(0);
-	SDLNet_Write16(endy,&data[13]);
+	SDLNet_Write16(endy,&data[14]);
 
 	return data;
 }

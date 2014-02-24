@@ -15,7 +15,7 @@ public:
 	NetworkPlayer(UDPsocket, Uint8);
 
 	// From Player
-	virtual void receivePlayerTurn(PlayerTurn &);
+	virtual void receivePlayerTurn(PlayerTurn *);
 	virtual void update();
 
 private:

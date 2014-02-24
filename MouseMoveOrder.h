@@ -6,6 +6,7 @@
 class MouseMoveOrder : public Order {
 public:
 	MouseMoveOrder(Uint32, Uint8, Uint16, Uint16, Uint16, Uint16, Uint16);
+	virtual ~MouseMoveOrder() {};
 
 	// For Order::addDeserializer()
 	static Order *deserialize(Uint8 **, Uint32, Uint8, Uint16);
