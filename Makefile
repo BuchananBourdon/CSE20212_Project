@@ -5,10 +5,12 @@ CPP_FILES = main.cpp Game.cpp
 DEPENDS = $(CPP_FILES:.cpp=.d)
 OBJECTS = $(CPP_FILES:.cpp=.o)
 
+LIBS = -lSDL
+
 all: main
 
 main: $(OBJECTS)
-	g++ $(CPPFLAGS) -o $@ $^
+	g++ $(CPPFLAGS) -o $@ $^ $(LIBS)
 
 %.d: %.cpp
 	g++ -MM -MF $@ $<
