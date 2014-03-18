@@ -1,11 +1,12 @@
 CPPFLAGS = -g -Wall -Werror
 
-CPP_FILES = main.cpp Game.cpp
+CPP_FILES = main.cpp Game.cpp IPaddress.cpp JoinMessage.cpp \
+	JoinResponseMessage.cpp Message.cpp
 
 DEPENDS = $(CPP_FILES:.cpp=.d)
 OBJECTS = $(CPP_FILES:.cpp=.o)
 
-LIBS = -lSDL
+LIBS = -lSDL -lSDL_net
 
 all: main
 
