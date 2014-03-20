@@ -138,7 +138,7 @@ void Game::executeTurns() {
 	// Execute as many turns as we can
 	Turn *turn;
 	int turnid = (SDL_GetTicks() - start)/ticksperturn;
-	while(turn = turnqueue.front(), turnid >= turn->getTurnId()) {
+	while(turn = turnqueue.front(), turn && turnid >= turn->getTurnId()) {
 		// Go no further if we're missing data from someone
 		if(turn->getPlayerCount() < numplayers) {
 			if(turnid < 2)
