@@ -8,7 +8,10 @@
 
 using namespace std;
 
-Game::Game(bool _hosting, IPaddress address) : hosting(_hosting) {
+const int Game::ticksperturn = 200; // For the deterministic simulation
+
+Game::Game(bool _hosting, IPaddress address)
+	: hosting(_hosting), numplayers(1), start(0) {
 	// Prepare the connection
 	Uint16 port = SDLNet_Read16(&address.port);
 	if(hosting) { // Hosting a game
@@ -31,9 +34,6 @@ Game::Game(bool _hosting, IPaddress address) : hosting(_hosting) {
 
 		sendMessage(new JoinMessage());
 	}
-
-	// We are a player, no matter what
-	numplayers = 1;
 }
 
 Game::~Game() {
@@ -55,6 +55,8 @@ void Game::play() {
 		handleMessages();
 
 		sendMessages();
+
+		executeTurns();
 
 		SDL_Delay(10); // Don't hog the CPU
 	}
@@ -118,6 +120,37 @@ void Game::sendMessages() {
 		delete message;
 
 		SDLNet_UDP_Send(socket,0,&packet);
+	}
+}
+
+// Advance, if appropriate, the fully-determined part of the simulation
+void Game::executeTurns() {
+	// Have we started actual gameplay, yet?
+	if(!start) {
+		if(numplayers > 1) {
+			cout << "game has at least two players; starting play"
+				<< endl;
+			start = SDL_GetTicks();
+		}
+		return;
+	}
+
+	// Execute as many turns as we can
+	Turn *turn;
+	int turnid = (SDL_GetTicks() - start)/ticksperturn;
+	while(turn = turnqueue.front(), turnid >= turn->getTurnId()) {
+		// Go no further if we're missing data from someone
+		if(turn->getPlayerCount() < numplayers) {
+			if(turnid < 2)
+				cerr << "warning: possible dropped packet(s)"
+					" for turn " << turn->getTurnId()
+					<< endl;
+			break;
+		}
+
+		turn->execute();
+
+		turnqueue.pop_front();
 	}
 }
 

@@ -1,7 +1,7 @@
 CPPFLAGS = -g -Wall -Werror
 
 CPP_FILES = main.cpp Game.cpp IPaddress.cpp JoinMessage.cpp \
-	JoinResponseMessage.cpp Message.cpp
+	JoinResponseMessage.cpp Message.cpp Turn.cpp
 
 DEPENDS = $(CPP_FILES:.cpp=.d)
 OBJECTS = $(CPP_FILES:.cpp=.o)
