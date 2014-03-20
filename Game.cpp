@@ -5,13 +5,16 @@
 
 #include "Game.h"
 #include "JoinMessage.h"
+#include "PlayerTurnMessage.h"
 
 using namespace std;
 
 const int Game::ticksperturn = 200; // For the deterministic simulation
 
+const int Game::turndelay = 2; // Delay between turn creation and execution
+
 Game::Game(bool _hosting, IPaddress address)
-	: hosting(_hosting), numplayers(1), start(0) {
+	: hosting(_hosting), numplayers(1), start(0), turn(NULL) {
 	// Prepare the connection
 	Uint16 port = SDLNet_Read16(&address.port);
 	if(hosting) { // Hosting a game
@@ -53,6 +56,8 @@ void Game::play() {
 	while(playing) {
 		handleEvents();
 		handleMessages();
+
+		broadcastTurn();
 
 		sendMessages();
 
@@ -104,6 +109,22 @@ void Game::handleMessages() {
 	}
 }
 
+// Send our turn out to the other players, if ready
+void Game::broadcastTurn() {
+	// Sanity check
+	if(!start) return;
+
+	// Is this our first turn?
+	if(!turn) turn = new PlayerTurn(0,playerid);
+
+	int turnid = (SDL_GetTicks() - start)/ticksperturn;
+	if(turnid > turn->getTurnId()) {
+		// Time for a new turn
+		sendMessage(new PlayerTurnMessage(turn));
+		turn = new PlayerTurn(turn->getTurnId() + 1,playerid);
+	}
+}
+
 // Send out the messages in messagequeue over the network
 void Game::sendMessages() {
 	Uint8 data[0xFFFF];
@@ -139,13 +160,12 @@ void Game::executeTurns() {
 	// Execute as many turns as we can
 	Turn *turn;
 	int turnid = (SDL_GetTicks() - start)/ticksperturn;
-	while(turn = turnqueue.front(), turn && turnid >= turn->getTurnId()) {
+	while(turn = turnqueue.front(),
+		turn && turnid >= turn->getTurnId() + turndelay) {
 		// Go no further if we're missing data from someone
 		if(turn->getPlayerCount() < numplayers) {
-			if(turnid >= 2)
-				cerr << "warning: possible dropped packet(s)"
-					" for turn " << turn->getTurnId()
-					<< endl;
+			cerr << "warning: possible dropped packet(s) for turn "
+				<< turn->getTurnId() << endl;
 			break;
 		}
 

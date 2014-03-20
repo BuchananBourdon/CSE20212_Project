@@ -10,6 +10,7 @@ class Game;
 
 #include "Message.h"
 #include "Order.h"
+#include "PlayerTurn.h"
 #include "Turn.h"
 #include "Unit.h"
 
@@ -30,7 +31,8 @@ public:
 	void sendMessage(Message *); // Add to queue
 
 private:
-	static const int ticksperturn; // SDL tick = 1 ms
+	static const int ticksperturn; // 1 SDL tick = 1 ms
+	static const int turndelay;    // Execution delay
 
 	bool hosting;     // Acting as host?
 	UDPsocket socket; // Network connection
@@ -43,12 +45,14 @@ private:
 
 	std::queue<Message *> messagequeue; // Send these soon
 
+	PlayerTurn *turn;            // For this turn
 	std::list<Turn *> turnqueue; // Play these soon
 
 	std::vector<std::vector<Unit *> > units; // For each player
 
 	void handleEvents();   // Process all events
 	void handleMessages(); // Process all messages
+	void broadcastTurn();  // Send our current turn
 	void sendMessages();   // Empty out messagequeue
 	void executeTurns();   // Deterministic simulation
 

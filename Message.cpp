@@ -6,6 +6,7 @@
 #include "JoinMessage.h"
 #include "JoinResponseMessage.h"
 #include "Message.h"
+#include "PlayerTurnMessage.h"
 
 using namespace std;
 
@@ -90,6 +91,7 @@ void Message::handle(Game &game) {
 	switch(type) {
 	case MT_JOIN:          JoinMessage::handle(game,*this);         break;
 	case MT_JOIN_RESPONSE: JoinResponseMessage::handle(game,*this); break;
+	case MT_PLAYER_TURN:   PlayerTurnMessage::handle(game,*this);   break;
 
 	default:
 		cerr << "warning: unhandled message type (" << type << ")"

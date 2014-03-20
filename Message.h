@@ -29,6 +29,7 @@ protected:
 	enum message_type {
 		MT_JOIN,
 		MT_JOIN_RESPONSE,
+		MT_PLAYER_TURN,
 
 		MT_NUM_TYPES
 	};
