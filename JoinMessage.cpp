@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const int JoinMessage::datasize = 1;
+const unsigned int JoinMessage::datasize = 1;
 
 JoinMessage::JoinMessage() : Message(true,MT_JOIN) {
 	cout << "sending a join request" << endl;

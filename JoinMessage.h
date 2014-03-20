@@ -10,7 +10,7 @@ public:
 	static void handle(Game &, Message &); // Deserialize and execute
 
 private:
-	static const int datasize; // Expected payload
+	static const unsigned int datasize; // Expected payload
 };
 
 #endif
