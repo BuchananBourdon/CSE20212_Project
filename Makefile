@@ -1,3 +1,5 @@
+RM = rm -f
+
 CPPFLAGS = -g -Wall -Werror
 
 CPP_FILES = main.cpp Game.cpp IPaddress.cpp JoinMessage.cpp \
@@ -24,7 +26,7 @@ main: $(OBJECTS)
 .PHONY: clean
 
 clean:
-	rm main
-	rm $(DEPENDS)
-	rm $(OBJECTS)
+	$(RM) main
+	$(RM) $(DEPENDS)
+	$(RM) $(OBJECTS)
 
