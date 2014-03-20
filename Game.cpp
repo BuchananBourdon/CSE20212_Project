@@ -127,6 +127,7 @@ void Game::sendMessages() {
 void Game::executeTurns() {
 	// Have we started actual gameplay, yet?
 	if(!start) {
+		// Should we?
 		if(numplayers > 1) {
 			cout << "game has at least two players; starting play"
 				<< endl;
@@ -141,13 +142,14 @@ void Game::executeTurns() {
 	while(turn = turnqueue.front(), turn && turnid >= turn->getTurnId()) {
 		// Go no further if we're missing data from someone
 		if(turn->getPlayerCount() < numplayers) {
-			if(turnid < 2)
+			if(turnid >= 2)
 				cerr << "warning: possible dropped packet(s)"
 					" for turn " << turn->getTurnId()
 					<< endl;
 			break;
 		}
 
+		// All systems are go
 		turn->execute();
 
 		turnqueue.pop_front();
