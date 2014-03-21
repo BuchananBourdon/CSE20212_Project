@@ -26,9 +26,10 @@ public:
 
 	void setPlayerId(Uint8 _playerid);
 
-	void play();                 // Game loop
-	Uint8 addPlayer();           // New player
-	void sendMessage(Message *); // Add to queue
+	void play();                      // Game loop
+	Uint8 addPlayer();                // New player
+	void addPlayerTurn(PlayerTurn *); // Add to queue
+	void sendMessage(Message *);      // Add to queue
 
 private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms

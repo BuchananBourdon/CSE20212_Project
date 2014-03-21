@@ -5,6 +5,7 @@
 
 #include "Game.h"
 #include "JoinMessage.h"
+#include "MoveUnitOrder.h"
 #include "PlayerTurnMessage.h"
 
 using namespace std;
@@ -72,6 +73,29 @@ Uint8 Game::addPlayer() {
 	return numplayers++;
 }
 
+// Add a player's turn to the queue
+void Game::addPlayerTurn(PlayerTurn *playerturn) {
+	// Make sure the turn is in the queue
+	if(turnqueue.size()) { // Empty?
+		int turnid = turnqueue.front()->getTurnId()
+			+ turnqueue.size() - 1;
+
+		while(turnid < playerturn->getTurnId())
+			turnqueue.push_back(new Turn(++turnid));
+	} else turnqueue.push_back(new Turn(playerturn->getTurnId()));
+
+	// Search for the appropriate spot in the queue
+	list<Turn *>::iterator turniter = turnqueue.begin();
+	while(turniter != turnqueue.end()) {
+		if(playerturn->getTurnId() == (*turniter)->getTurnId()) {
+			(*turniter)->addPlayerTurn(playerturn);
+			return;
+		}
+
+		turniter++;
+	}
+}
+
 // Add message to messagequeue
 void Game::sendMessage(Message *message) {
 	messagequeue.push(message);
@@ -88,6 +112,12 @@ void Game::handleEvents() {
 			// Quick-exit key
 			if(event.key.keysym.sym == SDLK_DELETE)
 				playing = false;
+
+			// Just for testing the MoveUnitOrder class
+			if(event.key.keysym.sym == SDLK_m)
+				turn->addOrder(new MoveUnitOrder(0,
+					rand() & 0xFFFF,rand() & 0xFFFF));
+
 			break;
 		}
 	}
@@ -119,8 +149,11 @@ void Game::broadcastTurn() {
 
 	int turnid = (SDL_GetTicks() - start)/ticksperturn;
 	if(turnid > turn->getTurnId()) {
-		// Time for a new turn
+		// Tell every one about this
+		addPlayerTurn(turn);
 		sendMessage(new PlayerTurnMessage(turn));
+
+		// Time for a new turn
 		turn = new PlayerTurn(turn->getTurnId() + 1,playerid);
 	}
 }
@@ -157,9 +190,15 @@ void Game::executeTurns() {
 		return;
 	}
 
+	int turnid = (SDL_GetTicks() - start)/ticksperturn;
+
+	// Sanity check
+	if(turnid > turndelay && !turnqueue.size()) {
+		cerr << "warning: empty turn queue" << endl;
+	}
+
 	// Execute as many turns as we can
 	Turn *turn;
-	int turnid = (SDL_GetTicks() - start)/ticksperturn;
 	while(turn = turnqueue.front(),
 		turn && turnid >= turn->getTurnId() + turndelay) {
 		// Go no further if we're missing data from someone
@@ -170,7 +209,7 @@ void Game::executeTurns() {
 		}
 
 		// All systems are go
-		turn->execute();
+		turn->execute(*this);
 
 		turnqueue.pop_front();
 	}

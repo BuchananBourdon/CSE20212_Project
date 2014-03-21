@@ -1,3 +1,5 @@
+class Turn;
+
 #ifndef TURN_H
 #define TURN_H
 
@@ -9,11 +11,13 @@
 class Turn {
 public:
 	Turn(int _turnid) : turnid(_turnid) {};
+	~Turn();
 
 	int getPlayerCount() { return playerturns.size(); }
 	int getTurnId()      { return turnid; }
 
-	void execute(); // Do everything
+	void addPlayerTurn(PlayerTurn *); // Add a turn
+	void execute(Game &);             // Do everything
 
 private:
 	const int turnid; // Which turn?
