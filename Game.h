@@ -11,6 +11,7 @@ class Game;
 #include "Message.h"
 #include "Order.h"
 #include "PlayerTurn.h"
+#include "Random.h"
 #include "Turn.h"
 #include "Unit.h"
 
@@ -23,8 +24,10 @@ public:
 
 	bool      isHosting() { return hosting; }
 	UDPsocket getSocket() { return socket; }
+	Uint32    getSeed()   { return random->getSeed(); }
 
-	void setPlayerId(Uint8 _playerid);
+	void setPlayerId(Uint8);
+	void setSeed(Uint32);
 
 	void play();                      // Game loop
 	Uint8 addPlayer();                // New player
@@ -41,6 +44,7 @@ private:
 
 	Uint8 playerid; // Who am I?
 	int numplayers; // Players in the game
+	Random *random; // Pseudorandom source
 
 	Uint32 start; // Start of the game
 

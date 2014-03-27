@@ -5,7 +5,7 @@
 
 class JoinResponseMessage : public Message {
 public:
-	JoinResponseMessage(Uint8); // (playerid)
+	JoinResponseMessage(Uint8, Uint32); // (playerid, seed)
 
 	static void handle(Game &, Message &); // Deserialize and execute
 };

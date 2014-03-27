@@ -49,6 +49,7 @@ void JoinMessage::handle(Game &game, Message &message) {
 
 	SDLNet_UDP_Bind(game.getSocket(),0,&message.getAddress());
 
-	game.sendMessage(new JoinResponseMessage(game.addPlayer()));
+	game.sendMessage(new JoinResponseMessage(game.addPlayer(),
+		game.getSeed()));
 }
 

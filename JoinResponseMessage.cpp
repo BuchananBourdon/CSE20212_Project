@@ -1,4 +1,4 @@
-// Join response message format: [playerid:1]
+// Join response message format: [playerid:1][seed:4]
 
 #include <iostream>
 
@@ -7,9 +7,13 @@
 
 using namespace std;
 
-JoinResponseMessage::JoinResponseMessage(Uint8 _playerid)
+JoinResponseMessage::JoinResponseMessage(Uint8 _playerid, Uint32 _seed)
 	: Message(true,MT_JOIN_RESPONSE) {
 	data.push_back(_playerid);
+
+	data.push_back(0); data.push_back(0);
+	data.push_back(0); data.push_back(0);
+	SDLNet_Write32(_seed,&data.back() - 3);
 }
 
 void JoinResponseMessage::handle(Game &game, Message &message) {
@@ -28,5 +32,8 @@ void JoinResponseMessage::handle(Game &game, Message &message) {
 
 		game.setPlayerId(playerid);
 	} else cout << "refused by host at " << message.getAddress() << endl;
+
+	// Store the game seed
+	game.setSeed(SDLNet_Read32(&message.getData()[1]));
 }
 

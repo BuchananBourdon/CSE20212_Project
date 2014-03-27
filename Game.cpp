@@ -1,6 +1,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 
+#include <ctime>
 #include <iostream>
 
 #include "Game.h"
@@ -15,11 +16,13 @@ const int Game::ticksperturn = 200; // For the deterministic simulation
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
 Game::Game(bool _hosting, IPaddress address)
-	: hosting(_hosting), numplayers(1), start(0), turn(NULL) {
+	: hosting(_hosting), numplayers(1), random(NULL), start(0), turn(NULL) {
 	// Prepare the connection
 	Uint16 port = SDLNet_Read16(&address.port);
 	if(hosting) { // Hosting a game
 		setPlayerId(0); // The host is always player 0
+
+		setSeed(time(NULL)); // Always a unique game
 
 		if(socket = SDLNet_UDP_Open(port), !socket) {
 			cerr << "error: cannot open UDP socket on port "
@@ -42,12 +45,24 @@ Game::Game(bool _hosting, IPaddress address)
 
 Game::~Game() {
 	if(socket) SDLNet_UDP_Close(socket);
+	if(random) delete random;
 }
 
 void Game::setPlayerId(Uint8 _playerid) {
 	if(numplayers <= _playerid) numplayers = _playerid + 1;
 
 	playerid = _playerid;
+}
+
+void Game::setSeed(Uint32 seed) {
+	// Only do this once
+	if(random) {
+		cerr << "warning: attempt to overwrite the random number"
+			" generator" << endl;
+		return;
+	}
+
+	random = new Random(seed);
 }
 
 // Main game loop
@@ -64,7 +79,7 @@ void Game::play() {
 
 		executeTurns();
 
-		SDL_Delay(10); // Don't hog the CPU
+		SDL_Delay(100); // Don't hog the CPU
 	}
 }
 
@@ -185,6 +200,7 @@ void Game::executeTurns() {
 		if(numplayers > 1) {
 			cout << "game has at least two players; starting play"
 				<< endl;
+
 			start = SDL_GetTicks();
 		}
 		return;

@@ -4,7 +4,7 @@ CPPFLAGS = -g -Wall -Werror
 
 CPP_FILES = main.cpp Game.cpp IPaddress.cpp JoinMessage.cpp \
 	JoinResponseMessage.cpp Message.cpp MoveUnitOrder.cpp Order.cpp \
-	PlayerTurn.cpp PlayerTurnMessage.cpp Turn.cpp
+	PlayerTurn.cpp PlayerTurnMessage.cpp Random.cpp Turn.cpp
 
 DEPENDS = $(CPP_FILES:.cpp=.d)
 OBJECTS = $(CPP_FILES:.cpp=.o)
