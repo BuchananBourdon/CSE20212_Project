@@ -8,6 +8,7 @@ class Game;
 
 #include <SDL/SDL_net.h>
 
+#include "Map.h"
 #include "Message.h"
 #include "Order.h"
 #include "PlayerTurn.h"
@@ -53,6 +54,8 @@ private:
 	PlayerTurn *turn;            // For this turn
 	std::list<Turn *> turnqueue; // Play these soon
 
+	Map *map; // World to play in
+
 	std::vector<std::vector<Unit *> > units; // For each player
 
 	void handleEvents();   // Process all events
@@ -60,6 +63,7 @@ private:
 	void broadcastTurn();  // Send our current turn
 	void sendMessages();   // Empty out messagequeue
 	void executeTurns();   // Deterministic simulation
+	void draw();           // Update screen
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
 };

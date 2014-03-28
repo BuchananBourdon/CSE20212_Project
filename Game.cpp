@@ -79,6 +79,8 @@ void Game::play() {
 
 		executeTurns();
 
+		draw();
+
 		SDL_Delay(100); // Don't hog the CPU
 	}
 }
@@ -201,6 +203,9 @@ void Game::executeTurns() {
 			cout << "game has at least two players; starting play"
 				<< endl;
 
+			// Generate the map
+			map = new Map(100,100,random);
+
 			start = SDL_GetTicks();
 		}
 		return;
@@ -229,5 +234,16 @@ void Game::executeTurns() {
 
 		turnqueue.pop_front();
 	}
+}
+
+// Put everything on the screen
+void Game::draw() {
+	// Only draw if we've started
+	if(!start) return;
+
+	map->draw();
+
+	// Make sure this shows up on the screen
+	SDL_Flip(SDL_GetVideoSurface());
 }
 
