@@ -204,7 +204,7 @@ void Game::executeTurns() {
 				<< endl;
 
 			// Generate the map
-			map = new Map(100,100,random);
+			map = new Map(65,random);
 
 			start = SDL_GetTicks();
 		}

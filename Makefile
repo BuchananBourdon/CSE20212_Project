@@ -1,6 +1,6 @@
 RM = rm -f
 
-CPPFLAGS = -g -Wall -Werror
+CPPFLAGS = -g -Wall -Werror -Wno-parentheses
 
 CPP_FILES = main.cpp Game.cpp IPaddress.cpp JoinMessage.cpp \
 	JoinResponseMessage.cpp Map.cpp Message.cpp MoveUnitOrder.cpp \
