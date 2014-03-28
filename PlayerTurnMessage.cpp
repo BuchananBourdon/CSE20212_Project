@@ -8,8 +8,8 @@ using namespace std;
 
 PlayerTurnMessage::PlayerTurnMessage(PlayerTurn *turn)
 	: Message(true,MT_PLAYER_TURN) {
-	cerr << "broadcasting a player turn for turn " << turn->getTurnId()
-		<< endl;
+//	cerr << "broadcasting a player turn for turn " << turn->getTurnId()
+//		<< endl;
 
 	// Send the turn ID
 	data.push_back(0); data.push_back(0);
@@ -37,8 +37,8 @@ void PlayerTurnMessage::handle(Game &game, Message &message) {
 
 	PlayerTurn *turn = new PlayerTurn(turnid,playerid);
 
-	cerr << "received a player turn from player " << (int) playerid
-		<< " for turn " << turnid << endl;
+//	cerr << "received a player turn from player " << (int) playerid
+//		<< " for turn " << turnid << endl;
 
 	// Load the orders
 	while(datap && datap < &*message.getData().end())
