@@ -16,6 +16,7 @@ private:
 	static const Uint8 mountainlevel;
 
 	static const int numrivers;
+	static const int riverlength;
 
 	const unsigned int width;
 	const unsigned int height;

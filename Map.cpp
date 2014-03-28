@@ -10,6 +10,7 @@ const Uint8 Map::waterlevel = 0x38;
 const Uint8 Map::mountainlevel = 0x80;
 
 const int Map::numrivers = 100;
+const int Map::riverlength = 100;
 
 Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	if(!size || size - 1 & size - 2)
@@ -154,7 +155,7 @@ void Map::trace_river(Random *r) {
 	// Trace out a river
 	unsigned int x = r->next()%width;
 	unsigned int y = r->next()%height;
-	for(int i = 0; i < 100; i++) {
+	for(int i = 0; i < riverlength; i++) {
 		map[y][x].type = TILE_WATER;
 
 		// Flow in a random direction,
