@@ -5,10 +5,13 @@
 using namespace std;
 
 const Uint8 Map::roughness = 0xFF;
+
 const Uint8 Map::waterlevel = 0x38;
 const Uint8 Map::mountainlevel = 0x80;
 
-Map::Map(unsigned int size, Random *random) : width(size), height(size) {
+const int Map::numrivers = 100;
+
+Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	if(!size || size - 1 & size - 2)
 		cerr << "warning: map generation may not work properly for map"
 			" size != 2^n + 1" << endl;
@@ -25,18 +28,20 @@ Map::Map(unsigned int size, Random *random) : width(size), height(size) {
 	map[height - 1][width - 1].height = 0x00;
 
 	// Use the diamond-square algorithm to perturb the land
-	perturb(0,random);
+	perturb(0,r);
 
 	// Tile type depends on height
 	for(unsigned int y = 0; y < height; y++) {
 		for(unsigned int x = 0; x < width; x++) {
-			if(map[y][x].height < waterlevel)
-				map[y][x].type = TILE_WATER;
-			else if(map[y][x].height < mountainlevel)
+			if(map[y][x].height < mountainlevel)
 				map[y][x].type = TILE_LAND;
 			else map[y][x].type = TILE_MOUNTAIN;
 		}
 	}
+
+	// Add some river obstacles
+	for(int i = 0; i < numrivers; i++)
+		trace_river(r);
 }
 
 void Map::draw() {
@@ -142,5 +147,32 @@ Uint8 Map::diamond_avg(int x, int y, int w, int h, Random *r) {
 	sum += (r->next()&0xFF)*roughness/0xFF;
 
 	return sum*0xFF/(points*0xFF + roughness);
+}
+
+// Trace a out a river on the map
+void Map::trace_river(Random *r) {
+	// Trace out a river
+	unsigned int x = r->next()%width;
+	unsigned int y = r->next()%height;
+	for(int i = 0; i < 100; i++) {
+		map[y][x].type = TILE_WATER;
+
+		// Flow in a random direction,
+		// but not uphill if higher than waterlevel
+		unsigned int newx, newy;
+
+		int dirx = r->next()&0x7;
+		newx = x + (dirx < 3 ? -1 : dirx < 5 ? 0 : 1);
+
+		int diry = r->next()&0x7;
+		newy = y + (diry < 3 ? -1 : diry < 5 ? 0 : 1);
+
+		if(newx >= 0 && newx < width && newy >= 0 && newy < height
+			&& (map[newy][newx].height < waterlevel
+			|| map[newy][newx].height < map[y][x].height)) {
+			x = newx;
+			y = newy;
+		}
+	}
 }
 

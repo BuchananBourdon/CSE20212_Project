@@ -11,8 +11,11 @@ public:
 
 private:
 	static const Uint8 roughness;
+
 	static const Uint8 waterlevel;
 	static const Uint8 mountainlevel;
+
+	static const int numrivers;
 
 	const unsigned int width;
 	const unsigned int height;
@@ -34,6 +37,8 @@ private:
 	void perturb(int, Random *); // For generation
 	Uint8 square_avg(int, int, int, int, Random *);
 	Uint8 diamond_avg(int, int, int, int, Random *);
+
+	void trace_river(Random *); // Add river
 };
 
 #endif
