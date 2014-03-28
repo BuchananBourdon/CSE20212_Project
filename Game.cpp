@@ -16,7 +16,8 @@ const int Game::ticksperturn = 200; // For the deterministic simulation
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
 Game::Game(bool _hosting, IPaddress address)
-	: hosting(_hosting), numplayers(1), random(NULL), start(0), turn(NULL) {
+	: hosting(_hosting), numplayers(1), random(NULL), start(0), turn(NULL),
+		view(0,0,0,0,0) {
 	// Prepare the connection
 	Uint16 port = SDLNet_Read16(&address.port);
 	if(hosting) { // Hosting a game
@@ -135,6 +136,41 @@ void Game::handleEvents() {
 				turn->addOrder(new MoveUnitOrder(0,
 					rand() & 0xFFFF,rand() & 0xFFFF));
 
+			// Scrolling around the map
+			if(event.key.keysym.sym == SDLK_UP && view.y > 0)
+				view.y--;
+			else if(event.key.keysym.sym == SDLK_DOWN
+				&& view.y < map->getHeight() - 2)
+				view.y++;
+			else if(event.key.keysym.sym == SDLK_LEFT
+				&& view.x > 0)
+				view.x--;
+			else if(event.key.keysym.sym == SDLK_RIGHT
+				&& view.x < map->getWidth() - 2)
+				view.x++;
+			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+			// Zoom in and out
+			if(event.button.button == SDL_BUTTON_WHEELUP) {
+				SDL_Surface *surface = SDL_GetVideoSurface();
+
+				if(view.zoom < 100) view.zoom++;
+				view.w = (surface->w + view.zoom - 1)
+					/view.zoom;
+				view.h = (surface->h + view.zoom - 1)
+					/view.zoom;
+			}
+
+			if(event.button.button == SDL_BUTTON_WHEELDOWN) {
+				SDL_Surface *surface = SDL_GetVideoSurface();
+
+				if(view.zoom > 1) view.zoom--;
+				view.w = (surface->w + view.zoom - 1)
+					/view.zoom;
+				view.h = (surface->h + view.zoom - 1)
+					/view.zoom;
+			}
 			break;
 		}
 	}
@@ -206,6 +242,11 @@ void Game::executeTurns() {
 			// Generate the map
 			map = new Map(65,random);
 
+			// Prepare the view
+			SDL_Surface *surface = SDL_GetVideoSurface();
+			view = View(0,0,(surface->w + 15)/16,
+				(surface->h + 15)/16,16);
+
 			start = SDL_GetTicks();
 		}
 		return;
@@ -238,10 +279,15 @@ void Game::executeTurns() {
 
 // Put everything on the screen
 void Game::draw() {
-	// Only draw if we've started
+	// Only draw if we've started the game
 	if(!start) return;
 
-	map->draw();
+	// Clear the screen for consistency
+	SDL_Surface *surface = SDL_GetVideoSurface();
+	SDL_Rect rect = {0, 0, (Uint16) surface->w, (Uint16) surface->h};
+	SDL_FillRect(surface,&rect,SDL_MapRGB(surface->format,0,0,0));
+
+	map->draw(view);
 
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());

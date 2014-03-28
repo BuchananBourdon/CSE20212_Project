@@ -2,12 +2,17 @@
 #define MAP_H
 
 #include "Random.h"
+#include "View.h"
 
 class Map {
 public:
 	Map(unsigned int, Random *);
+	~Map();
 
-	void draw();
+	unsigned int getWidth()  { return width;  }
+	unsigned int getHeight() { return height; }
+
+	void draw(const View &);
 
 private:
 	static const Uint8 roughness;

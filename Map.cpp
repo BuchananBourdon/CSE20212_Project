@@ -45,12 +45,22 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 		trace_river(r);
 }
 
-void Map::draw() {
+Map::~Map() {
+	for(unsigned int y = 0; y < height; y++)
+		delete[] map[y];
+	delete[] map;
+}
+
+void Map::draw(const View &view) {
 	SDL_Surface *surface = SDL_GetVideoSurface();
 
-	for(unsigned int y = 0; y < height; y++) {
-		for(unsigned int x = 0; x < width; x++) {
-			SDL_Rect rect = {(Sint16) (4*x), (Sint16) (4*y), 4, 4};
+	for(unsigned int y = view.y; y < height && y < view.y + view.h; y++) {
+		for(unsigned int x = view.x;
+			x < width && x < view.x + view.w; x++) {
+			SDL_Rect rect;
+			rect.x = (x - view.x)*view.zoom;
+			rect.y = (y - view.y)*view.zoom;
+			rect.w = rect.h = view.zoom;
 
 			Uint32 color;
 			switch(map[y][x].type) {

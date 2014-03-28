@@ -15,6 +15,7 @@ class Game;
 #include "Random.h"
 #include "Turn.h"
 #include "Unit.h"
+#include "View.h"
 
 class Game {
 	friend class Message;
@@ -54,7 +55,8 @@ private:
 	PlayerTurn *turn;            // For this turn
 	std::list<Turn *> turnqueue; // Play these soon
 
-	Map *map; // World to play in
+	Map *map;  // World to play in
+	View view; // What we can see
 
 	std::vector<std::vector<Unit *> > units; // For each player
 
