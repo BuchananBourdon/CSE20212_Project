@@ -12,7 +12,10 @@ public:
 	Uint32 next();
 
 private:
+	static const Uint32 a, c, m;
+
 	const Uint32 seed;
+
 	Uint32 state;
 };
 
