@@ -9,7 +9,7 @@ CPP_FILES = main.cpp Game.cpp IPaddress.cpp JoinMessage.cpp \
 DEPENDS = $(CPP_FILES:.cpp=.d)
 OBJECTS = $(CPP_FILES:.cpp=.o)
 
-LIBS = -lSDL -lSDL_net
+LIBS = -lSDL -lSDL_net -lSDL_gfx
 
 all: main
 
