@@ -48,6 +48,14 @@ private:
 	int numplayers; // Players in the game
 	Random *random; // Pseudorandom source
 
+	int xdown;	// Stores x location on screen on left click
+	int ydown; 	// Stores y location on screen on left click
+	int xup;   	// Stores x location on screen on left click release
+	int yup;   	// Stores y location on screen on left click release
+	int moved;  	// Toggles depending on whether the cursor is moving
+	int mousex; 	// Stores x location of cursor on screen
+	int mousey;	// Stores y location of cursor on screen
+
 	Uint32 start; // Start of the game
 
 	std::queue<Message *> messagequeue; // Send these soon
