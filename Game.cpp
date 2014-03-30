@@ -1,5 +1,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
+#include "SDL/SDL_gfxPrimitives.h"
 
 #include <ctime>
 #include <iostream>
@@ -16,7 +17,8 @@ const int Game::ticksperturn = 200; // For the deterministic simulation
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
 Game::Game(bool _hosting, IPaddress address)
-	: hosting(_hosting), numplayers(1), random(NULL), start(0), turn(NULL),
+	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0), xup(0),
+		yup(0), moved(0), mousex(0), mousey(0), start(0), turn(NULL),
 		view(0,0,0,0,0) {
 	// Prepare the connection
 	Uint16 port = SDLNet_Read16(&address.port);
@@ -81,6 +83,7 @@ void Game::play() {
 		executeTurns();
 
 		draw();
+		
 
 		SDL_Delay(100); // Don't hog the CPU
 	}
@@ -171,9 +174,31 @@ void Game::handleEvents() {
 				view.h = (surface->h + view.zoom - 1)
 					/view.zoom;
 			}
+			//store the click locations and toggle moved to 1, drawing the selection square
+			if(event.button.button == SDL_BUTTON_LEFT ) {
+                        	xdown = event.button.x;         
+                        	ydown = event.button.y;
+                        	moved = 1;
+                	}
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			// Toggle moved to 0, to stop drawing the selection box
+			if(event.button.button == SDL_BUTTON_LEFT) {
+                        	moved = 0;
+                	}
+			break;
+	
+		case SDL_MOUSEMOTION:
+			// Keep track of mouse location
+			mousex = event.motion.x;
+                	mousey = event.motion.y;
+			
 			break;
 		}
+	
 	}
+
 }
 
 // Process anything we receive on the network
@@ -288,6 +313,11 @@ void Game::draw() {
 	SDL_FillRect(surface,&rect,SDL_MapRGB(surface->format,0,0,0));
 
 	map->draw(view);
+	
+	//Draw the selection box if the left mouse button is down
+	if(moved==1){
+                boxRGBA(surface,xdown,ydown,mousex,mousey,60,60,255,170);
+        }
 
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());
