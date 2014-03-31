@@ -56,7 +56,8 @@ private:
 	int mousex; 	// Stores x location of cursor on screen
 	int mousey;	// Stores y location of cursor on screen
 
-	Uint32 start; // Start of the game
+	Uint32 start;     // Start of the game
+	Uint32 lastframe; // For FPS-limiting
 
 	std::queue<Message *> messagequeue; // Send these soon
 
