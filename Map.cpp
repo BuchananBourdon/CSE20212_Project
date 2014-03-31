@@ -9,8 +9,8 @@ const Uint8 Map::roughness = 0xFF;
 const Uint8 Map::waterlevel = 0x38;
 const Uint8 Map::mountainlevel = 0x80;
 
-const int Map::numrivers = 100;
-const int Map::riverlength = 100;
+const int Map::numrivers = 20;
+const int Map::riverlength = 20;
 
 Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	if(!size || size - 1 & size - 2)
@@ -43,6 +43,7 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	// Add some river obstacles
 	for(int i = 0; i < numrivers; i++)
 		trace_river(r);
+cerr << "done with map generation at time " << time(NULL) << endl;
 }
 
 Map::~Map() {
