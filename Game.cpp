@@ -312,7 +312,7 @@ void Game::executeTurns() {
 		if(turnid > turn->getTurnId() + turndelay)
 			cerr << "warning: executing turn " << turn->getTurnId()
 				<< " " << (SDL_GetTicks() - (start
-				+ (turn->getTurnId() + turndelay)
+				+ (turn->getTurnId() + turndelay + 1)
  				*ticksperturn)) << " ms late" << endl;
 
 		// All systems are go
