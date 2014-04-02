@@ -57,6 +57,7 @@ private:
 	int mousey;	// Stores y location of cursor on screen
 
 	Uint32 start; // Start of the game
+	Uint32 lastframe; //For FPS-limiting
 
 	std::queue<Message *> messagequeue; // Send these soon
 
@@ -78,7 +79,6 @@ private:
 	void executeTurns();   // Deterministic simulation
 	void draw();           // Update screen
 	void updateView();     // Update the current view with view velocities 	
-
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
 };

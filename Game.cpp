@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const int Game::ticksperturn = 200; // For the deterministic simulation
+const int Game::ticksperturn = 400; // For the deterministic simulation
 
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
@@ -86,6 +86,10 @@ void Game::play() {
 
 		draw();
 		
+		// Max out at 60 fps
+		if(SDL_GetTicks() - lastframe < 16)
+			SDL_Delay(16-(SDL_GetTicks() - lastframe));
+		lastframe = SDL_GetTicks();
 
 		SDL_Delay(100); // Don't hog the CPU
 	}
@@ -304,6 +308,12 @@ void Game::executeTurns() {
 				<< turn->getTurnId() << endl;
 			break;
 		}
+		
+		if(turnid > turn->getTurnId() + turndelay)
+			cerr << "warning: executing turn " << turn->getTurnId()
+				<< " " << (SDL_GetTicks() - (start
+				+ (turn->getTurnId() + turndelay)
+ 				*ticksperturn)) << " ms late" << endl;
 
 		// All systems are go
 		turn->execute(*this);
