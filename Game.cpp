@@ -2,6 +2,7 @@
 #include <SDL/SDL_net.h>
 #include "SDL/SDL_gfxPrimitives.h"
 
+#include <csignal>
 #include <ctime>
 #include <iostream>
 
@@ -301,11 +302,12 @@ void Game::executeTurns() {
 	// Execute as many turns as we can
 	Turn *turn;
 	while(turn = turnqueue.front(),
-		turn && turnid >= turn->getTurnId() + turndelay) {
+		turnqueue.size() && turnid >= turn->getTurnId() + turndelay) {
 		// Go no further if we're missing data from someone
 		if(turn->getPlayerCount() < numplayers) {
 			cerr << "warning: possible dropped packet(s) for turn "
 				<< turn->getTurnId() << endl;
+			if(turn->getTurnId() == 65) raise(SIGINT);
 			break;
 		}
 		
