@@ -2,7 +2,6 @@
 #include <SDL/SDL_net.h>
 #include "SDL/SDL_gfxPrimitives.h"
 
-#include <csignal>
 #include <ctime>
 #include <iostream>
 
@@ -307,7 +306,6 @@ void Game::executeTurns() {
 		if(turn->getPlayerCount() < numplayers) {
 			cerr << "warning: possible dropped packet(s) for turn "
 				<< turn->getTurnId() << endl;
-			if(turn->getTurnId() == 65) raise(SIGINT);
 			break;
 		}
 		
