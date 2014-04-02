@@ -43,7 +43,7 @@ private:
 	bool hosting;     // Acting as host?
 	UDPsocket socket; // Network connection
 	bool playing;     // Stay in the game?
-
+				
 	Uint8 playerid; // Who am I?
 	int numplayers; // Players in the game
 	Random *random; // Pseudorandom source
@@ -56,8 +56,7 @@ private:
 	int mousex; 	// Stores x location of cursor on screen
 	int mousey;	// Stores y location of cursor on screen
 
-	Uint32 start;     // Start of the game
-	Uint32 lastframe; // For FPS-limiting
+	Uint32 start; // Start of the game
 
 	std::queue<Message *> messagequeue; // Send these soon
 
@@ -66,15 +65,20 @@ private:
 
 	Map *map;  // World to play in
 	View view; // What we can see
-
+		
 	std::vector<std::vector<Unit *> > units; // For each player
 
+ 	int viewVelocity_x;	// x velocity for how fast the view is panning
+        int viewVelocity_y;	// y velocity for how fast the view is panning
+	
 	void handleEvents();   // Process all events
 	void handleMessages(); // Process all messages
 	void broadcastTurn();  // Send our current turn
 	void sendMessages();   // Empty out messagequeue
 	void executeTurns();   // Deterministic simulation
 	void draw();           // Update screen
+	void updateView();     // Update the current view with view velocities 	
+
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
 };

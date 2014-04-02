@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const int Game::ticksperturn = 400; // For the deterministic simulation
+const int Game::ticksperturn = 200; // For the deterministic simulation
 
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
@@ -44,6 +44,8 @@ Game::Game(bool _hosting, IPaddress address)
 
 		sendMessage(new JoinMessage());
 	}
+	viewVelocity_x = 0;
+	viewVelocity_y = 0;
 }
 
 Game::~Game() {
@@ -84,10 +86,8 @@ void Game::play() {
 
 		draw();
 		
-		// Max out at 60 fps
-		if(SDL_GetTicks() - lastframe < 16)
-			SDL_Delay(16 - (SDL_GetTicks() - lastframe));
-		lastframe = SDL_GetTicks();
+
+		SDL_Delay(100); // Don't hog the CPU
 	}
 }
 
@@ -140,19 +140,28 @@ void Game::handleEvents() {
 			if(event.key.keysym.sym == SDLK_m)
 				turn->addOrder(new MoveUnitOrder(0,
 					rand() & 0xFFFF,rand() & 0xFFFF));
-
 			// Scrolling around the map
-			if(event.key.keysym.sym == SDLK_UP && view.y > 0)
-				view.y--;
-			else if(event.key.keysym.sym == SDLK_DOWN
-				&& view.y < map->getHeight() - 2)
-				view.y++;
-			else if(event.key.keysym.sym == SDLK_LEFT
-				&& view.x > 0)
-				view.x--;
-			else if(event.key.keysym.sym == SDLK_RIGHT
-				&& view.x < map->getWidth() - 2)
-				view.x++;
+			if(event.key.keysym.sym == SDLK_UP)
+				viewVelocity_y += -1;
+			if(event.key.keysym.sym == SDLK_DOWN)
+				viewVelocity_y += 1;
+			if (event.key.keysym.sym == SDLK_LEFT)
+				viewVelocity_x += -1;
+			if(event.key.keysym.sym == SDLK_RIGHT)
+				viewVelocity_x += 1;
+			break;
+
+		case SDL_KEYUP:
+			//For continuous scrolling around the map
+			//View wont change when you release keys
+			if(event.key.keysym.sym == SDLK_UP)
+                                viewVelocity_y = 0;
+                        if(event.key.keysym.sym == SDLK_DOWN)
+                                viewVelocity_y = 0;
+                        if (event.key.keysym.sym == SDLK_LEFT)
+                                viewVelocity_x = 0;
+                        if(event.key.keysym.sym == SDLK_RIGHT)
+                                viewVelocity_x = 0;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -195,7 +204,6 @@ void Game::handleEvents() {
 			// Keep track of mouse location
 			mousex = event.motion.x;
                 	mousey = event.motion.y;
-			
 			break;
 		}
 	
@@ -297,17 +305,30 @@ void Game::executeTurns() {
 			break;
 		}
 
-		if(turnid > turn->getTurnId() + turndelay)
-			cerr << "warning: executing turn " << turn->getTurnId()
-				<< " " << (SDL_GetTicks() - (start
-				+ (turn->getTurnId() + turndelay)
-				*ticksperturn)) << " ms late" << endl;
-
 		// All systems are go
 		turn->execute(*this);
 
 		turnqueue.pop_front();
 	}
+}
+
+//Change the view if not at the extents 
+void Game::updateView() {
+	//x velocity can only be applied if view is within reasonable range
+	if(viewVelocity_x < 0) {
+		if(view.x > 0) view.x += viewVelocity_x;
+	}
+	else if(viewVelocity_x > 0){
+		if(view.x < map->getWidth() - 2) view.x += viewVelocity_x;
+	}
+	//y velocity can only be applied if view is within reasonable range
+	if(viewVelocity_y < 0){
+		if(view.y > 0) view.y += viewVelocity_y;
+	}
+	else if(viewVelocity_y > 0){
+		if(view.y < map->getHeight() - 2) view.y += viewVelocity_y;
+	}
+
 }
 
 // Put everything on the screen
@@ -320,13 +341,14 @@ void Game::draw() {
 	SDL_Rect rect = {0, 0, (Uint16) surface->w, (Uint16) surface->h};
 	SDL_FillRect(surface,&rect,SDL_MapRGB(surface->format,0,0,0));
 
+	//Update the view before the map is drawn
+	updateView();
+	
 	map->draw(view);
 	
 	//Draw the selection box if the left mouse button is down
-	if(moved==1){
-                boxRGBA(surface,xdown,ydown,mousex,mousey,60,60,255,170);
-        }
-
+	if(moved==1) boxRGBA(surface,xdown,ydown,mousex,mousey,60,60,255,170);
+     
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());
 }
