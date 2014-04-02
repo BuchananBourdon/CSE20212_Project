@@ -20,7 +20,7 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	// Allocate the map
 	map = new struct map_tile *[height];
 	for(unsigned int y = 0; y < height; y++)
-		map[y] = new struct map_tile[width];
+		map[y] = new struct map_tile[width]();
 
 	// Set up the corners consistently
 	map[         0][        0].height = 0x00;

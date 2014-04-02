@@ -46,6 +46,8 @@ Game::Game(bool _hosting, IPaddress address)
 	}
 	viewVelocity_x = 0;
 	viewVelocity_y = 0;
+
+	lastframe = 0;
 }
 
 Game::~Game() {
