@@ -92,8 +92,6 @@ void Game::play() {
 		if(SDL_GetTicks() - lastframe < 16)
 			SDL_Delay(16-(SDL_GetTicks() - lastframe));
 		lastframe = SDL_GetTicks();
-
-		SDL_Delay(100); // Don't hog the CPU
 	}
 }
 
