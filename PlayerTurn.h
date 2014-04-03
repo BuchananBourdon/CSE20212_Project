@@ -19,6 +19,8 @@ public:
 	Uint8                      getPlayerId() { return playerid; }
 	const std::vector<Order *> getOrders()   { return orders; }
 
+	bool operator<(PlayerTurn &);
+
 	void addOrder(Order *);
 	void execute(Game &);
 
