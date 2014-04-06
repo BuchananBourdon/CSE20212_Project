@@ -31,10 +31,12 @@ public:
 	void setPlayerId(Uint8);
 	void setSeed(Uint32);
 
-	void play();                      // Game loop
+	void play(); // Game loop
+
 	Uint8 addPlayer();                // New player
 	void addPlayerTurn(PlayerTurn *); // Add to queue
 	void sendMessage(Message *);      // Add to queue
+	void addUnit(Uint8, Unit *);	  // New unit
 
 private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms

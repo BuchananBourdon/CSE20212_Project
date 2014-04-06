@@ -5,6 +5,11 @@ PlayerTurn::~PlayerTurn() {
 		if(orders[i]) delete orders[i];
 }
 
+// Returns true if this takes precedence over that
+bool PlayerTurn::operator<(PlayerTurn &that) {
+	return playerid < that.getPlayerId();
+}
+
 void PlayerTurn::addOrder(Order *order) {
 	orders.push_back(order);
 }

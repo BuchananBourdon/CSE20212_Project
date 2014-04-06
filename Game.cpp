@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iostream>
 
+#include "CreateUnitOrder.h"
 #include "Game.h"
 #include "JoinMessage.h"
 #include "MoveUnitOrder.h"
@@ -56,7 +57,10 @@ Game::~Game() {
 }
 
 void Game::setPlayerId(Uint8 _playerid) {
-	if(numplayers <= _playerid) numplayers = _playerid + 1;
+	if(numplayers <= _playerid) {
+		numplayers = _playerid + 1;
+		units.resize(numplayers);
+	}
 
 	playerid = _playerid;
 }
@@ -97,7 +101,11 @@ void Game::play() {
 
 // Add another player to the game
 Uint8 Game::addPlayer() {
-	return numplayers++;
+	Uint8 id = numplayers++;
+
+	units.resize(numplayers);
+
+	return id;
 }
 
 // Add a player's turn to the queue
@@ -128,6 +136,10 @@ void Game::sendMessage(Message *message) {
 	messagequeue.push(message);
 }
 
+void Game::addUnit(Uint8 playerid, Unit *unit) {
+	units[playerid].push_back(unit);
+}
+
 // Process whatever SDL throws at us
 void Game::handleEvents() {
 	SDL_PumpEvents();
@@ -144,6 +156,12 @@ void Game::handleEvents() {
 			if(event.key.keysym.sym == SDLK_m)
 				turn->addOrder(new MoveUnitOrder(0,
 					rand() & 0xFFFF,rand() & 0xFFFF));
+
+			// Just for testing the CreateUnitOrder class
+			if(event.key.keysym.sym == SDLK_c)
+				turn->addOrder(new CreateUnitOrder(0,
+					rand()%map->getWidth(),rand()%map->getWidth()));
+
 			// Scrolling around the map
 			if(event.key.keysym.sym == SDLK_UP)
 				viewVelocity_y += -1;
@@ -351,12 +369,19 @@ void Game::draw() {
 	SDL_Rect rect = {0, 0, (Uint16) surface->w, (Uint16) surface->h};
 	SDL_FillRect(surface,&rect,SDL_MapRGB(surface->format,0,0,0));
 
-	//Update the view before the map is drawn
+	// Update the view before the map is drawn
 	updateView();
 	
+	// Draw the background
 	map->draw(view);
+
+	// Draw all the units
+	for(unsigned int i = 0; i < units.size(); i++)
+		for(unsigned int j = 0; j < units[i].size(); j++)
+			if(units[i][j]->inView(view))
+				units[i][j]->draw(view);
 	
-	//Draw the selection box if the left mouse button is down
+	// Draw the selection box if the left mouse button is down
 	if(moved==1) boxRGBA(surface,xdown,ydown,mousex,mousey,60,60,255,170);
      
 	// Make sure this shows up on the screen
