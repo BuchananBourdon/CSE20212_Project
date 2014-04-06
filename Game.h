@@ -33,6 +33,7 @@ public:
 	void setSeed(Uint32);
 
 	void play(); // Game loop
+	void exit(); // Stop loop
 
 	Uint8 addPlayer();                // New player
 	void addPlayerTurn(PlayerTurn *); // Add to queue

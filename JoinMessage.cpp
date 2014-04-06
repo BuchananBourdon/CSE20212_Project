@@ -39,7 +39,7 @@ void JoinMessage::handle(Game &game, Message &message) {
 	Uint8 remoteversion = *datap++;
 	if(remoteversion != version) {
 		cerr << "warning: received join request from incompatible"
-			" version " << remoteversion << " (current version is "
+			" version " << remoteversion << " (local version is "
 			<< version << ")" << endl;
 		return;
 	}

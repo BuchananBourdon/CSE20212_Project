@@ -8,6 +8,7 @@
 
 #include "CreateUnitOrder.h"
 #include "Game.h"
+#include "HangupMessage.h"
 #include "JoinMessage.h"
 #include "MoveUnitOrder.h"
 #include "PlayerTurnMessage.h"
@@ -100,6 +101,13 @@ void Game::play() {
 	}
 }
 
+// Stop the main game loop
+void Game::exit() {
+	cout << "exiting main game loop" << endl;
+
+	playing = false;
+}
+
 // Add another player to the game
 Uint8 Game::addPlayer() {
 	Uint8 id = numplayers++;
@@ -150,8 +158,10 @@ void Game::handleEvents() {
 		switch(event.type) {
 		case SDL_KEYDOWN:
 			// Quick-exit key
-			if(event.key.keysym.sym == SDLK_DELETE)
-				playing = false;
+			if(event.key.keysym.sym == SDLK_DELETE) {
+				sendMessage(new HangupMessage());
+				exit();
+			}
 
 			// Just for testing the MoveUnitOrder class
 			if(event.key.keysym.sym == SDLK_m)

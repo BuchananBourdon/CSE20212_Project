@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
+#include "HangupMessage.h"
 #include "JoinMessage.h"
 #include "JoinResponseMessage.h"
 #include "Message.h"
@@ -89,6 +90,7 @@ void Message::handle(Game &game) {
 
 	// Delegate the body based on its type
 	switch(type) {
+	case MT_HANGUP:        HangupMessage::handle(game,*this);       break;
 	case MT_JOIN:          JoinMessage::handle(game,*this);         break;
 	case MT_JOIN_RESPONSE: JoinResponseMessage::handle(game,*this); break;
 	case MT_PLAYER_TURN:   PlayerTurnMessage::handle(game,*this);   break;
