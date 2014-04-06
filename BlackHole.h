@@ -9,7 +9,8 @@ public:
 
 	int getType() { return UT_BLACK_HOLE; }
 
-	void draw(View &);
+private:
+	void drawUnit(View &);
 };
 
 #endif

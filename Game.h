@@ -5,6 +5,7 @@ class Game;
 
 #include <list>
 #include <queue>
+#include <set>
 
 #include <SDL/SDL_net.h>
 
@@ -58,8 +59,8 @@ private:
 	int mousex; 	// Stores x location of cursor on screen
 	int mousey;	// Stores y location of cursor on screen
 
-	Uint32 start; // Start of the game
-	Uint32 lastframe; //For FPS-limiting
+	Uint32 start;     // Start of the game
+	Uint32 lastframe; // For FPS-limiting
 
 	std::queue<Message *> messagequeue; // Send these soon
 
@@ -70,6 +71,7 @@ private:
 	View view; // What we can see
 		
 	std::vector<std::vector<Unit *> > units; // For each player
+	std::set<Unit *> selected;               // Currently active
 
  	int viewVelocity_x;	// x velocity for how fast the view is panning
         int viewVelocity_y;	// y velocity for how fast the view is panning
@@ -79,8 +81,10 @@ private:
 	void broadcastTurn();  // Send our current turn
 	void sendMessages();   // Empty out messagequeue
 	void executeTurns();   // Deterministic simulation
+	void updateView();     // Move view
 	void draw();           // Update screen
-	void updateView();     // Update the current view with view velocities 	
+
+	void selectUnits(bool, int, int, int, int); // Within bounds
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
 };

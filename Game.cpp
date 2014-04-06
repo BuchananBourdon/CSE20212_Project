@@ -2,6 +2,7 @@
 #include <SDL/SDL_net.h>
 #include "SDL/SDL_gfxPrimitives.h"
 
+#include <algorithm>
 #include <ctime>
 #include <iostream>
 
@@ -216,9 +217,13 @@ void Game::handleEvents() {
 			break;
 
 		case SDL_MOUSEBUTTONUP:
-			// Toggle moved to 0, to stop drawing the selection box
 			if(event.button.button == SDL_BUTTON_LEFT) {
+				// Stop drawing the selection box
                         	moved = 0;
+
+				// Select all (owned) units in selection box
+				selectUnits(SDL_GetModState()&KMOD_SHIFT,xdown,
+					ydown,event.button.x,event.button.y);
                 	}
 			break;
 	
@@ -380,11 +385,34 @@ void Game::draw() {
 		for(unsigned int j = 0; j < units[i].size(); j++)
 			if(units[i][j]->inView(view))
 				units[i][j]->draw(view);
+
+	for(set<Unit *>::iterator iter = selected.begin();
+		iter != selected.end(); iter++)
+		(*iter)->drawSelected(view);
 	
 	// Draw the selection box if the left mouse button is down
 	if(moved==1) boxRGBA(surface,xdown,ydown,mousex,mousey,60,60,255,170);
      
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());
+}
+
+// Select the units in the onscreen rectangle
+void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
+	// Ensure (x1, y1) is the upper left
+	if(x1 > x2) swap(x1,x2);
+	if(y1 > y2) swap(y1,y2);
+
+	View selection(view.x + x1/view.zoom,view.y + y1/view.zoom,
+		x2/view.zoom - x1/view.zoom + 1,
+		y2/view.zoom - y1/view.zoom + 1,view.zoom);
+
+	// Deselect previous selection?
+	if(!add) selected.clear();
+
+	// Add new selection
+	for(unsigned int i = 0; i < units[playerid].size(); i++)
+		if(units[playerid][i]->inView(selection))
+			selected.insert(units[playerid][i]);
 }
 
