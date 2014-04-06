@@ -21,6 +21,7 @@ public:
 
 protected:
 	enum order_type {
+		OT_CREATE_UNIT,
 		OT_MOVE_UNIT
 	};
 

@@ -15,8 +15,8 @@ public:
 	void serialize(std::vector<Uint8> &);
 
 private:
-	const int unitid; // What
-	const int x, y; // Where to?
+	const int unitid; // What?
+	const int x, y;   // Where to?
 };
 
 #endif
