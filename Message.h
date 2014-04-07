@@ -27,6 +27,7 @@ protected:
 	static const Uint8 version;  // Compatibility check
 
 	enum message_type {
+		MT_HANGUP,
 		MT_JOIN,
 		MT_JOIN_RESPONSE,
 		MT_PLAYER_TURN,

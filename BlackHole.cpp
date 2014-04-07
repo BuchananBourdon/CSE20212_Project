@@ -2,7 +2,7 @@
 
 #include "BlackHole.h"
 
-void BlackHole::draw(View &view) {
+void BlackHole::drawUnit(View &view) {
 	SDL_Surface *surface = SDL_GetVideoSurface();
 
 	SDL_Rect rect;

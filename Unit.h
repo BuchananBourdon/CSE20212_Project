@@ -13,13 +13,16 @@ public:
 
 	bool inView(View &);
 
-	virtual void draw(View &) = 0;
+	void draw(View &);
+	void drawSelected(View &);
 
 	enum unit_type {
 		UT_BLACK_HOLE
 	};
 
 protected:
+	virtual void drawUnit(View &) = 0; // Per-subclass
+
 	const int id; // Which am I?
 
 	unsigned int x, y;       // Where am I?
