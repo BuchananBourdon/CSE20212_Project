@@ -4,6 +4,7 @@
 
 #include "BlackHole.h"
 #include "CreateUnitOrder.h"
+#include "Bunny.h"
 
 using namespace std;
 
@@ -27,7 +28,11 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 	case Unit::UT_BLACK_HOLE:
 		game.addUnit(playerid,new BlackHole(x,y));
 		break;
-
+	
+	case Unit::UT_BUNNY:
+		game.addUnit(playerid,new Bunny(x,y));
+		break;
+	
 	default:
 		cerr << "warning: order to create unknown unit type "
 			<< unittype << endl;
