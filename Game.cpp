@@ -99,6 +99,7 @@ void Game::play() {
 			SDL_Delay(16-(SDL_GetTicks() - lastframe));
 		lastframe = SDL_GetTicks();
 	}
+	cleanUp();
 }
 
 // Stop the main game loop
@@ -172,6 +173,11 @@ void Game::handleEvents() {
 			if(event.key.keysym.sym == SDLK_c)
 				turn->addOrder(new CreateUnitOrder(0,
 					rand()%map->getWidth(),rand()%map->getWidth()));
+			
+			// For testing the creation of bunnies
+			if(event.key.keysym.sym == SDLK_b)
+				turn->addOrder(new CreateUnitOrder(1,
+                                        rand()%map->getWidth(),rand()%map->getWidth()));
 
 			// Scrolling around the map
 			if(event.key.keysym.sym == SDLK_UP)
@@ -426,3 +432,12 @@ void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 			selected.insert(units[playerid][i]);
 }
 
+// Frees memory, used when game ends
+void Game::cleanUp() {
+	SDL_FreeSurface(SDL_GetVideoSurface() );
+
+	//Frees the objects allocated in memory
+	for(unsigned int i = 0; i<units.size(); i++)
+		for(unsigned int j = 0; j< units[i].size(); j++) 
+			delete units[i][j];		
+}
