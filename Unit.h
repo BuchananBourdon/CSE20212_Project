@@ -17,7 +17,8 @@ public:
 	void drawSelected(View &);
 
 	enum unit_type {
-		UT_BLACK_HOLE
+		UT_BLACK_HOLE,
+		UT_BUNNY
 	};
 
 protected:
