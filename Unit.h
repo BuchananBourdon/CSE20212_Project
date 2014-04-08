@@ -32,6 +32,11 @@ protected:
 	const unsigned int maxhp;
 	unsigned int hp;
 
+	static const int LEFT;
+        static const int RIGHT;
+        static const int UP;
+        static const int DOWN;
+
 private:
 	static int unitcount; // For unique IDs
 };

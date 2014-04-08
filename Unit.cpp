@@ -4,6 +4,11 @@
 
 int Unit::unitcount = 0;
 
+const int Unit::RIGHT = 0;
+const int Unit::LEFT = 1;
+const int Unit::UP = 2;
+const int Unit::DOWN = 3;
+
 bool Unit::inView(View &view) {
 	return x + w > view.x && x < view.x + view.w
 		&& y + h > view.y && y < view.y + view.h;
