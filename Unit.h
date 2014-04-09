@@ -3,6 +3,7 @@
 
 #include <SDL/SDL.h>
 
+#include "Map.h"
 #include "View.h"
 
 class Unit {
@@ -21,7 +22,7 @@ public:
 
 	void move(Uint16, Uint16);
 
-	void update();
+	void update(Map &);
 
 	enum unit_type {
 		UT_BLACK_HOLE,

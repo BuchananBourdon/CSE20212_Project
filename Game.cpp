@@ -377,12 +377,12 @@ void Game::updateSimulation() {
 		turn->execute(*this);
 
 		turnqueue.pop_front();
-	}
 
-	// Update each unit
-	for(unsigned int i = 0; i < units.size(); i++)
-		for(unsigned int j = 0; j < units[i].size(); j++)
-			units[i][j]->update();
+		// Update each unit
+		for(unsigned int i = 0; i < units.size(); i++)
+			for(unsigned int j = 0; j < units[i].size(); j++)
+				units[i][j]->update(*map);
+	}
 }
 
 //Change the view if not at the extents 

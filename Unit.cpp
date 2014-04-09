@@ -35,7 +35,7 @@ void Unit::move(Uint16 x, Uint16 y) {
 }
 
 // Deterministically update the unit according to whatever its current goal is
-void Unit::update() {
+void Unit::update(Map &map) {
 	int dx = target.x - x;
 	int dy = target.y - y;
 
@@ -48,5 +48,11 @@ void Unit::update() {
 		if(pow(1 + fabs(dy)/fabs(dx),2) > 2)
 			y += dy > 0 ? 1 : -1;
 	}
+
+	// Don't go off the edge of the map
+	Uint16 maxx = map.getWidth() - w;
+	Uint16 maxy = map.getHeight() - h;
+	if(x > maxx) x = maxx;
+	if(y > maxy) y = maxy;
 }
 
