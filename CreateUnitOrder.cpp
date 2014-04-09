@@ -21,8 +21,8 @@ Order *CreateUnitOrder::deserialize(Uint8 *&data) {
 }
 
 void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
-	cerr << "creating a unit of type " << (int) unittype << " at (" << x
-		<< ", " << y << ")" << endl;
+//	cerr << "creating a unit of type " << (int) unittype << " at (" << x
+//		<< ", " << y << ")" << endl;
 
 	switch(unittype) {
 	case Unit::UT_BLACK_HOLE:
