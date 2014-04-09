@@ -88,8 +88,6 @@ private:
 	void selectUnits(bool, int, int, int, int); // Within bounds
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
-
-	void cleanUp(); // Free surfaces and units
 };
 
 #endif

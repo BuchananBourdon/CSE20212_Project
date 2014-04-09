@@ -55,7 +55,14 @@ Game::Game(bool _hosting, IPaddress address)
 
 Game::~Game() {
 	if(socket) SDLNet_UDP_Close(socket);
+
 	if(random) delete random;
+
+	SDL_FreeSurface(SDL_GetVideoSurface());
+
+	for(unsigned int i = 0; i < units.size(); i++)
+		for(unsigned int j = 0; j < units[i].size(); j++)
+			delete units[i][j];
 }
 
 void Game::setPlayerId(Uint8 _playerid) {
@@ -432,12 +439,3 @@ void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 			selected.insert(units[playerid][i]);
 }
 
-// Frees memory, used when game ends
-void Game::cleanUp() {
-	SDL_FreeSurface(SDL_GetVideoSurface() );
-
-	//Frees the objects allocated in memory
-	for(unsigned int i = 0; i<units.size(); i++)
-		for(unsigned int j = 0; j< units[i].size(); j++) 
-			delete units[i][j];		
-}

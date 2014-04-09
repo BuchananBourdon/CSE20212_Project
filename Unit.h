@@ -1,6 +1,8 @@
 #ifndef UNIT_H
 #define UNIT_H
 
+#include <SDL/SDL.h>
+
 #include "View.h"
 
 class Unit {
@@ -8,6 +10,7 @@ public:
 	Unit(int _x, int _y, int _w, int _h, int _maxhp)
 		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), maxhp(_maxhp),
 			hp(_maxhp) {}
+	virtual ~Unit() {};
 
 	virtual int getType() = 0;
 
