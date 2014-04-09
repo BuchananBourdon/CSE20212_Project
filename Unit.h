@@ -8,8 +8,8 @@
 class Unit {
 public:
 	Unit(int _x, int _y, int _w, int _h, int _maxhp)
-		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), maxhp(_maxhp),
-			hp(_maxhp) {}
+		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), target(_x,_y),
+			maxhp(_maxhp), hp(_maxhp) {}
 	virtual ~Unit() {};
 
 	virtual int getType() = 0;
@@ -18,6 +18,10 @@ public:
 
 	void draw(View &);
 	void drawSelected(View &);
+
+	void move(Uint16, Uint16);
+
+	void update();
 
 	enum unit_type {
 		UT_BLACK_HOLE,
@@ -29,8 +33,14 @@ protected:
 
 	const int id; // Which am I?
 
-	unsigned int x, y;       // Where am I?
+	Uint16 x, y;             // Where am I?
 	const unsigned int w, h; // How big am I?
+
+	struct target {
+		target(Uint16 _x, Uint16 _y) : x(_x), y(_y) {}
+
+		Uint16 x, y;
+	} target;
 
 	const unsigned int maxhp;
 	unsigned int hp;

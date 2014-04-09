@@ -3,6 +3,7 @@
 #include "SDL/SDL_gfxPrimitives.h"
 
 #include <algorithm>
+#include <cmath>
 #include <ctime>
 #include <iostream>
 
@@ -97,7 +98,7 @@ void Game::play() {
 
 		sendMessages();
 
-		executeTurns();
+		updateSimulation();
 
 		draw();
 		
@@ -106,7 +107,6 @@ void Game::play() {
 			SDL_Delay(16-(SDL_GetTicks() - lastframe));
 		lastframe = SDL_GetTicks();
 	}
-	cleanUp();
 }
 
 // Stop the main game loop
@@ -153,8 +153,14 @@ void Game::sendMessage(Message *message) {
 	messagequeue.push(message);
 }
 
+// Assign a unit to a player
 void Game::addUnit(Uint8 playerid, Unit *unit) {
 	units[playerid].push_back(unit);
+}
+
+// Tell a unit to move to a location
+void Game::moveUnit(Uint8 playerid, Uint16 unitid, Uint16 x, Uint16 y) {
+	units[playerid][unitid]->move(x,y);
 }
 
 // Process whatever SDL throws at us
@@ -179,12 +185,14 @@ void Game::handleEvents() {
 			// Just for testing the CreateUnitOrder class
 			if(event.key.keysym.sym == SDLK_c)
 				turn->addOrder(new CreateUnitOrder(0,
-					rand()%map->getWidth(),rand()%map->getWidth()));
-			
+					rand()%map->getWidth(),
+					rand()%map->getHeight()));
+
 			// For testing the creation of bunnies
 			if(event.key.keysym.sym == SDLK_b)
 				turn->addOrder(new CreateUnitOrder(1,
-                                        rand()%map->getWidth(),rand()%map->getWidth()));
+                                        rand()%map->getWidth(),
+					rand()%map->getHeight()));
 
 			// Scrolling around the map
 			if(event.key.keysym.sym == SDLK_UP)
@@ -244,9 +252,13 @@ void Game::handleEvents() {
 				// Stop drawing the selection box
                         	moved = 0;
 
-				// Select all (owned) units in selection box
-				selectUnits(SDL_GetModState()&KMOD_SHIFT,xdown,
-					ydown,event.button.x,event.button.y);
+				// Either select or move units
+				if(fabs(event.button.x - xdown) > 2
+					&& fabs(event.button.y - ydown) > 2)
+					selectUnits(SDL_GetModState()
+						&KMOD_SHIFT,xdown,ydown,
+						event.button.x,event.button.y);
+				else moveUnits(event.button.x,event.button.y);
                 	}
 			break;
 	
@@ -316,7 +328,7 @@ void Game::sendMessages() {
 }
 
 // Advance, if appropriate, the fully-determined part of the simulation
-void Game::executeTurns() {
+void Game::updateSimulation() {
 	// Have we started actual gameplay, yet?
 	if(!start) {
 		// Should we?
@@ -366,6 +378,11 @@ void Game::executeTurns() {
 
 		turnqueue.pop_front();
 	}
+
+	// Update each unit
+	for(unsigned int i = 0; i < units.size(); i++)
+		for(unsigned int j = 0; j < units[i].size(); j++)
+			units[i][j]->update();
 }
 
 //Change the view if not at the extents 
@@ -409,9 +426,9 @@ void Game::draw() {
 			if(units[i][j]->inView(view))
 				units[i][j]->draw(view);
 
-	for(set<Unit *>::iterator iter = selected.begin();
-		iter != selected.end(); iter++)
-		(*iter)->drawSelected(view);
+	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
+		iter++)
+		units[playerid][*iter]->drawSelected(view);
 	
 	// Draw the selection box if the left mouse button is down
 	if(moved==1) boxRGBA(surface,xdown,ydown,mousex,mousey,60,60,255,170);
@@ -420,7 +437,7 @@ void Game::draw() {
 	SDL_Flip(SDL_GetVideoSurface());
 }
 
-// Select the units in the onscreen rectangle
+// Select all owned units contained in the onscreen rectangle
 void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 	// Ensure (x1, y1) is the upper left
 	if(x1 > x2) swap(x1,x2);
@@ -436,6 +453,16 @@ void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 	// Add new selection
 	for(unsigned int i = 0; i < units[playerid].size(); i++)
 		if(units[playerid][i]->inView(selection))
-			selected.insert(units[playerid][i]);
+			selected.insert(i);
+}
+
+// Order all selected units to move
+void Game::moveUnits(unsigned int x, unsigned int y) {
+	Uint16 mapx = min(view.x + x/view.zoom,view.x + view.w - 1);
+	Uint16 mapy = min(view.y + y/view.zoom,view.y + view.h - 1);
+
+	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
+		iter++)
+		turn->addOrder(new MoveUnitOrder(*iter,mapx,mapy));
 }
 

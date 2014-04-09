@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "SDL/SDL_gfxPrimitives.h"
 
 #include "Unit.h"
@@ -24,5 +26,27 @@ void Unit::drawSelected(View &view) {
 	roundedRectangleRGBA(SDL_GetVideoSurface(),(x - view.x)*view.zoom,
 		(y - view.y)*view.zoom,(x + w - view.x)*view.zoom,
 		(y + h - view.y)*view.zoom,3,0xFF,0x00,0x00,0xFF);
+}
+
+// Set the unit's goal to be to move to (x, y)
+void Unit::move(Uint16 x, Uint16 y) {
+	target.x = x;
+	target.y = y;
+}
+
+// Deterministically update the unit according to whatever its current goal is
+void Unit::update() {
+	int dx = target.x - x;
+	int dy = target.y - y;
+
+	if(!dx || !dy) { // Trivial cases - move along axis, or not at all
+		if(dx) x += dx > 0 ? 1 : -1;
+		if(dy) y += dy > 0 ? 1 : -1;
+	} else { // Non-right angle
+		if(pow(1 + fabs(dx)/fabs(dy),2) > 2)
+			x += dx > 0 ? 1 : -1;
+		if(pow(1 + fabs(dy)/fabs(dx),2) > 2)
+			y += dy > 0 ? 1 : -1;
+	}
 }
 

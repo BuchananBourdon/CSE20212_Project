@@ -38,7 +38,9 @@ public:
 	Uint8 addPlayer();                // New player
 	void addPlayerTurn(PlayerTurn *); // Add to queue
 	void sendMessage(Message *);      // Add to queue
-	void addUnit(Uint8, Unit *);	  // New unit
+
+	void addUnit(Uint8, Unit *);                  // New unit
+	void moveUnit(Uint8, Uint16, Uint16, Uint16); // Order to move
 
 private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
@@ -72,20 +74,21 @@ private:
 	View view; // What we can see
 		
 	std::vector<std::vector<Unit *> > units; // For each player
-	std::set<Unit *> selected;               // Currently active
+	std::set<int> selected;                  // Currently active
 
  	int viewVelocity_x;	// x velocity for how fast the view is panning
         int viewVelocity_y;	// y velocity for how fast the view is panning
 	
-	void handleEvents();   // Process all events
-	void handleMessages(); // Process all messages
-	void broadcastTurn();  // Send our current turn
-	void sendMessages();   // Empty out messagequeue
-	void executeTurns();   // Deterministic simulation
-	void updateView();     // Move view
-	void draw();           // Update screen
+	void handleEvents();     // Process all events
+	void handleMessages();   // Process all messages
+	void broadcastTurn();    // Send our current turn
+	void sendMessages();     // Empty out messagequeue
+	void updateSimulation(); // Deterministic simulation
+	void updateView();       // Move view
+	void draw();             // Update screen
 
 	void selectUnits(bool, int, int, int, int); // Within bounds
+	void moveUnits(unsigned int, unsigned int); // Move selected
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
 };

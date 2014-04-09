@@ -20,8 +20,7 @@ Order *MoveUnitOrder::deserialize(Uint8 *&data) {
 }
 
 void MoveUnitOrder::execute(Game &game, Uint8 playerid) {
-	cerr << "moving player " << (int) playerid << "'s unit " << unitid
-		<< " to (" << x << ", " << y << ")" << endl;
+	game.moveUnit(playerid,unitid,x,y);
 }
 
 void MoveUnitOrder::serialize(vector<Uint8> &data) {
