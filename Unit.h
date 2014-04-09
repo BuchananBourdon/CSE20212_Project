@@ -22,7 +22,7 @@ public:
 
 	void move(Uint16, Uint16);
 
-	void update(Map &);
+	virtual void update(Map &);
 
 	enum unit_type {
 		UT_BLACK_HOLE,
