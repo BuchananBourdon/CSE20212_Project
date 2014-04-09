@@ -13,9 +13,7 @@ SDL_Rect Bunny::clipsDown[ 4 ];
 int Bunny::BUNNY_WIDTH = 32;
 int Bunny::BUNNY_HEIGHT = 32;
 
-// setting height and width to 5 map tiles until we get image resize figured out
-Bunny::Bunny(int _x, int _y) : Unit(_x,_y,5,5,100)
-{
+Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100) {
 	//Begin each bunny facing down and in the "rested" first frame
 	status = DOWN;
 	frame = 0;
