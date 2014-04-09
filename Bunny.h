@@ -25,6 +25,7 @@ private:
 	int frame;
 
 	void drawUnit(View &);
+	void update(Map &);
 	void setClips();
 };
 

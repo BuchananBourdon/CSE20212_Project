@@ -2,6 +2,7 @@
 #include "SDL/SDL_image.h"
 
 #include "Bunny.h"
+#include <cmath>
 
 SDL_Surface* Bunny::bunnySurface = NULL;
 SDL_Rect Bunny::clipsRight[ 4 ];
@@ -13,7 +14,9 @@ SDL_Rect Bunny::clipsDown[ 4 ];
 int Bunny::BUNNY_WIDTH = 32;
 int Bunny::BUNNY_HEIGHT = 32;
 
-Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100) {
+// setting height and width to 5 map tiles until we get image resize figured out
+Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100)
+{
 	//Begin each bunny facing down and in the "rested" first frame
 	status = DOWN;
 	frame = 0;
@@ -44,6 +47,58 @@ void Bunny::drawUnit(View & view) {
 	else if(status == UP) 	SDL_BlitSurface(bunnySurface,&clipsUp[frame],screen,&rect);
 	else if(status == DOWN)	SDL_BlitSurface(bunnySurface,&clipsDown[frame],screen,&rect);
 }
+
+//Virtual update method handles Bunny frame and status 
+void Bunny::update(Map &map) {
+        int dx = target.x - x;
+        int dy = target.y - y;
+
+        if(!dx || !dy) { // Trivial cases - move along axis, or not at all
+                if(dx) {
+			x += dx > 0 ? 1 : -1;
+			if(dx>0)	status = RIGHT;
+			else if(dx<0)	status = LEFT;
+		}
+                if(dy) {
+			y += dy > 0 ? 1 : -1;
+			if(dy>0)	status = DOWN;
+			else if(dy<0)	status = UP;
+		}
+		frame++;
+
+        } else { // Non-right angle
+                if(pow(1 + fabs(dx)/fabs(dy),2) > 2 && pow(1 + fabs(dy)/fabs(dx),2) <= 2) {
+                        x += dx > 0 ? 1 : -1;
+			if(dx>0)	status = RIGHT;
+			else if(dx<0)	status = LEFT;
+		}
+                if(pow(1 + fabs(dy)/fabs(dx),2) > 2 && pow(1 + fabs(dx)/fabs(dy),2) <= 2) {
+                        y += dy > 0 ? 1 : -1;
+			if(dy>0)	status = DOWN;
+			else if(dy<0)	status = UP;
+		}
+		if(pow(1 + fabs(dy)/fabs(dx),2) > 2 && pow(1 + fabs(dx)/fabs(dy),2) > 2) {
+			x += dx > 0 ? 1 : -1;
+			y += dy > 0 ? 1 : -1;
+			if(dy>0)	status = DOWN;
+			else if(dy<0)	status = UP;
+		}
+		
+		frame++;
+        }
+
+	// Don't go off the edge of the map
+        Uint16 maxx = map.getWidth() - w;
+        Uint16 maxy = map.getHeight() - h;
+        if(x > maxx) x = maxx;
+        if(y > maxy) y = maxy;
+
+	//Don't let Bunny finish in "mid-run" frame and be sure to loop frame 
+	if(!dx && !dy)	frame=0;	
+	if(frame>=4)	frame=0;
+	
+}
+
 
 void Bunny::setClips() {
 	
