@@ -5,12 +5,13 @@
 
 class BlackHole : public Unit {
 public:
-	BlackHole(int _x, int _y) : Unit(_x,_y,1,1,100) {};
+	BlackHole(int _x, int _y) : Unit(_x,_y,1,1,100,DOWN,0) {};
 
 	int getType() { return UT_BLACK_HOLE; }
 
 private:
 	void drawUnit(View &);
+	void updateUnit(Map &);
 };
 
 #endif
