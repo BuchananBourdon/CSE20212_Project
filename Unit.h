@@ -8,9 +8,9 @@
 
 class Unit {
 public:
-	Unit(int _x, int _y, int _w, int _h, int _maxhp)
+	Unit(int _x, int _y, int _w, int _h, int _maxhp, int _status, int _frame)
 		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), target(_x,_y),
-			maxhp(_maxhp), hp(_maxhp) {}
+			maxhp(_maxhp), hp(_maxhp), status(_status), frame(_frame) {}
 	virtual ~Unit() {};
 
 	virtual int getType() = 0;
@@ -22,7 +22,7 @@ public:
 
 	void move(Uint16, Uint16);
 
-	virtual void update(Map &);
+	void update(Map &);
 
 	enum unit_type {
 		UT_BLACK_HOLE,
@@ -31,6 +31,7 @@ public:
 
 protected:
 	virtual void drawUnit(View &) = 0; // Per-subclass
+	virtual void updateUnit(Map &) = 0;
 
 	const int id; // Which am I?
 
@@ -45,6 +46,9 @@ protected:
 
 	const unsigned int maxhp;
 	unsigned int hp;
+
+	int status;
+	int frame;
 
 	static const int LEFT;
         static const int RIGHT;
