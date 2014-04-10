@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include "SDL/SDL_image.h"
 #include "Map.h"
 
 using namespace std;
@@ -11,6 +11,13 @@ const Uint8 Map::mountainlevel = 0x80;
 
 const int Map::numrivers = 20;
 const int Map::riverlength = 20;
+
+SDL_Surface* Map::mountainSurface = NULL;
+SDL_Surface* Map::grassSurface = NULL;
+SDL_Surface* Map::waterSurface = NULL;
+SDL_Rect Map::mountainClips[17][5];
+SDL_Rect Map::grassClips[17];
+SDL_Rect Map::waterClips[17];
 
 Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	if(!size || size - 1 & size - 2)
@@ -44,6 +51,23 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	for(int i = 0; i < numrivers; i++)
 		trace_river(r);
 cerr << "done with map generation at time " << time(NULL) << endl;
+	
+	if(mountainSurface == NULL) {
+                SDL_Surface * loadedImage = IMG_Load("Mountains.png");
+		SDL_Surface * loadedImage2 = IMG_Load("Grass_all.png");
+		SDL_Surface * loadedImage3 = IMG_Load("Water.png");
+                SDL_Surface * optimizedImage = SDL_DisplayFormatAlpha( loadedImage );
+		SDL_Surface * optimizedImage2 = SDL_DisplayFormatAlpha( loadedImage2 );
+		SDL_Surface * optimizedImage3 = SDL_DisplayFormatAlpha( loadedImage3 );
+                SDL_FreeSurface(loadedImage);
+		SDL_FreeSurface(loadedImage2);
+		SDL_FreeSurface(loadedImage3);
+                mountainSurface = optimizedImage;
+		grassSurface = optimizedImage2;
+		waterSurface = optimizedImage3;
+                setClips();
+        }
+	
 }
 
 Map::~Map() {
@@ -62,26 +86,24 @@ void Map::draw(const View &view) {
 			rect.x = (x - view.x)*view.zoom;
 			rect.y = (y - view.y)*view.zoom;
 			rect.w = rect.h = view.zoom;
+			
+			//these variables are used in the surface blitting of the moutains. Confines snow-capped mountains to specific regions
+			int mtnIndex = (x+y)/2 > (width+height)/8 ? 3:2;
+			int add = mtnIndex==3 ? 0:3;
 
-			Uint32 color;
 			switch(map[y][x].type) {
 			case TILE_WATER:
-				color = SDL_MapRGB(surface->format,
-					0x00,0x00,0xFF);
+				SDL_BlitSurface(waterSurface,&waterClips[16-(((view.zoom+2)/6)-1)],surface,&rect);
 				break;
-
 			case TILE_LAND:
-				color = SDL_MapRGB(surface->format,
-					0x00,map[y][x].height,0x00);
+				SDL_BlitSurface(grassSurface,&grassClips[16-(((view.zoom+2)/6)-1)],surface,&rect);
 				break;
-
 			case TILE_MOUNTAIN:
-				color = SDL_MapRGB(surface->format,
-					0x80,0x80,0x80);
+				SDL_BlitSurface(mountainSurface,&mountainClips[16-(((view.zoom+2)/6)-1)][(x+y)%mtnIndex+add],surface,&rect);
 				break;
 			}
 
-			SDL_FillRect(surface,&rect,color);
+
 		}
 	}
 }
@@ -186,5 +208,29 @@ void Map::trace_river(Random *r) {
 			y = newy;
 		}
 	}
+}
+
+// set the clips for the 3 different surfaces
+void Map::setClips() {
+	
+	for(int i = 0;i<17;i++) {
+		for(int j = 0;j<5;j++) {	//double for-loop eliminates ~300 lines of manual code here
+			mountainClips[i][j].x = (100-i*6) * j;
+			mountainClips[i][j].y = 880-(16-i)*(55-3*i);	//each successive y-direction clip gets smaller
+			mountainClips[i][j].w = 100-i*6;
+			mountainClips[i][j].h = 100-i*6; 
+		}
+
+		grassClips[i].x = 0;
+		grassClips[i].y = 880-(16-i)*(55-3*i);
+		grassClips[i].w = 100-i*6;
+		grassClips[i].h = 100-i*6;
+
+		waterClips[i].x = 0;
+		waterClips[i].y = 880-(16-i)*(55-3*i);
+		waterClips[i].w = 100-i*6;
+		waterClips[i].h = 100-i*6;
+	}
+	
 }
 
