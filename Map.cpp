@@ -30,10 +30,10 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 		map[y] = new struct map_tile[width]();
 
 	// Set up the corners consistently
-	map[         0][        0].height = 0x00;
-	map[height - 1][        0].height = 0x80;
-	map[         0][width - 1].height = 0x80;
-	map[height - 1][width - 1].height = 0x00;
+	map[         0][        0].height = r->next();
+	map[height - 1][        0].height = r->next();
+	map[         0][width - 1].height = r->next();
+	map[height - 1][width - 1].height = r->next();
 
 	// Use the diamond-square algorithm to perturb the land
 	perturb(0,r);
@@ -191,22 +191,25 @@ void Map::trace_river(Random *r) {
 	for(int i = 0; i < riverlength; i++) {
 		map[y][x].type = TILE_WATER;
 
-		// Flow in a random direction,
-		// but not uphill if higher than waterlevel
 		unsigned int newx, newy;
+		unsigned int minheight = 0x100;
 
-		int dirx = r->next()&0x7;
-		newx = x + (dirx < 3 ? -1 : dirx < 5 ? 0 : 1);
+		// Flow in the direction of least elevation
+		for(int dir = 0; dir < 8; dir++) {
+			int dx = dir&3 == 1 ? 0 : dir&4 ^ dir&2 ? 1 : -1;
+			int dy = dir < 3 ? 1 : dir&3 == 3 ? 0 : -1;
 
-		int diry = r->next()&0x7;
-		newy = y + (diry < 3 ? -1 : diry < 5 ? 0 : 1);
-
-		if(newx >= 0 && newx < width && newy >= 0 && newy < height
-			&& (map[newy][newx].height < waterlevel
-			|| map[newy][newx].height < map[y][x].height)) {
-			x = newx;
-			y = newy;
+			if(x + dx >= 0 && x + dx < width && y + dy >= 0
+				&& y + dy < height
+				&& map[x + dx][y + dy].height < minheight) {
+				newx = x + dx;
+				newy = y + dy;
+				minheight = map[newx][newy].height;
+			}
 		}
+
+		x = newx;
+		y = newy;
 	}
 }
 
