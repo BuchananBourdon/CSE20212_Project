@@ -21,11 +21,8 @@ private:
 	static int BUNNY_WIDTH;
 	static int BUNNY_HEIGHT;
 
-	int status;
-	int frame;
-
 	void drawUnit(View &);
-	void update(Map &);
+	void updateUnit(Map &);
 	void setClips();
 };
 

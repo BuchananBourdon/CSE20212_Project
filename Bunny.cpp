@@ -14,12 +14,8 @@ SDL_Rect Bunny::clipsDown[ 4 ];
 int Bunny::BUNNY_WIDTH = 32;
 int Bunny::BUNNY_HEIGHT = 32;
 
-Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100)
+Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100,DOWN,0)
 {
-	//Begin each bunny facing down and in the "rested" first frame
-	status = DOWN;
-	frame = 0;
-
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(bunnySurface == NULL) {
 		SDL_Surface * loadedImage = IMG_Load("rabbit_animations.png");
@@ -48,52 +44,8 @@ void Bunny::drawUnit(View & view) {
 }
 
 //Virtual update method handles Bunny frame and status 
-void Bunny::update(Map &map) {
-        int dx = target.x - x;
-        int dy = target.y - y;
-
-        if(!dx || !dy) { // Trivial cases - move along axis, or not at all
-                if(dx) {
-			x += dx > 0 ? 1 : -1;
-			if(dx>0)	status = RIGHT;
-			else if(dx<0)	status = LEFT;
-		}
-                if(dy) {
-			y += dy > 0 ? 1 : -1;
-			if(dy>0)	status = DOWN;
-			else if(dy<0)	status = UP;
-		}
-		frame++;
-
-        } else { // Non-right angle
-                if(pow(1 + fabs(dx)/fabs(dy),2) > 2 && pow(1 + fabs(dy)/fabs(dx),2) <= 2) {
-                        x += dx > 0 ? 1 : -1;
-			if(dx>0)	status = RIGHT;
-			else if(dx<0)	status = LEFT;
-		}
-                if(pow(1 + fabs(dy)/fabs(dx),2) > 2 && pow(1 + fabs(dx)/fabs(dy),2) <= 2) {
-                        y += dy > 0 ? 1 : -1;
-			if(dy>0)	status = DOWN;
-			else if(dy<0)	status = UP;
-		}
-		if(pow(1 + fabs(dy)/fabs(dx),2) > 2 && pow(1 + fabs(dx)/fabs(dy),2) > 2) {
-			x += dx > 0 ? 1 : -1;
-			y += dy > 0 ? 1 : -1;
-			if(dy>0)	status = DOWN;
-			else if(dy<0)	status = UP;
-		}
-		
-		frame++;
-        }
-
-	// Don't go off the edge of the map
-        Uint16 maxx = map.getWidth() - w;
-        Uint16 maxy = map.getHeight() - h;
-        if(x > maxx) x = maxx;
-        if(y > maxy) y = maxy;
-
-	//Don't let Bunny finish in "mid-run" frame and be sure to loop frame 
-	if(!dx && !dy)	frame=0;	
+void Bunny::updateUnit(Map &map) {
+	//loop frame (Bunny animation has 4 frames)
 	if(frame>=4)	frame=0;	
 }
 
