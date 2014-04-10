@@ -23,6 +23,14 @@ private:
 	static const int numrivers;
 	static const int riverlength;
 
+	//For tiles
+	static SDL_Surface * mountainSurface;
+	static SDL_Surface * grassSurface;
+	static SDL_Surface * waterSurface;	
+	static SDL_Rect mountainClips[17][5];
+	static SDL_Rect grassClips[17];
+	static SDL_Rect waterClips[17];
+
 	const unsigned int width;
 	const unsigned int height;
 
@@ -45,6 +53,8 @@ private:
 	Uint8 diamond_avg(int, int, int, int, Random *);
 
 	void trace_river(Random *); // Add river
+	
+	void setClips();
 };
 
 #endif

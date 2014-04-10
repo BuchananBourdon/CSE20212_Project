@@ -2,6 +2,7 @@
 #include "SDL/SDL_image.h"
 
 #include "Bunny.h"
+#include <cmath>
 
 SDL_Surface* Bunny::bunnySurface = NULL;
 SDL_Rect Bunny::clipsRight[ 4 ];
@@ -13,11 +14,8 @@ SDL_Rect Bunny::clipsDown[ 4 ];
 int Bunny::BUNNY_WIDTH = 32;
 int Bunny::BUNNY_HEIGHT = 32;
 
-Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100) {
-	//Begin each bunny facing down and in the "rested" first frame
-	status = DOWN;
-	frame = 0;
-
+Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100,DOWN,0)
+{
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(bunnySurface == NULL) {
 		SDL_Surface * loadedImage = IMG_Load("rabbit_animations.png");
@@ -43,6 +41,12 @@ void Bunny::drawUnit(View & view) {
 	else if(status == LEFT) SDL_BlitSurface(bunnySurface,&clipsLeft[frame],screen,&rect);
 	else if(status == UP) 	SDL_BlitSurface(bunnySurface,&clipsUp[frame],screen,&rect);
 	else if(status == DOWN)	SDL_BlitSurface(bunnySurface,&clipsDown[frame],screen,&rect);
+}
+
+//Virtual update method handles Bunny frame and status 
+void Bunny::updateUnit(Map &map) {
+	//loop frame (Bunny animation has 4 frames)
+	if(frame>=4)	frame=0;	
 }
 
 void Bunny::setClips() {

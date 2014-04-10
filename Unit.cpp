@@ -39,20 +39,37 @@ void Unit::update(Map &map) {
 	int dx = target.x - x;
 	int dy = target.y - y;
 
+	int startx = x;
+	int starty = y;
+
 	if(!dx || !dy) { // Trivial cases - move along axis, or not at all
-		if(dx) x += dx > 0 ? 1 : -1;
-		if(dy) y += dy > 0 ? 1 : -1;
-	} else { // Non-right angle
+            	if(dx) 
+			x += dx > 0 ? 1 : -1;
+                if(dy)  
+                        y += dy > 0 ? 1 : -1;
+        } else { // Non-right angle
 		if(pow(1 + fabs(dx)/fabs(dy),2) > 2)
 			x += dx > 0 ? 1 : -1;
 		if(pow(1 + fabs(dy)/fabs(dx),2) > 2)
 			y += dy > 0 ? 1 : -1;
-	}
+        }
 
 	// Don't go off the edge of the map
 	Uint16 maxx = map.getWidth() - w;
 	Uint16 maxy = map.getHeight() - h;
 	if(x > maxx) x = maxx;
 	if(y > maxy) y = maxy;
+
+	if(x>startx) 	status = RIGHT;
+	if(x<startx)	status = LEFT;
+	if(y>starty)	status = DOWN;
+	if(y<starty)	status = UP;
+	
+	//Increment frame and set frame to 0 if reached target
+	frame++;
+	if(!dx && !dy)	frame=0;
+	if(x==startx && y==starty)	frame = 0;
+
+	this->updateUnit(map);
 }
 

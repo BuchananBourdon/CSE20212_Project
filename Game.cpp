@@ -219,11 +219,11 @@ void Game::handleEvents() {
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
-			// Zoom in and out
+			// Zoom in and out (zoom extents now in values of 6 [4,10,16,22...100])
 			if(event.button.button == SDL_BUTTON_WHEELUP) {
 				SDL_Surface *surface = SDL_GetVideoSurface();
 
-				if(view.zoom < 100) view.zoom++;
+				if(view.zoom < 100) view.zoom+=6;
 				view.w = (surface->w + view.zoom - 1)
 					/view.zoom;
 				view.h = (surface->h + view.zoom - 1)
@@ -233,7 +233,7 @@ void Game::handleEvents() {
 			if(event.button.button == SDL_BUTTON_WHEELDOWN) {
 				SDL_Surface *surface = SDL_GetVideoSurface();
 
-				if(view.zoom > 1) view.zoom--;
+				if(view.zoom > 4) view.zoom-=6;
 				view.w = (surface->w + view.zoom - 1)
 					/view.zoom;
 				view.h = (surface->h + view.zoom - 1)
@@ -266,6 +266,12 @@ void Game::handleEvents() {
 			// Keep track of mouse location
 			mousex = event.motion.x;
                 	mousey = event.motion.y;
+			break;
+
+		case SDL_QUIT:
+			//Also quit game when user "x's" out of window
+			sendMessage(new HangupMessage());
+                        exit();
 			break;
 		}
 	
