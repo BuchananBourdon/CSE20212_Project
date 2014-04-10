@@ -267,6 +267,12 @@ void Game::handleEvents() {
 			mousex = event.motion.x;
                 	mousey = event.motion.y;
 			break;
+
+		case SDL_QUIT:
+			//Also quit game when user "x's" out of window
+			sendMessage(new HangupMessage());
+                        exit();
+			break;
 		}
 	
 	}
