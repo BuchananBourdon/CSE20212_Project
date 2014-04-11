@@ -42,6 +42,9 @@ void Unit::update(Map &map) {
 		break;
 
 	case GOAL_MOVE:
+		int startx = x;
+		int starty = y;
+		
 		setOccupancy(map,false);
 
 		Path::Location loc = path->step(map);
@@ -59,8 +62,8 @@ void Unit::update(Map &map) {
 		y = loc.y;
 
 		setOccupancy(map,true);
-
-		frame++;
+		//Only animate if the unit has moved to a new tile
+		if(x!=startx || y!=starty) frame++;
 		break;
 	}
 	

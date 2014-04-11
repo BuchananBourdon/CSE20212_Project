@@ -232,8 +232,8 @@ void Game::handleEvents() {
 
 			if(event.button.button == SDL_BUTTON_WHEELDOWN) {
 				SDL_Surface *surface = SDL_GetVideoSurface();
-
-				if(view.zoom > 4) view.zoom-=6;
+				//min zoom is 10
+				if(view.zoom > 10) view.zoom-=6;
 				view.w = (surface->w + view.zoom - 1)
 					/view.zoom;
 				view.h = (surface->h + view.zoom - 1)
