@@ -50,7 +50,6 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	// Add some river obstacles
 	for(int i = 0; i < numrivers; i++)
 		trace_river(r);
-cerr << "done with map generation at time " << time(NULL) << endl;
 	
 	if(mountainSurface == NULL) {
                 SDL_Surface * loadedImage = IMG_Load("Mountains.png");
@@ -68,6 +67,7 @@ cerr << "done with map generation at time " << time(NULL) << endl;
                 setClips();
         }
 	
+	cerr << "done with map generation at time " << time(NULL) << endl;
 }
 
 Map::~Map() {
@@ -92,6 +92,8 @@ void Map::draw(const View &view) {
 			int add = mtnIndex==3 ? 0:3;
 
 			switch(map[y][x].type) {
+			case TILE_NONE: break;
+
 			case TILE_WATER:
 				SDL_BlitSurface(waterSurface,&waterClips[16-(((view.zoom+2)/6)-1)],surface,&rect);
 				break;
@@ -196,8 +198,9 @@ void Map::trace_river(Random *r) {
 
 		// Flow in the direction of least elevation
 		for(int dir = 0; dir < 8; dir++) {
-			int dx = dir&3 == 1 ? 0 : dir&4 ^ dir&2 ? 1 : -1;
-			int dy = dir < 3 ? 1 : dir&3 == 3 ? 0 : -1;
+			int dx = (dir&3) == 1 ? 0 : !(dir&4) ^ !(dir&2)
+				? 1 : -1;
+			int dy = dir < 3 ? -1 : (dir&3) == 3 ? 0 : 1;
 
 			if(x + dx >= 0 && x + dx < width && y + dy >= 0
 				&& y + dy < height
@@ -237,3 +240,39 @@ void Map::setClips() {
 	
 }
 
+void Map::occupy(Uint16 x, Uint16 y) {
+	// Sanity check
+	if(isOccupied(x,y)) {
+		cerr << "warning: attempt to occupy occupied tile" << endl;
+		return;
+	}
+
+	map[y][x].occupied = true;
+}
+
+bool Map::isOccupied(Uint16 x, Uint16 y) {
+	// Sanity check
+	if(x >= width || y >= height) {
+		cerr << "warning: attempt to access out-of-bounds tile (" << x
+			<< ", " << y << ")" << endl;
+		return true;
+	}
+
+	return map[y][x].occupied;
+}
+
+void Map::clear(Uint16 x, Uint16 y) {
+	if(x < width && y < height)
+		map[y][x].occupied = false;
+}
+
+enum Map::tile_type Map::tileType(Uint16 x, Uint16 y) {
+	// Sanity check
+	if(x >= width || y >= height) {
+		cerr << "warning: attempt to get type of out-of-bounds tile"
+			<< endl;
+		return TILE_NONE;
+	}
+
+	return map[y][x].type;
+}

@@ -9,10 +9,23 @@ public:
 	Map(unsigned int, Random *);
 	~Map();
 
+	enum tile_type {
+		TILE_NONE,
+		TILE_WATER,
+		TILE_LAND,
+		TILE_MOUNTAIN
+	};
+
 	unsigned int getWidth()  { return width;  }
 	unsigned int getHeight() { return height; }
 
 	void draw(const View &);
+
+	void occupy(Uint16, Uint16);
+	bool isOccupied(Uint16, Uint16);
+	void clear(Uint16, Uint16);
+
+	enum tile_type tileType(Uint16, Uint16);
 
 private:
 	static const Uint8 roughness;
@@ -34,18 +47,12 @@ private:
 	const unsigned int width;
 	const unsigned int height;
 
-	enum tile_type {
-		TILE_WATER,
-		TILE_LAND,
-		TILE_MOUNTAIN
-	};
-
 	struct map_tile {
 		Uint8 height;
 
 		enum tile_type type;
 
-		bool resource;
+		bool occupied;
 	} **map;
 
 	void perturb(int, Random *); // For generation

@@ -1,6 +1,4 @@
-#include <cmath>
-
-#include "SDL/SDL_gfxPrimitives.h"
+#include <SDL/SDL_gfxPrimitives.h>
 
 #include "Unit.h"
 
@@ -28,48 +26,53 @@ void Unit::drawSelected(View &view) {
 		(y + h - view.y)*view.zoom,3,0xFF,0x00,0x00,0xFF);
 }
 
-// Set the unit's goal to be to move to (x, y)
-void Unit::move(Uint16 x, Uint16 y) {
-	target.x = x;
-	target.y = y;
+// Set the unit's goal to be to move to (newx, newy)
+void Unit::move(Uint16 newx, Uint16 newy) {
+	goal = GOAL_MOVE;
+
+	if(path) delete path;
+	path = new Path(x,y,newx,newy,w,h);
 }
 
 // Deterministically update the unit according to whatever its current goal is
 void Unit::update(Map &map) {
-	int dx = target.x - x;
-	int dy = target.y - y;
+	switch(goal) {
+	case GOAL_NONE:
+		frame = 0;
+		break;
 
-	int startx = x;
-	int starty = y;
+	case GOAL_MOVE:
+		setOccupancy(map,false);
 
-	if(!dx || !dy) { // Trivial cases - move along axis, or not at all
-            	if(dx) 
-			x += dx > 0 ? 1 : -1;
-                if(dy)  
-                        y += dy > 0 ? 1 : -1;
-        } else { // Non-right angle
-		if(pow(1 + fabs(dx)/fabs(dy),2) > 2)
-			x += dx > 0 ? 1 : -1;
-		if(pow(1 + fabs(dy)/fabs(dx),2) > 2)
-			y += dy > 0 ? 1 : -1;
-        }
+		Path::Location loc = path->step(map);
 
-	// Don't go off the edge of the map
-	Uint16 maxx = map.getWidth() - w;
-	Uint16 maxy = map.getHeight() - h;
-	if(x > maxx) x = maxx;
-	if(y > maxy) y = maxy;
+		if(loc.x > x) status = RIGHT;
+		if(loc.x < x) status = LEFT;
+		if(loc.y > y) status = DOWN;
+		if(loc.y < y) status = UP;
 
-	if(x>startx) 	status = RIGHT;
-	if(x<startx)	status = LEFT;
-	if(y>starty)	status = DOWN;
-	if(y<starty)	status = UP;
+		// Goal acheived?
+		if(loc.x == x && loc.y == y)
+			goal = GOAL_NONE;
+
+		x = loc.x;
+		y = loc.y;
+
+		setOccupancy(map,true);
+
+		frame++;
+		break;
+	}
 	
-	//Increment frame and set frame to 0 if reached target
-	frame++;
-	if(!dx && !dy)	frame=0;
-	if(x==startx && y==starty)	frame = 0;
-
 	this->updateUnit(map);
+}
+
+void Unit::setOccupancy(Map &map, bool occupy) {
+	for(Uint16 r = y; r < y + h; r++) {
+		for(Uint16 c = x; c < x + w; c++) {
+			if(occupy) map.occupy(c,r);
+			else map.clear(c,r);
+		}
+	}
 }
 

@@ -2,14 +2,13 @@
 #define VIEW_H
 
 struct View {
-	View(unsigned int _x, unsigned int _y, unsigned int _w,
-		unsigned int _h, unsigned int _zoom)
+	View(Uint16 _x, Uint16 _y, Uint16 _w, Uint16 _h, Uint16 _zoom)
 		: x(_x), y(_y), w(_w), h(_h), zoom(_zoom) {};
 
-	unsigned int x, y;
-	unsigned int w, h;
+	Uint16 x, y;
+	Uint16 w, h;
 
-	unsigned int zoom;
+	Uint16 zoom;
 };
 
 #endif

@@ -398,14 +398,14 @@ void Game::updateView() {
 		if(view.x > 0) view.x += viewVelocity_x;
 	}
 	else if(viewVelocity_x > 0){
-		if(view.x < map->getWidth() - 2) view.x += viewVelocity_x;
+		if(view.x < map->getWidth() - 2u) view.x += viewVelocity_x;
 	}
 	//y velocity can only be applied if view is within reasonable range
 	if(viewVelocity_y < 0){
 		if(view.y > 0) view.y += viewVelocity_y;
 	}
 	else if(viewVelocity_y > 0){
-		if(view.y < map->getHeight() - 2) view.y += viewVelocity_y;
+		if(view.y < map->getHeight() - 2u) view.y += viewVelocity_y;
 	}
 
 }
@@ -464,8 +464,8 @@ void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 
 // Order all selected units to move
 void Game::moveUnits(unsigned int x, unsigned int y) {
-	Uint16 mapx = min(view.x + x/view.zoom,view.x + view.w - 1);
-	Uint16 mapy = min(view.y + y/view.zoom,view.y + view.h - 1);
+	Uint16 mapx = min(view.x + x/view.zoom,view.x + view.w - 1u);
+	Uint16 mapy = min(view.y + y/view.zoom,view.y + view.h - 1u);
 
 	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
 		iter++)

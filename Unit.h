@@ -4,13 +4,16 @@
 #include <SDL/SDL.h>
 
 #include "Map.h"
+#include "Path.h"
 #include "View.h"
 
 class Unit {
 public:
-	Unit(int _x, int _y, int _w, int _h, int _maxhp, int _status, int _frame)
-		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), target(_x,_y),
-			maxhp(_maxhp), hp(_maxhp), status(_status), frame(_frame) {}
+	Unit(int _x, int _y, int _w, int _h, int _maxhp, int _status,
+		int _frame)
+		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
+			path(NULL), maxhp(_maxhp), hp(_maxhp), status(_status),
+			frame(_frame) {}
 	virtual ~Unit() {};
 
 	virtual int getType() = 0;
@@ -35,14 +38,15 @@ protected:
 
 	const int id; // Which am I?
 
-	Uint16 x, y;             // Where am I?
-	const unsigned int w, h; // How big am I?
+	Uint16 x, y;       // Where am I?
+	const Uint16 w, h; // How big am I?
 
-	struct target {
-		target(Uint16 _x, Uint16 _y) : x(_x), y(_y) {}
+	enum {
+		GOAL_NONE,
+		GOAL_MOVE
+	} goal;
 
-		Uint16 x, y;
-	} target;
+	Path *path;
 
 	const unsigned int maxhp;
 	unsigned int hp;
@@ -56,6 +60,8 @@ protected:
         static const int DOWN;
 
 private:
+	void setOccupancy(Map &, bool); // Stake our claim
+
 	static int unitcount; // For unique IDs
 };
 
