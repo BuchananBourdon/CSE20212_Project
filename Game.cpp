@@ -194,6 +194,12 @@ void Game::handleEvents() {
                                         rand()%map->getWidth(),
 					rand()%map->getHeight()));
 
+			// For testing the creation of robots
+                        if(event.key.keysym.sym == SDLK_r)
+                                turn->addOrder(new CreateUnitOrder(2,
+                                        rand()%map->getWidth(),
+                                        rand()%map->getHeight()));
+
 			// Scrolling around the map
 			if(event.key.keysym.sym == SDLK_UP)
 				viewVelocity_y += -1;

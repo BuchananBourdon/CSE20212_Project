@@ -26,7 +26,8 @@ public:
 
 	enum unit_type {
 		UT_BLACK_HOLE,
-		UT_BUNNY
+		UT_BUNNY,
+		UT_ROBOT
 	};
 
 	
