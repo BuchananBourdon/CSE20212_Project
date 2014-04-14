@@ -9,11 +9,8 @@
 
 class Unit {
 public:
-	Unit(int _x, int _y, int _w, int _h, int _maxhp, int _status,
-		int _frame)
-		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
-			path(NULL), maxhp(_maxhp), hp(_maxhp), status(_status),
-			frame(_frame) {}
+	Unit(int, int, int, int, int, int, int);
+
 	virtual ~Unit() {};
 
 	virtual int getType() = 0;
@@ -31,6 +28,8 @@ public:
 		UT_BLACK_HOLE,
 		UT_BUNNY
 	};
+
+	
 
 protected:
 	virtual void drawUnit(View &) = 0; // Per-subclass
@@ -59,11 +58,18 @@ protected:
         static const int UP;
         static const int DOWN;
 
+
 private:
 	void setOccupancy(Map &, bool); // Stake our claim
 
+	void setSelectionClips(); //sets the Rect dimensions for selection
+
 	static int unitcount; // For unique IDs
+
+	//For the selection icon
+	static SDL_Surface * selectSurface;	
+	static SDL_Rect clipsSelect[17];
+
 };
 
 #endif
-
