@@ -53,7 +53,7 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	
 	if(mountainSurface == NULL) {
                 SDL_Surface * loadedImage = IMG_Load("Mountains.png");
-		SDL_Surface * loadedImage2 = IMG_Load("Grass_all.png");
+		SDL_Surface * loadedImage2 = IMG_Load("Grass.png");
 		SDL_Surface * loadedImage3 = IMG_Load("Water.png");
                 SDL_Surface * optimizedImage = SDL_DisplayFormatAlpha( loadedImage );
 		SDL_Surface * optimizedImage2 = SDL_DisplayFormatAlpha( loadedImage2 );
