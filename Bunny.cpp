@@ -14,7 +14,7 @@ SDL_Rect Bunny::clipsDown[ 4 ];
 int Bunny::BUNNY_WIDTH = 32;
 int Bunny::BUNNY_HEIGHT = 32;
 
-Bunny::Bunny(int _x, int _y) : Unit(_x,_y,1,1,100,DOWN,0)
+Bunny::Bunny(Map &_map, int _x, int _y) : Unit(_map,_x,_y,1,1,100,DOWN,0)
 {
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(bunnySurface == NULL) {

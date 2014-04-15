@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <iostream>
 
 #include <SDL/SDL.h>
@@ -15,6 +16,8 @@ static void print_help_and_die() {
 }
 
 int main(int argc, char **argv) {
+	srand(time(NULL));
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_SetVideoMode(640,480,0,0);
 

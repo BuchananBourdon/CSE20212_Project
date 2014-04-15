@@ -21,6 +21,7 @@ Path::Location Path::step(Map &map) {
 	// If we're blocked, calculate a new path
 	if(!canStep(map,loc)) {
 		calcPath(map);
+		if(path.empty()) return from;
 
 		loc = path.front();
 		path.pop_front();

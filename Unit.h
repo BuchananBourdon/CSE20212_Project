@@ -9,11 +9,7 @@
 
 class Unit {
 public:
-	Unit(int _x, int _y, int _w, int _h, int _maxhp, int _status,
-		int _frame)
-		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
-			path(NULL), maxhp(_maxhp), hp(_maxhp), status(_status),
-			frame(_frame) {}
+	Unit(Map &, int, int, int, int, int, int, int);
 	virtual ~Unit() {};
 
 	virtual int getType() = 0;

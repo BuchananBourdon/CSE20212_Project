@@ -28,6 +28,7 @@ public:
 	bool      isHosting() { return hosting; }
 	UDPsocket getSocket() { return socket; }
 	Uint32    getSeed()   { return random->getSeed(); }
+	Map *&    getMap()    { return map; }
 
 	void setPlayerId(Uint8);
 	void setSeed(Uint32);

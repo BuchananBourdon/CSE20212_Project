@@ -26,11 +26,11 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 
 	switch(unittype) {
 	case Unit::UT_BLACK_HOLE:
-		game.addUnit(playerid,new BlackHole(x,y));
+		game.addUnit(playerid,new BlackHole(*game.getMap(),x,y));
 		break;
 	
 	case Unit::UT_BUNNY:
-		game.addUnit(playerid,new Bunny(x,y));
+		game.addUnit(playerid,new Bunny(*game.getMap(),x,y));
 		break;
 	
 	default:

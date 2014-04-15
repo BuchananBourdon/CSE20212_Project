@@ -5,7 +5,7 @@
 
 class Bunny : public Unit {
 public:
-	Bunny(int, int);
+	Bunny(Map &, int, int);
 	
 	int getType();
 	

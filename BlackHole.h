@@ -5,7 +5,8 @@
 
 class BlackHole : public Unit {
 public:
-	BlackHole(int _x, int _y) : Unit(_x,_y,1,1,100,DOWN,0) {};
+	BlackHole(Map &_map, int _x, int _y)
+		: Unit(_map,_x,_y,1,1,100,DOWN,0) {};
 
 	int getType() { return UT_BLACK_HOLE; }
 

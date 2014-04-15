@@ -9,6 +9,14 @@ const int Unit::LEFT = 1;
 const int Unit::UP = 2;
 const int Unit::DOWN = 3;
 
+Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _status,
+	int _frame)
+	: id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
+		path(NULL), maxhp(_maxhp), hp(_maxhp), status(_status),
+		frame(_frame) {
+	setOccupancy(map,true);
+}
+
 bool Unit::inView(View &view) {
 	return x + w > view.x && x < view.x + view.w
 		&& y + h > view.y && y < view.y + view.h;
@@ -51,12 +59,14 @@ void Unit::update(Map &map) {
 		if(loc.y > y) status = DOWN;
 		if(loc.y < y) status = UP;
 
-		// Goal acheived?
-		if(loc.x == x && loc.y == y)
+		// Goal acheived/failed?
+		if((loc.x == x && loc.y == y) || map.isOccupied(loc.x,loc.y))
 			goal = GOAL_NONE;
 
-		x = loc.x;
-		y = loc.y;
+		if(!map.isOccupied(loc.x,loc.y)) {
+			x = loc.x;
+			y = loc.y;
+		}
 
 		setOccupancy(map,true);
 
