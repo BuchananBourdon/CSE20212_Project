@@ -5,6 +5,7 @@
 #include "BlackHole.h"
 #include "CreateUnitOrder.h"
 #include "Bunny.h"
+#include "Robot.h"
 
 using namespace std;
 
@@ -31,6 +32,10 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 	
 	case Unit::UT_BUNNY:
 		game.addUnit(playerid,new Bunny(*game.getMap(),x,y));
+		break;
+
+	case Unit::UT_ROBOT:
+		game.addUnit(playerid,new Robot(*game.getMap(),x,y));
 		break;
 	
 	default:

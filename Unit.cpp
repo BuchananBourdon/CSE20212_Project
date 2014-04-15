@@ -1,4 +1,5 @@
 #include <SDL/SDL_gfxPrimitives.h>
+#include <SDL/SDL_image.h>
 
 #include "Unit.h"
 
@@ -9,12 +10,35 @@ const int Unit::LEFT = 1;
 const int Unit::UP = 2;
 const int Unit::DOWN = 3;
 
+SDL_Surface* Unit::selectSurface = NULL;
+SDL_Rect Unit::clipsSelect[17];
+
 Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _status,
-	int _frame)
-	: id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
-		path(NULL), maxhp(_maxhp), hp(_maxhp), status(_status),
-		frame(_frame) {
+		int _frame)
+                : id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
+                        path(NULL), maxhp(_maxhp), hp(_maxhp), status(_status),
+                        frame(_frame) {
+	//The first time a unit is constructed, load the image and set the clips
+	if(selectSurface==NULL) {  
+		SDL_Surface * loadedImage = IMG_Load("Select.png");
+		SDL_Surface * optimizedImage = SDL_DisplayFormatAlpha(loadedImage);
+		SDL_FreeSurface(loadedImage);
+		selectSurface = optimizedImage;
+		setSelectionClips();
+	}
+	
 	setOccupancy(map,true);
+}
+
+// Sets the clips for the selection indicator
+void Unit::setSelectionClips() {
+	
+	for(int i=0;i<17;i++) {
+		clipsSelect[i].x = 0;
+                clipsSelect[i].y = 880-(16-i)*(55-3*i);
+                clipsSelect[i].w = 100-i*6;
+                clipsSelect[i].h = 100-i*6;
+	}
 }
 
 bool Unit::inView(View &view) {
@@ -29,9 +53,20 @@ void Unit::draw(View &view) {
 
 // Draw a selection indicator
 void Unit::drawSelected(View &view) {
-	roundedRectangleRGBA(SDL_GetVideoSurface(),(x - view.x)*view.zoom,
-		(y - view.y)*view.zoom,(x + w - view.x)*view.zoom,
-		(y + h - view.y)*view.zoom,3,0xFF,0x00,0x00,0xFF);
+	if(view.zoom>10) //Draw the normal SDL_Surface indicator if the zoom is greater than 10
+	{
+        	SDL_Rect rect;
+        	rect.x = (x - view.x)*view.zoom;
+        	rect.y = (y - view.y)*view.zoom;
+        	SDL_BlitSurface(selectSurface,&clipsSelect[16-(((view.zoom+2)/6)-1)],
+			SDL_GetVideoSurface(),&rect);
+	}
+	else {	//If the zoom is 10 or less, than just draw the gfxPrimitive red box because
+		//it's easier to see when the resolution is so low
+		roundedRectangleRGBA(SDL_GetVideoSurface(),(x - view.x)*view.zoom,
+			(y - view.y)*view.zoom,(x + w - view.x)*view.zoom,
+			(y + h - view.y)*view.zoom,3,0xFF,0x00,0x00,0xFF);
+	}
 }
 
 // Set the unit's goal to be to move to (newx, newy)
@@ -50,6 +85,9 @@ void Unit::update(Map &map) {
 		break;
 
 	case GOAL_MOVE:
+		int startx = x;
+		int starty = y;
+		
 		setOccupancy(map,false);
 
 		Path::Location loc = path->step(map);
@@ -69,8 +107,8 @@ void Unit::update(Map &map) {
 		}
 
 		setOccupancy(map,true);
-
-		frame++;
+		//Only animate if the unit has moved to a new tile
+		if(x!=startx || y!=starty) frame++;
 		break;
 	}
 	

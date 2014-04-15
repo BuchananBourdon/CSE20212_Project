@@ -25,8 +25,11 @@ public:
 
 	enum unit_type {
 		UT_BLACK_HOLE,
-		UT_BUNNY
+		UT_BUNNY,
+		UT_ROBOT
 	};
+
+	
 
 protected:
 	virtual void drawUnit(View &) = 0; // Per-subclass
@@ -55,11 +58,18 @@ protected:
         static const int UP;
         static const int DOWN;
 
+
 private:
 	void setOccupancy(Map &, bool); // Stake our claim
 
+	void setSelectionClips(); //sets the Rect dimensions for selection
+
 	static int unitcount; // For unique IDs
+
+	//For the selection icon
+	static SDL_Surface * selectSurface;	
+	static SDL_Rect clipsSelect[17];
+
 };
 
 #endif
-

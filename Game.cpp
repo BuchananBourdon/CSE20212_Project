@@ -194,6 +194,12 @@ void Game::handleEvents() {
                                         rand()%map->getWidth(),
 					rand()%map->getHeight()));
 
+			// For testing the creation of robots
+                        if(event.key.keysym.sym == SDLK_r)
+                                turn->addOrder(new CreateUnitOrder(2,
+                                        rand()%map->getWidth(),
+                                        rand()%map->getHeight()));
+
 			// Scrolling around the map
 			if(event.key.keysym.sym == SDLK_UP)
 				viewVelocity_y += -1;
@@ -232,8 +238,8 @@ void Game::handleEvents() {
 
 			if(event.button.button == SDL_BUTTON_WHEELDOWN) {
 				SDL_Surface *surface = SDL_GetVideoSurface();
-
-				if(view.zoom > 4) view.zoom-=6;
+				//min zoom is 10
+				if(view.zoom > 10) view.zoom-=6;
 				view.w = (surface->w + view.zoom - 1)
 					/view.zoom;
 				view.h = (surface->h + view.zoom - 1)

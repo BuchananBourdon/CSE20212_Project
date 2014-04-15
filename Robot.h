@@ -5,27 +5,21 @@
 
 class Robot : public Unit {
 public:
-  Robot(int, int);
+	Robot(Map &, int, int);
 
-  int getType();
+	int getType();
 
 private:
-  // Has static Surface and Rect for blitting, will modify clip when MoveUnitOrder is finished
-  static SDL_Surface * robotSurface;
-  static SDL_Rect clipsRight[ 4 ];
-  static SDL_Rect clipsLeft[ 4 ];
-  static SDL_Rect clipsUp[ 4 ];
-  static SDL_Rect clipsDown[ 4 ];
+  	// Has static Surface and Rect for blitting, will modify clip when MoveUnitOrder is finished
+  	static SDL_Surface * robotSurface;
+  	static SDL_Rect clipsRight[17][ 4 ];
+  	static SDL_Rect clipsLeft[17][ 4 ];
+  	static SDL_Rect clipsUp[17][ 4 ];
+  	static SDL_Rect clipsDown[17][ 4 ];
 
-  // Pertain to image pixel dimensions
-  static int ROBOT_WIDTH;
-  static int ROBOT_HEIGHT;
-
-  int status;
-  int frame;
-
-  void drawUnit(View &);
-  void setClips();
+   	void drawUnit(View &);
+	void updateUnit(Map &);
+  	void setClips();
 };
 
 #endif
