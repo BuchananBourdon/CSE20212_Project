@@ -200,6 +200,12 @@ void Game::handleEvents() {
                                         rand()%map->getWidth(),
                                         rand()%map->getHeight()));
 
+			// For testing the creation of rainbows
+                        if(event.key.keysym.sym == SDLK_p)
+                                turn->addOrder(new CreateUnitOrder(3,
+                                        rand()%map->getWidth(),
+                                        rand()%map->getHeight()));
+
 			// Scrolling around the map
 			if(event.key.keysym.sym == SDLK_UP)
 				viewVelocity_y += -1;
@@ -442,8 +448,11 @@ void Game::draw() {
 		iter++)
 		units[playerid][*iter]->drawSelected(view);
 	
-	// Draw the selection box if the left mouse button is down
-	if(moved==1) boxRGBA(surface,xdown,ydown,mousex,mousey,60,60,255,170);
+	// draw selection box, transparent blue/gray
+	if(moved==1) {
+		boxRGBA(surface,xdown,ydown,mousex,mousey,90,90,255,80);
+		rectangleRGBA(surface,xdown,ydown,mousex,mousey,150,150,255,170);		
+	}
      
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());

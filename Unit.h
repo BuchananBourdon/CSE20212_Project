@@ -9,7 +9,7 @@
 
 class Unit {
 public:
-	Unit(Map &, int, int, int, int, int, int, int);
+	Unit(Map &, int, int, int, int, int, int, int, bool);
 	virtual ~Unit() {};
 
 	virtual int getType() = 0;
@@ -26,7 +26,8 @@ public:
 	enum unit_type {
 		UT_BLACK_HOLE,
 		UT_BUNNY,
-		UT_ROBOT
+		UT_ROBOT,
+		UT_SPAWN_BUNNY
 	};
 
 	
@@ -69,6 +70,9 @@ private:
 	//For the selection icon
 	static SDL_Surface * selectSurface;	
 	static SDL_Rect clipsSelect[17];
+
+	// Flags whether or not the unit can be moved on map
+	bool isMovable;
 
 };
 

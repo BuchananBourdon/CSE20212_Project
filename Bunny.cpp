@@ -10,7 +10,7 @@ SDL_Rect Bunny::clipsLeft[17][ 4 ];
 SDL_Rect Bunny::clipsUp[17][ 4 ];
 SDL_Rect Bunny::clipsDown[17][ 4 ];
 	
-Bunny::Bunny(Map &_map, int _x, int _y) : Unit(_map,_x,_y,1,1,100,DOWN,0)
+Bunny::Bunny(Map &_map, int _x, int _y) : Unit(_map,_x,_y,1,1,100,DOWN,0,true)
 {
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(bunnySurface == NULL) {

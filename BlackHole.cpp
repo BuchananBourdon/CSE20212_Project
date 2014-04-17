@@ -18,3 +18,4 @@ void BlackHole::drawUnit(View &view) {
 
 void BlackHole::updateUnit(Map &) {
 }
+

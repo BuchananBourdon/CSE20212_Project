@@ -14,10 +14,10 @@ SDL_Surface* Unit::selectSurface = NULL;
 SDL_Rect Unit::clipsSelect[17];
 
 Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _status,
-		int _frame)
+		int _frame, bool _isMovable)
                 : id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
                         path(NULL), maxhp(_maxhp), hp(_maxhp), status(_status),
-                        frame(_frame) {
+                        frame(_frame), isMovable(_isMovable)  {
 	//The first time a unit is constructed, load the image and set the clips
 	if(selectSurface==NULL) {  
 		SDL_Surface * loadedImage = IMG_Load("Select.png");
@@ -71,10 +71,12 @@ void Unit::drawSelected(View &view) {
 
 // Set the unit's goal to be to move to (newx, newy)
 void Unit::move(Uint16 newx, Uint16 newy) {
-	goal = GOAL_MOVE;
+	if(isMovable) {
+		goal = GOAL_MOVE;
 
-	if(path) delete path;
-	path = new Path(x,y,newx,newy,w,h);
+		if(path) delete path;
+		path = new Path(x,y,newx,newy,w,h);
+	}
 }
 
 // Deterministically update the unit according to whatever its current goal is
