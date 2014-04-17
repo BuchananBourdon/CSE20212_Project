@@ -9,8 +9,8 @@ const Uint8 Map::roughness = 0xFF;
 const Uint8 Map::waterlevel = 0x38;
 const Uint8 Map::mountainlevel = 0x80;
 
-const int Map::numrivers = 20;
-const int Map::riverlength = 20;
+const int Map::numrivers = 10;
+const int Map::riverlength = 50;
 
 SDL_Surface* Map::mountainSurface = NULL;
 SDL_Surface* Map::grassSurface = NULL;
@@ -190,26 +190,30 @@ void Map::trace_river(Random *r) {
 	// Trace out a river
 	unsigned int x = r->next()%width;
 	unsigned int y = r->next()%height;
+
 	for(int i = 0; i < riverlength; i++) {
 		map[y][x].type = TILE_WATER;
 
-		unsigned int newx, newy;
 		unsigned int minheight = 0x100;
+		unsigned int newx = x, newy = y;
 
 		// Flow in the direction of least elevation
-		for(int dir = 0; dir < 8; dir++) {
-			int dx = (dir&3) == 1 ? 0 : !(dir&4) ^ !(dir&2)
-				? 1 : -1;
-			int dy = dir < 3 ? -1 : (dir&3) == 3 ? 0 : 1;
+		for(int dir = 0; dir < 4; dir++) {
+			int dx = dir&1 ? dir&2 ? -1 : 1 : 0;
+			int dy = dir&1 ? 0 : dir&2 ? 1 : -1;
 
 			if(x + dx >= 0 && x + dx < width && y + dy >= 0
 				&& y + dy < height
-				&& map[x + dx][y + dy].height < minheight) {
+				&& map[y + dy][x + dx].type != TILE_WATER
+				&& map[y + dy][x + dx].height < minheight) {
 				newx = x + dx;
 				newy = y + dy;
-				minheight = map[newx][newy].height;
+				minheight = map[newy][newx].height;
 			}
 		}
+
+		if(newx == x && newy == y)
+			break;
 
 		x = newx;
 		y = newy;
