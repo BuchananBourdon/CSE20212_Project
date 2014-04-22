@@ -23,7 +23,7 @@ const int Game::turndelay = 2; // Delay between turn creation and execution
 Game::Game(bool _hosting, IPaddress address)
 	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0), xup(0),
 		yup(0), moved(0), mousex(0), mousey(0), start(0), turn(NULL),
-		view(0,0,0,0,0) {
+		view(0,0,0,0,0), bar(80,400), resources(50) ,showResources(false){
 	// Prepare the connection
 	Uint16 port = SDLNet_Read16(&address.port);
 	if(hosting) { // Hosting a game
@@ -207,10 +207,14 @@ void Game::handleEvents() {
                                         rand()%map->getHeight()));
 
 			// Scrolling around the map
-			if(event.key.keysym.sym == SDLK_UP)
+			if(event.key.keysym.sym == SDLK_UP) {
 				viewVelocity_y += -1;
-			if(event.key.keysym.sym == SDLK_DOWN)
+				if(resources<100) resources++; //for testing resources
+			}
+			if(event.key.keysym.sym == SDLK_DOWN) {
 				viewVelocity_y += 1;
+				if(resources>0)	resources--;   //for testing resources
+			}
 			if (event.key.keysym.sym == SDLK_LEFT)
 				viewVelocity_x += -1;
 			if(event.key.keysym.sym == SDLK_RIGHT)
@@ -270,7 +274,14 @@ void Game::handleEvents() {
 					selectUnits(SDL_GetModState()
 						&KMOD_SHIFT,xdown,ydown,
 						event.button.x,event.button.y);
-				else moveUnits(event.button.x,event.button.y);
+				else {
+					SDL_Surface* surface = SDL_GetVideoSurface();
+					//only send move order if the destination is not on ActionBar
+					if(event.button.x < (surface->w-bar.getWidth())/2 ||
+						event.button.x > (surface->w-(surface->w-bar.getWidth())/2) ||
+						event.button.y < (surface->h-bar.getHeight()))
+						moveUnits(event.button.x,event.button.y);
+				}
                 	}
 			break;
 	
@@ -278,6 +289,9 @@ void Game::handleEvents() {
 			// Keep track of mouse location
 			mousex = event.motion.x;
                 	mousey = event.motion.y;
+			//show the resource count if the user hovers over the resource bar
+			if(mousex>135 && mousex<505 && mousey<480-2 && mousey>480-18)	showResources=true;
+			else	showResources=false;
 			break;
 
 		case SDL_QUIT:
@@ -453,6 +467,9 @@ void Game::draw() {
 		boxRGBA(surface,xdown,ydown,mousex,mousey,90,90,255,80);
 		rectangleRGBA(surface,xdown,ydown,mousex,mousey,150,150,255,170);		
 	}
+
+	// Draw the ActionBar last, so it's drawn atop the map/unit layer
+	bar.draw(resources,showResources); 
      
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());

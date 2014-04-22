@@ -17,6 +17,7 @@ class Game;
 #include "Turn.h"
 #include "Unit.h"
 #include "View.h"
+#include "ActionBar.h"
 
 class Game {
 	friend class Message;
@@ -73,6 +74,12 @@ private:
 
 	Map *map;  // World to play in
 	View view; // What we can see
+
+	ActionBar bar;	
+
+	int resources;
+	bool showResources;	//for showing resource-count on mouse hover-over
+
 		
 	std::vector<std::vector<Unit *> > units; // For each player
 	std::set<int> selected;                  // Currently active
