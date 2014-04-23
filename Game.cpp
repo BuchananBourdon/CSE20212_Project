@@ -504,8 +504,8 @@ void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 
 // Order all selected units to move
 void Game::moveUnits(unsigned int x, unsigned int y) {
-	Uint16 mapx = min(view.x + x/view.zoom,view.x + view.w - 1u);
-	Uint16 mapy = min(view.y + y/view.zoom,view.y + view.h - 1u);
+	Uint16 mapx = min(view.x + (float) x/view.zoom,view.x + view.w - 1u);
+	Uint16 mapy = min(view.y + (float) y/view.zoom,view.y + view.h - 1u);
 
 	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
 		iter++)
