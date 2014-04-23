@@ -20,10 +20,15 @@ const int Game::ticksperturn = 400; // For the deterministic simulation
 
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
+const int Game::minzoom = 10;
+const int Game::maxzoom = 100;
+const int Game::zoomstep = 6;
+
 Game::Game(bool _hosting, IPaddress address)
-	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0), xup(0),
-		yup(0), moved(0), mousex(0), mousey(0), start(0), turn(NULL),
-		view(0,0,0,0,0), bar(80,400), resources(50) ,showResources(false){
+	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0),
+		xup(0), yup(0), moved(0), mousex(0), mousey(0), start(0),
+		turn(NULL), view(0,0,0,0,0), bar(80,400), resources(50),
+		showResources(false) {
 	// Prepare the connection
 	Uint16 port = SDLNet_Read16(&address.port);
 	if(hosting) { // Hosting a game
@@ -101,7 +106,7 @@ void Game::play() {
 		updateSimulation();
 
 		draw();
-		
+
 		// Max out at 60 fps
 		if(SDL_GetTicks() - lastframe < 16)
 			SDL_Delay(16-(SDL_GetTicks() - lastframe));
@@ -170,139 +175,151 @@ void Game::handleEvents() {
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
-		case SDL_KEYDOWN:
-			// Quick-exit key
-			if(event.key.keysym.sym == SDLK_DELETE) {
-				sendMessage(new HangupMessage());
-				exit();
-			}
+		case SDL_KEYDOWN:         handleKeyDown(event);   break;
+		case SDL_KEYUP:           handleKeyUp(event);     break;
+		case SDL_MOUSEBUTTONDOWN: handleMouseDown(event); break;
+		case SDL_MOUSEBUTTONUP:   handleMouseUp(event);   break;
+		case SDL_MOUSEMOTION:     handleMouseMove(event); break;
+		case SDL_QUIT:            handleQuit(event);      break;
 
-			// Just for testing the MoveUnitOrder class
-			if(event.key.keysym.sym == SDLK_m)
-				turn->addOrder(new MoveUnitOrder(0,
-					rand() & 0xFFFF,rand() & 0xFFFF));
-
-			// Just for testing the CreateUnitOrder class
-			if(event.key.keysym.sym == SDLK_c)
-				turn->addOrder(new CreateUnitOrder(0,
-					rand()%map->getWidth(),
-					rand()%map->getHeight()));
-
-			// For testing the creation of bunnies
-			if(event.key.keysym.sym == SDLK_b)
-				turn->addOrder(new CreateUnitOrder(1,
-                                        rand()%map->getWidth(),
-					rand()%map->getHeight()));
-
-			// For testing the creation of robots
-                        if(event.key.keysym.sym == SDLK_r)
-                                turn->addOrder(new CreateUnitOrder(2,
-                                        rand()%map->getWidth(),
-                                        rand()%map->getHeight()));
-
-			// For testing the creation of rainbows
-                        if(event.key.keysym.sym == SDLK_p)
-                                turn->addOrder(new CreateUnitOrder(3,
-                                        rand()%map->getWidth(),
-                                        rand()%map->getHeight()));
-
-			// Scrolling around the map
-			if(event.key.keysym.sym == SDLK_UP) {
-				viewVelocity_y += -1;
-				if(resources<100) resources++; //for testing resources
-			}
-			if(event.key.keysym.sym == SDLK_DOWN) {
-				viewVelocity_y += 1;
-				if(resources>0)	resources--;   //for testing resources
-			}
-			if (event.key.keysym.sym == SDLK_LEFT)
-				viewVelocity_x += -1;
-			if(event.key.keysym.sym == SDLK_RIGHT)
-				viewVelocity_x += 1;
-			break;
-
-		case SDL_KEYUP:
-			//For continuous scrolling around the map
-			//View wont change when you release keys
-			if(event.key.keysym.sym == SDLK_UP)
-                                viewVelocity_y = 0;
-                        if(event.key.keysym.sym == SDLK_DOWN)
-                                viewVelocity_y = 0;
-                        if (event.key.keysym.sym == SDLK_LEFT)
-                                viewVelocity_x = 0;
-                        if(event.key.keysym.sym == SDLK_RIGHT)
-                                viewVelocity_x = 0;
-			break;
-
-		case SDL_MOUSEBUTTONDOWN:
-			// Zoom in and out (zoom extents now in values of 6 [4,10,16,22...100])
-			if(event.button.button == SDL_BUTTON_WHEELUP) {
-				SDL_Surface *surface = SDL_GetVideoSurface();
-
-				if(view.zoom < 100) view.zoom+=6;
-				view.w = (surface->w + view.zoom - 1)
-					/view.zoom;
-				view.h = (surface->h + view.zoom - 1)
-					/view.zoom;
-			}
-
-			if(event.button.button == SDL_BUTTON_WHEELDOWN) {
-				SDL_Surface *surface = SDL_GetVideoSurface();
-				//min zoom is 10
-				if(view.zoom > 10) view.zoom-=6;
-				view.w = (surface->w + view.zoom - 1)
-					/view.zoom;
-				view.h = (surface->h + view.zoom - 1)
-					/view.zoom;
-			}
-			//store the click locations and toggle moved to 1, drawing the selection square
-			if(event.button.button == SDL_BUTTON_LEFT ) {
-                        	xdown = event.button.x;         
-                        	ydown = event.button.y;
-                        	moved = 1;
-                	}
-			break;
-
-		case SDL_MOUSEBUTTONUP:
-			if(event.button.button == SDL_BUTTON_LEFT) {
-				// Stop drawing the selection box
-                        	moved = 0;
-
-				// Either select or move units
-				if(fabs(event.button.x - xdown) > 2
-					&& fabs(event.button.y - ydown) > 2)
-					selectUnits(SDL_GetModState()
-						&KMOD_SHIFT,xdown,ydown,
-						event.button.x,event.button.y);
-				else {
-					SDL_Surface* surface = SDL_GetVideoSurface();
-					//only send move order if the destination is not on ActionBar
-					if(event.button.x < (surface->w-bar.getWidth())/2 ||
-						event.button.x > (surface->w-(surface->w-bar.getWidth())/2) ||
-						event.button.y < (surface->h-bar.getHeight()))
-						moveUnits(event.button.x,event.button.y);
-				}
-                	}
-			break;
-	
-		case SDL_MOUSEMOTION:
-			// Keep track of mouse location
-			mousex = event.motion.x;
-                	mousey = event.motion.y;
-			//show the resource count if the user hovers over the resource bar
-			if(mousex>135 && mousex<505 && mousey<480-2 && mousey>480-18)	showResources=true;
-			else	showResources=false;
-			break;
-
-		case SDL_QUIT:
-			//Also quit game when user "x's" out of window
-			sendMessage(new HangupMessage());
-                        exit();
-			break;
+		default: break;
 		}
-	
 	}
 
+}
+
+void Game::handleKeyDown(SDL_Event &e) {
+	switch(e.key.keysym.sym) {
+	case SDLK_DELETE: // Quick-exit key
+		sendMessage(new HangupMessage());
+		exit();
+		break;
+
+	case SDLK_b: // For testing the creation of bunnies
+		turn->addOrder(new CreateUnitOrder(1,rand()%map->getWidth(),
+			rand()%map->getHeight()));
+		break;
+
+	case SDLK_p: // For testing the creation of rainbows
+		turn->addOrder(new CreateUnitOrder(3,rand()%map->getWidth(),
+			rand()%map->getHeight()));
+		break;
+
+	case SDLK_r: // For testing the creation of robots
+		turn->addOrder(new CreateUnitOrder(2,rand()%map->getWidth(),
+			rand()%map->getHeight()));
+		break;
+
+	case SDLK_UP: // Scroll up the map
+		viewVelocity_y += -1;
+
+		// For testing resources
+		if(resources < 100) resources++;
+		break;
+
+	case SDLK_DOWN: // Scroll down the map
+		viewVelocity_y += 1;
+
+		// For testing resources
+		if(resources > 0) resources--;
+		break;
+
+	case SDLK_LEFT: // Scroll left across the map
+		viewVelocity_x += -1;
+		break;
+
+	case SDLK_RIGHT: // Scroll right across the map
+		viewVelocity_x += 1;
+		break;
+
+	default: break;
+	}
+}
+
+void Game::handleKeyUp(SDL_Event &e) {
+	switch(e.key.keysym.sym) {
+	case SDLK_UP: // Stop vertical scrolling
+	case SDLK_DOWN:
+		viewVelocity_y = 0;
+		break;
+
+	case SDLK_LEFT: // Stop horizontal scrolling
+	case SDLK_RIGHT:
+		viewVelocity_x = 0;
+		break;
+
+	default: break;
+	}
+}
+
+void Game::handleMouseDown(SDL_Event &e) {
+	SDL_Surface *surface = SDL_GetVideoSurface();
+
+	switch(e.button.button) {
+	case SDL_BUTTON_WHEELUP: // Zoom in
+		if(view.zoom < maxzoom) {
+			view.zoom += zoomstep;
+			view.w = (surface->w + view.zoom - 1)/view.zoom;
+			view.h = (surface->h + view.zoom - 1)/view.zoom;
+		}
+		break;
+
+	case SDL_BUTTON_WHEELDOWN: // Zoom out
+		if(view.zoom > minzoom) {
+			view.zoom -= zoomstep;
+			view.w = (surface->w + view.zoom - 1)/view.zoom;
+			view.h = (surface->h + view.zoom - 1)/view.zoom;
+		}
+		break;
+
+	case SDL_BUTTON_LEFT: // Selection box
+		xdown = e.button.x;
+		ydown = e.button.y;
+		moved = 1;
+		break;
+
+	default: break;
+	}
+}
+
+void Game::handleMouseUp(SDL_Event &e) {
+	SDL_Surface* surface = SDL_GetVideoSurface();
+
+	switch(e.button.button) {
+	case SDL_BUTTON_LEFT:
+		// Stop drawing the selection box
+		moved = 0;
+
+		// Select units?
+		if(abs(e.button.x - xdown) > 2 && abs(e.button.y - ydown) > 2)
+			selectUnits(SDL_GetModState()&KMOD_SHIFT,xdown,ydown,
+				e.button.x,e.button.y);
+		// Action bar action?
+		else if(e.button.x > (surface->w - bar.getWidth())/2
+			&& e.button.x < (surface->w - (surface->w - bar.getWidth())/2)
+			&& e.button.y > (surface->h - bar.getHeight()))
+			;
+		// Move units
+		else moveUnits(e.button.x,e.button.y);
+		break;
+
+	default: break;
+	}
+}
+
+void Game::handleMouseMove(SDL_Event &e) {
+	// Keep track of the mouse
+	mousex = e.motion.x;
+	mousey = e.motion.y;
+
+	// Show the resource count when hovering over the resource bar
+	showResources = mousex > 135 && mousex < 505 && mousey < 480 - 2
+		&& mousey > 480 - 18;
+}
+
+void Game::handleQuit(SDL_Event &e) {
+	sendMessage(new HangupMessage());
+	exit();
 }
 
 // Process anything we receive on the network
@@ -373,8 +390,8 @@ void Game::updateSimulation() {
 
 			// Prepare the view
 			SDL_Surface *surface = SDL_GetVideoSurface();
-			view = View(0,0,(surface->w + 15)/16,
-				(surface->h + 15)/16,16);
+			view = View(0,0,ceil((float) surface->w/maxzoom),
+				ceil((float) surface->h/maxzoom),maxzoom);
 
 			start = SDL_GetTicks();
 		}
@@ -398,7 +415,7 @@ void Game::updateSimulation() {
 				<< turn->getTurnId() << endl;
 			break;
 		}
-		
+
 		if(turnid > turn->getTurnId() + turndelay)
 			cerr << "warning: executing turn " << turn->getTurnId()
 				<< " " << (SDL_GetTicks() - (start
@@ -417,7 +434,7 @@ void Game::updateSimulation() {
 	}
 }
 
-//Change the view if not at the extents 
+//Change the view if not at the extents
 void Game::updateView() {
 	//x velocity can only be applied if view is within reasonable range
 	if(viewVelocity_x < 0) {
@@ -448,7 +465,7 @@ void Game::draw() {
 
 	// Update the view before the map is drawn
 	updateView();
-	
+
 	// Draw the background
 	map->draw(view);
 
@@ -461,16 +478,16 @@ void Game::draw() {
 	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
 		iter++)
 		units[playerid][*iter]->drawSelected(view);
-	
+
 	// draw selection box, transparent blue/gray
 	if(moved==1) {
 		boxRGBA(surface,xdown,ydown,mousex,mousey,90,90,255,80);
-		rectangleRGBA(surface,xdown,ydown,mousex,mousey,150,150,255,170);		
+		rectangleRGBA(surface,xdown,ydown,mousex,mousey,150,150,255,170);
 	}
 
 	// Draw the ActionBar last, so it's drawn atop the map/unit layer
-	bar.draw(resources,showResources); 
-     
+	bar.draw(resources,showResources);
+
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());
 }

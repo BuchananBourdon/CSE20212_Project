@@ -48,6 +48,10 @@ private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
 	static const int turndelay;    // Execution delay
 
+	static const int minzoom;  // No further than
+	static const int maxzoom;  // No closer than
+	static const int zoomstep; // Granularity
+
 	bool hosting;     // Acting as host?
 	UDPsocket socket; // Network connection
 	bool playing;     // Stay in the game?
@@ -85,7 +89,7 @@ private:
 	std::set<int> selected;                  // Currently active
 
  	int viewVelocity_x;	// x velocity for how fast the view is panning
-        int viewVelocity_y;	// y velocity for how fast the view is panning
+	int viewVelocity_y;	// y velocity for how fast the view is panning
 	
 	void handleEvents();     // Process all events
 	void handleMessages();   // Process all messages
@@ -94,6 +98,14 @@ private:
 	void updateSimulation(); // Deterministic simulation
 	void updateView();       // Move view
 	void draw();             // Update screen
+
+	// Helper functions for handleEvents()
+	void handleKeyDown(SDL_Event &);
+	void handleKeyUp(SDL_Event &);
+	void handleMouseDown(SDL_Event &);
+	void handleMouseUp(SDL_Event &);
+	void handleMouseMove(SDL_Event &);
+	void handleQuit(SDL_Event &);
 
 	void selectUnits(bool, int, int, int, int); // Within bounds
 	void moveUnits(unsigned int, unsigned int); // Move selected
