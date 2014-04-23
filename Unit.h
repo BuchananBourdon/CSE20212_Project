@@ -73,7 +73,6 @@ private:
 
 	// Flags whether or not the unit can be moved on map
 	bool isMovable;
-
 };
 
 #endif

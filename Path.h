@@ -14,12 +14,18 @@ public:
 
 
 	struct Location {
+		Location() : x(0), y(0) {}
 		Location(Uint16 _x, Uint16 _y) : x(_x), y(_y) {}
+
+		bool operator==(const Location &);
 
 		Uint16 x, y;
 	};
 
-	Location step(Map &); // Ge the next step
+	bool isFinished(); // Stepped to to?
+
+	void draw(View &);    // Reveal our plans
+	Location step(Map &); // Get the next step
 
 private:
 	// For use in calcPath()

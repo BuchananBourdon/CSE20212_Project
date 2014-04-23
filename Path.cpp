@@ -5,22 +5,54 @@
 #include <queue>
 #include <vector>
 
+#include <SDL/SDL_gfxPrimitives.h>
+
 #include "Path.h"
 
 using namespace std;
+
+bool Path::Location::operator==(const Location &that) {
+	return x == that.x && y == that.y;
+}
+
+// Returns whether every step up to to has been returned
+bool Path::isFinished() {
+	return from == to;
+}
+
+// Visualize the planned path
+void Path::draw(View &view) {
+	SDL_Surface *surface = SDL_GetVideoSurface();
+
+	Location *prev = &from;
+	for(deque<Location>::iterator iter = path.begin(); iter != path.end();
+		iter++) {
+		lineRGBA(surface,(prev->x - view.x + 0.5)*view.zoom,
+			(prev->y - view.y + 0.5)*view.zoom,
+			(iter->x - view.x + 0.5)*view.zoom,
+			(iter->y - view.y + 0.5)*view.zoom,
+			0xFF,0x00,0x00,0xFF);
+
+		prev = &*iter;
+	}
+}
 
 // Return the next step in the path
 Path::Location Path::step(Map &map) {
 	// Make sure we have a path to step along
 	if(path.empty()) calcPath(map);
+
+	// Or don't move at all if there is no path
 	if(path.empty()) return from;
 
 	Location loc = path.front();
 	path.pop_front();
 
-	// If we're blocked, calculate a new path
+	// Make sure we can go there
 	if(!canStep(map,loc)) {
 		calcPath(map);
+
+		// Or don't move at all
 		if(path.empty()) return from;
 
 		loc = path.front();
@@ -32,7 +64,7 @@ Path::Location Path::step(Map &map) {
 
 // Returns whether a is worse than b
 bool Path::CompareStep::operator()(Path::Step *&a, Path::Step *&b) {
-	// First, sort by total cost
+	// First, sort by estimated total cost
 	pair<Uint16,Uint16> adist = a->getDistance();
 	pair<Uint16,Uint16> bdist = b->getDistance();
 	int diff = (a->cost + adist.first) - (b->cost + bdist.first);
@@ -77,17 +109,25 @@ void Path::calcPath(Map &map) {
 	vector<bool> *searched;
 	searched = new vector<bool>[map.getHeight()]();
 	for(unsigned int i = 0; i < map.getHeight(); i++)
-		searched[i].resize(map.getWidth());
+		searched[i].resize(map.getWidth(),false);
 
 	// Start at from
 	steps.push_front(new Step(from,&to,0,NULL));
 	open.push(steps.front());
 
-	// Add the neighbors of the best candidate until we find it or give up
-	while(!open.empty()
-		&& (open.top()->loc.x != to.x || open.top()->loc.y != to.y)) {
+	// Add the neighbors of the best candidate until we find to or give up
+	Step *best = open.top();
+	while(!open.empty()) {
 		Step *s = open.top();
 		open.pop();
+
+		if(s->loc == to) {
+			best = s;
+			break;
+		}
+
+		if(s->getDistance().first < best->getDistance().first)
+			best = s;
 
 		for(int dir = 0; dir < 8; dir++) {
 			int dx = (dir&3) == 1 ? 0 : !(dir&4) ^ !(dir&2)
@@ -110,12 +150,11 @@ void Path::calcPath(Map &map) {
 		}
 	}
 
-	// Save the path we found
-	if(!open.empty()) {
-		for(Step *step = open.top(); step; step = step->prev)
-			path.push_front(step->loc);
-		path.pop_front();
-	}
+	// Save the best path we found
+	path.resize(0);
+	for(Step *step = best; step; step = step->prev)
+		path.push_front(step->loc);
+	path.pop_front();
 
 	// Free all of the temporary data
 	for(list<Step *>::iterator iter = steps.begin();

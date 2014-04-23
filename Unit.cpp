@@ -1,7 +1,11 @@
+#include <iostream>
+
 #include <SDL/SDL_gfxPrimitives.h>
 #include <SDL/SDL_image.h>
 
 #include "Unit.h"
+
+using namespace std;
 
 int Unit::unitcount = 0;
 
@@ -48,6 +52,8 @@ bool Unit::inView(View &view) {
 
 // Handle generic stuff like health bars
 void Unit::draw(View &view) {
+//	if(path) path->draw(view);
+
 	this->drawUnit(view);
 }
 
@@ -81,36 +87,42 @@ void Unit::move(Uint16 newx, Uint16 newy) {
 
 // Deterministically update the unit according to whatever its current goal is
 void Unit::update(Map &map) {
+	Path::Location loc;
+
 	switch(goal) {
 	case GOAL_NONE:
 		frame = 0;
 		break;
 
 	case GOAL_MOVE:
-		int startx = x;
-		int starty = y;
-		
 		setOccupancy(map,false);
 
-		Path::Location loc = path->step(map);
+		loc = path->step(map);
 
 		if(loc.x > x) status = RIGHT;
 		if(loc.x < x) status = LEFT;
 		if(loc.y > y) status = DOWN;
 		if(loc.y < y) status = UP;
 
-		// Goal acheived/failed?
-		if((loc.x == x && loc.y == y) || map.isOccupied(loc.x,loc.y))
+		if(map.isOccupied(loc.x,loc.y))
+			cerr << "warning: ordered to move to occupied location"
+				" (" << loc.x << ", " << loc.y << ")" << endl;
+
+		if(x != loc.x || y != loc.y)
+			frame++;
+
+		x = loc.x;
+		y = loc.y;
+
+		// Goal achieved?
+		if(path->isFinished())
 			goal = GOAL_NONE;
 
-		if(!map.isOccupied(loc.x,loc.y)) {
-			x = loc.x;
-			y = loc.y;
-		}
-
 		setOccupancy(map,true);
-		//Only animate if the unit has moved to a new tile
-		if(x!=startx || y!=starty) frame++;
+		break;
+
+	default:
+		cerr << "unknown goal (" << goal << ")" << endl;
 		break;
 	}
 	
