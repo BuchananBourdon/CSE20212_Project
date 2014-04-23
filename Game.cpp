@@ -20,10 +20,6 @@ const int Game::ticksperturn = 400; // For the deterministic simulation
 
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
-const int Game::minzoom = 10;
-const int Game::maxzoom = 100;
-const int Game::zoomstep = 6;
-
 Game::Game(bool _hosting, IPaddress address)
 	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0),
 		xup(0), yup(0), moved(0), mousex(0), mousey(0), start(0),
@@ -253,23 +249,16 @@ void Game::handleKeyUp(SDL_Event &e) {
 }
 
 void Game::handleMouseDown(SDL_Event &e) {
-	SDL_Surface *surface = SDL_GetVideoSurface();
+	int mx, my;
+	SDL_GetMouseState(&mx,&my);
 
 	switch(e.button.button) {
 	case SDL_BUTTON_WHEELUP: // Zoom in
-		if(view.zoom < maxzoom) {
-			view.zoom += zoomstep;
-			view.w = (surface->w + view.zoom - 1)/view.zoom;
-			view.h = (surface->h + view.zoom - 1)/view.zoom;
-		}
+		view.adjustZoom(*map,1,mx,my);
 		break;
 
 	case SDL_BUTTON_WHEELDOWN: // Zoom out
-		if(view.zoom > minzoom) {
-			view.zoom -= zoomstep;
-			view.w = (surface->w + view.zoom - 1)/view.zoom;
-			view.h = (surface->h + view.zoom - 1)/view.zoom;
-		}
+		view.adjustZoom(*map,-1,mx,my);
 		break;
 
 	case SDL_BUTTON_LEFT: // Selection box
@@ -390,8 +379,10 @@ void Game::updateSimulation() {
 
 			// Prepare the view
 			SDL_Surface *surface = SDL_GetVideoSurface();
-			view = View(0,0,ceil((float) surface->w/maxzoom),
-				ceil((float) surface->h/maxzoom),maxzoom);
+			view = View(0,0,
+				ceil((float) surface->w/View::maxzoom),
+				ceil((float) surface->h/View::maxzoom),
+				View::maxzoom);
 
 			start = SDL_GetTicks();
 		}
@@ -411,7 +402,7 @@ void Game::updateSimulation() {
 		turnqueue.size() && turnid >= turn->getTurnId() + turndelay) {
 		// Go no further if we're missing data from someone
 		if(turn->getPlayerCount() < numplayers) {
-			cerr << "warning: possible dropped packet(s) for turn "
+			cerr << "warning: possible dropped packet for turn "
 				<< turn->getTurnId() << endl;
 			break;
 		}

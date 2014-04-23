@@ -48,14 +48,10 @@ private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
 	static const int turndelay;    // Execution delay
 
-	static const int minzoom;  // No further than
-	static const int maxzoom;  // No closer than
-	static const int zoomstep; // Granularity
-
 	bool hosting;     // Acting as host?
 	UDPsocket socket; // Network connection
 	bool playing;     // Stay in the game?
-				
+
 	Uint8 playerid; // Who am I?
 	int numplayers; // Players in the game
 	Random *random; // Pseudorandom source
@@ -79,18 +75,18 @@ private:
 	Map *map;  // World to play in
 	View view; // What we can see
 
-	ActionBar bar;	
+	ActionBar bar;
 
 	int resources;
 	bool showResources;	//for showing resource-count on mouse hover-over
 
-		
+
 	std::vector<std::vector<Unit *> > units; // For each player
 	std::set<int> selected;                  // Currently active
 
  	int viewVelocity_x;	// x velocity for how fast the view is panning
 	int viewVelocity_y;	// y velocity for how fast the view is panning
-	
+
 	void handleEvents();     // Process all events
 	void handleMessages();   // Process all messages
 	void broadcastTurn();    // Send our current turn

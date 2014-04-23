@@ -7,7 +7,7 @@ CPP_FILES = main.cpp BlackHole.cpp Bunny.cpp Robot.cpp SpawnBunny.cpp \
 	HangupMessage.cpp IPaddress.cpp JoinMessage.cpp \
 	JoinResponseMessage.cpp Map.cpp Message.cpp MoveUnitOrder.cpp \
 	Order.cpp Path.cpp PlayerTurn.cpp PlayerTurnMessage.cpp Random.cpp \
-	Turn.cpp Unit.cpp 
+	Turn.cpp Unit.cpp View.cpp
 
 DEPENDS = $(CPP_FILES:.cpp=.d)
 OBJECTS = $(CPP_FILES:.cpp=.o)
