@@ -13,17 +13,12 @@ public:
 private:
 	int h,w;		//height and width data only used for other methods (surface doesnt resize)
 	
-	/* ***To be added***
-	ActionButton spawn;
-	ActionButton turret;
-	ActionButton select;	
-	ActionButton structure;
-	ActionButton barrier;
-	*/
-
 	static SDL_Surface* bar; //action bar surface
+	static SDL_Surface* button;
+
 	static SDL_Rect clipBar; //clip for action bar surface
-	
+	static SDL_Rect clipButton[2][2];
+
 	void setClip();		//method that sets the action bar clip
 };
 

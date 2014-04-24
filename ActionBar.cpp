@@ -8,15 +8,22 @@
 using namespace std;
 
 SDL_Surface* ActionBar::bar = NULL;
+SDL_Surface* ActionBar::button = NULL;
+
 SDL_Rect ActionBar::clipBar;
+SDL_Rect ActionBar::clipButton[2][2];
 
 ActionBar::ActionBar(int _height, int _width) 
 		: h(_height), w(_width) {
 	if(bar==NULL) {
 		SDL_Surface* loadedImage = IMG_Load("ActionBar.png");
+		SDL_Surface* loadedImage2 = IMG_Load("Buttons.png");
 		SDL_Surface* optimizedImage = SDL_DisplayFormatAlpha(loadedImage);
+		SDL_Surface* optimizedImage2 = SDL_DisplayFormatAlpha(loadedImage2);
 		SDL_FreeSurface(loadedImage);
+		SDL_FreeSurface(loadedImage2);
 		bar = optimizedImage;
+		button = optimizedImage2;
 		setClip();
 	}
 }
@@ -31,6 +38,15 @@ void ActionBar::setClip() {
 	clipBar.y = 0;
 	clipBar.w = 400;
 	clipBar.h = 80;
+
+	for(int i=0; i<2; i++) {
+		for(int j=0; j<2; j++) {
+			clipButton[i][j].x = 50*j;
+			clipButton[i][j].y = 50*i;
+			clipButton[i][j].w = clipButton[i][j].h = 50;
+		}
+	}
+
 }
 
 //draw method takes in number of resources, and whether or not to display the string resource count
@@ -39,6 +55,16 @@ void ActionBar::draw(int resources, bool showResources) {
 	SDL_Rect offSet;
 	offSet.x = (surface->w - w)/2;
 	offSet.y = (surface->h - h);
+
+	SDL_Rect buttonOffsets[2];
+	for(int i=0; i<2; i++) {
+		buttonOffsets[i].x = 25*(i+1)+50*i;
+		buttonOffsets[i].y = 6;
+	}
+
+	// blit the buttons to the bar
+	SDL_BlitSurface(button,&clipButton[0][0],bar,&buttonOffsets[0]);
+	SDL_BlitSurface(button,&clipButton[1][0],bar,&buttonOffsets[1]);
 	SDL_BlitSurface(bar,&clipBar,surface,&offSet); 	//blit the bar
 	boxRGBA(surface,(640-w)/2+15,(480-18),		//draw the gray underlying resource pane
                 (640-w)/2+385,480-2,100,100,100,150);

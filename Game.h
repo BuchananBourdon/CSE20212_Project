@@ -87,6 +87,16 @@ private:
  	int viewVelocity_x;	// x velocity for how fast the view is panning
 	int viewVelocity_y;	// y velocity for how fast the view is panning
 
+	 enum action_state {
+                AS_SELECT,
+                AS_SPAWN,
+                AS_TURRET,
+                AS_BARRIER,
+                AS_STRUCTURE
+        };
+
+        enum action_state state;
+
 	void handleEvents();     // Process all events
 	void handleMessages();   // Process all messages
 	void broadcastTurn();    // Send our current turn
@@ -107,6 +117,7 @@ private:
 	void moveUnits(unsigned int, unsigned int); // Move selected
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
+
 };
 
 #endif

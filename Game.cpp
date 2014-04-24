@@ -51,6 +51,8 @@ Game::Game(bool _hosting, IPaddress address)
 	}
 	viewVelocity_x = 0;
 	viewVelocity_y = 0;
+	
+	state = AS_SPAWN;
 
 	lastframe = 0;
 }
@@ -279,17 +281,38 @@ void Game::handleMouseUp(SDL_Event &e) {
 		// Stop drawing the selection box
 		moved = 0;
 
+		
 		// Select units?
-		if(abs(e.button.x - xdown) > 2 && abs(e.button.y - ydown) > 2)
-			selectUnits(SDL_GetModState()&KMOD_SHIFT,xdown,ydown,
-				e.button.x,e.button.y);
+		if(abs(e.button.x - xdown) > 2 && abs(e.button.y - ydown) > 2) {
+			if(state==AS_SELECT) {
+				selectUnits(SDL_GetModState()&KMOD_SHIFT,xdown,ydown,
+					e.button.x,e.button.y);
+			}
+		}
 		// Action bar action?
 		else if(e.button.x > (surface->w - bar.getWidth())/2
 			&& e.button.x < (surface->w - (surface->w - bar.getWidth())/2)
-			&& e.button.y > (surface->h - bar.getHeight()))
-			;
-		// Move units
-		else moveUnits(e.button.x,e.button.y);
+			&& e.button.y > (surface->h - bar.getHeight())) {
+			
+			if(e.button.x>145 && e.button.x<195 && e.button.y >406 && e.button.y < 456) state=AS_SELECT;
+			else if(e.button.x > 220 && e.button.x < 270 && e.button.y >406 && e.button.y < 456) state = AS_SPAWN;
+
+		}
+		// Move units and place spawns
+		else {
+			if(state==AS_SELECT) {moveUnits(e.button.x,e.button.y);}
+			else if(state==AS_SPAWN) { 
+				Uint16 mapx = min(view.x + (float) e.button.x/view.zoom,view.x + view.w - 1u);
+        			Uint16 mapy = min(view.y + (float) e.button.y/view.zoom,view.y + view.h - 1u);
+				int badTileCount = 0;
+				for(int i=0; i<2; i++) {
+                        		for(int j=0; j<3; j++) {
+                                		if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2) badTileCount++;
+                        		}
+                		}
+				if(badTileCount==0) turn->addOrder(new CreateUnitOrder(3,mapx,mapy));
+			}
+		}
 		break;
 
 	default: break;
@@ -471,9 +494,26 @@ void Game::draw() {
 		units[playerid][*iter]->drawSelected(view);
 
 	// draw selection box, transparent blue/gray
-	if(moved==1) {
-		boxRGBA(surface,xdown,ydown,mousex,mousey,90,90,255,80);
-		rectangleRGBA(surface,xdown,ydown,mousex,mousey,150,150,255,170);
+	if(state==AS_SELECT) {	
+		if(moved) {
+			boxRGBA(surface,xdown,ydown,mousex,mousey,90,90,255,80);
+			rectangleRGBA(surface,xdown,ydown,mousex,mousey,150,150,255,170);
+		}
+	}
+	// Draw the spawn availability box
+	else if(state==AS_SPAWN) {
+    		Uint16 mapx = min(view.x + (float) mousex/view.zoom,view.x + view.w - 1u);
+        	Uint16 mapy = min(view.y + (float) mousey/view.zoom,view.y + view.h - 1u);
+        	int drawx, drawy, drawh;
+        	for(int i=0; i<2; i++) {
+                	for(int j=0; j<3; j++) {
+                        	drawx = (mapx - view.x + j)*view.zoom;
+                        	drawy = (mapy - view.y + i)*view.zoom;
+                        	drawh = view.zoom;
+                        	if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2) boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
+                        	else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
+                	}
+        	}
 	}
 
 	// Draw the ActionBar last, so it's drawn atop the map/unit layer
