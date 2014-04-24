@@ -18,6 +18,12 @@ public:
 		TILE_MOUNTAIN
 	};
 
+	enum resource {
+		RES_NONE,
+		RES_CANDY,
+		RES_COAL
+	};
+
 	unsigned int getWidth()  { return width;  }
 	unsigned int getHeight() { return height; }
 
@@ -38,6 +44,9 @@ private:
 	static const int numrivers;
 	static const int riverlength;
 
+	static const int numfields;
+	static const int fieldsize;
+
 	//For tiles
 	static SDL_Surface * mountainSurface;
 	static SDL_Surface * grassSurface;
@@ -53,6 +62,7 @@ private:
 		Uint8 height;
 
 		enum tile_type type;
+		enum resource resource;
 
 		bool occupied;
 	} **map;
@@ -62,6 +72,9 @@ private:
 	Uint8 diamond_avg(int, int, int, int, Random *);
 
 	void trace_river(Random *); // Add river
+
+	void grow_resource(enum resource, Random *); // Add resource field
+	int density(int, int, enum resource);        // Resourceful neighbors?
 	
 	void setClips();
 };

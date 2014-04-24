@@ -1,5 +1,8 @@
 #include <iostream>
-#include "SDL/SDL_image.h"
+
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_gfxPrimitives.h>
+
 #include "Map.h"
 
 using namespace std;
@@ -11,6 +14,9 @@ const Uint8 Map::mountainlevel = 0x80;
 
 const int Map::numrivers = 10;
 const int Map::riverlength = 50;
+
+const int Map::numfields = 10;
+const int Map::fieldsize = 50;
 
 SDL_Surface* Map::mountainSurface = NULL;
 SDL_Surface* Map::grassSurface = NULL;
@@ -44,12 +50,20 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 			if(map[y][x].height < mountainlevel)
 				map[y][x].type = TILE_LAND;
 			else map[y][x].type = TILE_MOUNTAIN;
+
+			map[y][x].resource = RES_NONE;
 		}
 	}
 
 	// Add some river obstacles
 	for(int i = 0; i < numrivers; i++)
 		trace_river(r);
+
+	// Add some of each resource
+	for(int i = 0; i < numfields; i++) {
+		grow_resource(RES_CANDY,r);
+		grow_resource(RES_COAL,r);
+	}
 	
 	if(mountainSurface == NULL) {
                 SDL_Surface * loadedImage = IMG_Load("Mountains.png");
@@ -105,7 +119,26 @@ void Map::draw(const View &view) {
 				break;
 			}
 
+			// Indicate the tile's resource, if any
+			if(map[y][x].type == TILE_LAND) {
+				switch(map[y][x].resource) {
+				case RES_NONE: break;
 
+				case RES_CANDY:
+					boxRGBA(surface,rect.x,rect.y,
+						rect.x + rect.w,
+						rect.y + rect.h,
+						0xFF,0x00,0x00,0x80);
+					break;
+
+				case RES_COAL:
+					boxRGBA(surface,rect.x,rect.y,
+						rect.x + rect.w,
+						rect.y + rect.h,
+						0x00,0x00,0x00,0x80);
+					break;
+				}
+			}
 		}
 	}
 }
@@ -185,7 +218,7 @@ Uint8 Map::diamond_avg(int x, int y, int w, int h, Random *r) {
 	return sum*0xFF/(points*0xFF + roughness);
 }
 
-// Trace a out a river on the map
+// Trace out a river on the map
 void Map::trace_river(Random *r) {
 	// Trace out a river
 	unsigned int x = r->next()%width;
@@ -218,6 +251,67 @@ void Map::trace_river(Random *r) {
 		x = newx;
 		y = newy;
 	}
+}
+
+// Create a clump of res on the map
+void Map::grow_resource(enum resource res, Random *r) {
+	int x = r->next()%width;
+	int y = r->next()%height;
+
+	for(int i = 0; i < fieldsize; i++) {
+		if(map[y][x].resource == RES_NONE)
+			map[y][x].resource = res;
+
+		int maxdensity = 0;
+		int newx = x, newy = y;
+
+		int offset = r->next()&7;
+
+		// Expand along the field's own border
+		for(int j = 0; j < 8; j++) {
+			int dir = j^offset;
+			int dx = (dir&3) == 1 ? 0 : !(dir&4) ^ !(dir&2)
+				? 1 : -1;
+			int dy = dir < 3 ? -1 : (dir&3) == 3 ? 0 : 1;
+
+			if(x + dx < 0 || x + dx >= (signed) width) continue;
+			if(y + dy < 0 || y + dy >= (signed) height) continue;
+
+			// Don't stamp out others
+			if(map[y + dy][x + dx].resource != RES_NONE) continue;
+
+			int d = density(x + dx,y + dy,res);
+
+			if(d > maxdensity || d == maxdensity && r->next()&3) {
+				maxdensity = d;
+				newx = x + dx;
+				newy = y + dy;
+			}
+		}
+
+		if(newx == x && newy == y)
+			break;
+
+		x = newx;
+		y = newy;
+	}
+}
+
+// Count the number of neighboring tiles that have resource res
+int Map::density(int x, int y, enum resource res) {
+	int d = 0;
+
+	for(int dir = 0; dir < 8; dir++) {
+		int nx = x + ((dir&3) == 1 ? 0 : !(dir&4) ^ !(dir&2) ? 1 : -1);
+		int ny = y + (dir < 3 ? -1 : (dir&3) == 3 ? 0 : 1);
+
+		if(nx < 0 || nx >= (signed) width) continue;
+		if(ny < 0 || ny >= (signed) height) continue;
+
+		if(map[ny][nx].resource == res) d++;
+	}
+
+	return d;
 }
 
 // set the clips for the 3 different surfaces
