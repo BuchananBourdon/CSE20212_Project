@@ -307,7 +307,9 @@ void Game::handleMouseUp(SDL_Event &e) {
 				int badTileCount = 0;
 				for(int i=0; i<2; i++) {
                         		for(int j=0; j<3; j++) {
-                                		if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2) badTileCount++;
+                                		if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2 ||
+							map->resourceType(mapx+j,mapy+i) != 0) 
+							badTileCount++;
                         		}
                 		}
 				if(badTileCount==0) turn->addOrder(new CreateUnitOrder(3,mapx,mapy));
@@ -510,7 +512,9 @@ void Game::draw() {
                         	drawx = (mapx - view.x + j)*view.zoom;
                         	drawy = (mapy - view.y + i)*view.zoom;
                         	drawh = view.zoom;
-                        	if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2) boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
+                        	if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2 || 
+					map->resourceType(mapx+j,mapy+i) != 0) 
+					boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
                         	else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
                 	}
         	}

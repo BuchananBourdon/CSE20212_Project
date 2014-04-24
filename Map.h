@@ -34,6 +34,7 @@ public:
 	void clear(Uint16, Uint16);
 
 	enum tile_type tileType(Uint16, Uint16);
+	enum resource resourceType(Uint16,Uint16);
 
 private:
 	static const Uint8 roughness;

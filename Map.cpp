@@ -374,3 +374,14 @@ enum Map::tile_type Map::tileType(Uint16 x, Uint16 y) {
 
 	return map[y][x].type;
 }
+
+enum Map::resource Map::resourceType(Uint16 x, Uint16 y) {
+	// Sanity check
+        if(x >= width || y >= height) {
+                cerr << "warning: attempt to get type of out-of-bounds tile"
+                        << endl;
+                return RES_NONE;
+        }
+
+        return map[y][x].resource;
+}
