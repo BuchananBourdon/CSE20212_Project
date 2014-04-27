@@ -222,6 +222,11 @@ void Game::handleKeyDown(SDL_Event &e) {
 			rand()%map->getHeight()));
 		break;
 
+	case SDLK_q: // For testing the creation of robot spawn structures
+		turn->addOrder(new CreateUnitOrder(4,rand()%map->getWidth(),
+                        rand()%map->getHeight()));
+		break;
+
 	case SDLK_r: // For testing the creation of robots
 		turn->addOrder(new CreateUnitOrder(2,rand()%map->getWidth(),
 			rand()%map->getHeight()));

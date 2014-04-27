@@ -42,7 +42,8 @@ public:
 		UT_BLACK_HOLE,
 		UT_BUNNY,
 		UT_ROBOT,
-		UT_SPAWN_BUNNY
+		UT_SPAWN_BUNNY,
+		UT_SPAWN_ROBOT
 	};
 
 protected:
