@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <ctime>
 #include <iostream>
 
@@ -27,6 +28,7 @@ Game::Game(bool _hosting, IPaddress address)
 		turn(NULL), view(0,0,0,0,0), bar(80,400), resources(50),
 		showResources(false) {
 	// Prepare the connection
+	UDPsocket socket;
 	Uint16 port = SDLNet_Read16(&address.port);
 	if(hosting) { // Hosting a game
 		setPlayerId(0); // The host is always player 0
@@ -36,17 +38,22 @@ Game::Game(bool _hosting, IPaddress address)
 		if(socket = SDLNet_UDP_Open(port), !socket) {
 			cerr << "error: cannot open UDP socket on port "
 				<< port << endl;
+			abort();
 		}
+
+		messagequeue = new MessageQueue(socket);
 
 		cout << "listening for join request on port " << port << endl;
 	} else { // Joining a game
 		if(socket = SDLNet_UDP_Open(0), !socket) {
 			cerr << "error: cannot open anonymous UDP socket"
 				<< endl;
-			return;
+			abort();
 		}
 
 		SDLNet_UDP_Bind(socket,0,&address);
+
+		messagequeue = new MessageQueue(socket);
 
 		sendMessage(new JoinMessage());
 	}
@@ -59,15 +66,19 @@ Game::Game(bool _hosting, IPaddress address)
 }
 
 Game::~Game() {
-	if(socket) SDLNet_UDP_Close(socket);
-
 	if(random) delete random;
 
-	SDL_FreeSurface(SDL_GetVideoSurface());
+	if(messagequeue) delete messagequeue;
 
 	for(unsigned int i = 0; i < units.size(); i++)
 		for(unsigned int j = 0; j < units[i].size(); j++)
 			delete units[i][j];
+
+	SDL_FreeSurface(SDL_GetVideoSurface());
+}
+
+UDPsocket Game::getSocket() {
+	return messagequeue->getSocket();
 }
 
 void Game::setPlayerId(Uint8 _playerid) {
@@ -96,11 +107,12 @@ void Game::play() {
 
 	while(playing) {
 		handleEvents();
-		handleMessages();
+
+		messagequeue->receive(*this);
 
 		broadcastTurn();
 
-		sendMessages();
+		messagequeue->send();
 
 		updateSimulation();
 
@@ -154,7 +166,7 @@ void Game::addPlayerTurn(PlayerTurn *playerturn) {
 
 // Add message to messagequeue
 void Game::sendMessage(Message *message) {
-	messagequeue.push(message);
+	messagequeue->add(message);
 }
 
 // Assign a unit to a player
@@ -341,22 +353,6 @@ void Game::handleQuit(SDL_Event &e) {
 	exit();
 }
 
-// Process anything we receive on the network
-void Game::handleMessages() {
-	// Have storage for a packet ready
-	Uint8 data[0xFFFF];
-	UDPpacket packet;
-
-	packet.data = data;
-	packet.maxlen = 0xFFFF;
-
-	// Process packets, one by one
-	while(SDLNet_UDP_Recv(socket,&packet) == 1) {
-		Message message(packet);
-		message.handle(*this);
-	}
-}
-
 // Send our turn out to the other players, if ready
 void Game::broadcastTurn() {
 	// Sanity check
@@ -373,25 +369,6 @@ void Game::broadcastTurn() {
 
 		// Time for a new turn
 		turn = new PlayerTurn(turn->getTurnId() + 1,playerid);
-	}
-}
-
-// Send out the messages in messagequeue over the network
-void Game::sendMessages() {
-	Uint8 data[0xFFFF];
-	UDPpacket packet;
-
-	packet.data = data;
-	packet.maxlen = 0xFFFF;
-
-	while(messagequeue.size()) {
-		Message *message = messagequeue.front();
-		messagequeue.pop();
-
-		message->getPacket(packet);
-		delete message;
-
-		SDLNet_UDP_Send(socket,0,&packet);
 	}
 }
 

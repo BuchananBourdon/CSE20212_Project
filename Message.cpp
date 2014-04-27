@@ -1,4 +1,4 @@
-// Message format: [magic:4][type:1][data:...]
+// Message format: [magic:4][sequence:4][ack:4][type:1][data:...]
 
 #include <algorithm>
 #include <iostream>
@@ -11,7 +11,7 @@
 
 using namespace std;
 
-const int Message::headersize = 5;        // Total length of the fields below
+const int Message::headersize = 13;       // Total length of the header fields
 const Uint32 Message::magic = 0x726b6170; // First four bytes of every message
 const Uint8 Message::version = 0;         // To indicate incompatible changes
 
@@ -38,6 +38,14 @@ Message::Message(UDPpacket &packet) {
 	}
 	datap += 4;
 
+	// Get the sequence number
+	sequence = SDLNet_Read32(datap);
+	datap += 4;
+
+	// Get the ack number
+	ack = SDLNet_Read32(datap);
+	datap += 4;
+
 	// Get the message type
 	if(type = *datap++, type >= MT_NUM_TYPES) {
 		cerr << "warning: unknown message type (" << type << ")"
@@ -52,6 +60,11 @@ Message::Message(UDPpacket &packet) {
 	address = packet.address;
 
 	valid = true;
+}
+
+// Compare this and that via sequence numbers
+bool Message::operator<(const Message &that) {
+	return sequence < that.getSequence();
 }
 
 // Export this message in a (preallocated) packet
@@ -73,11 +86,29 @@ void Message::getPacket(UDPpacket &packet) {
 	SDLNet_Write32(magic,datap);
 	datap += 4;
 
+	// Copy over the sequence number
+	SDLNet_Write32(sequence,datap);
+	datap += 4;
+
+	// Copy over the ack number
+	SDLNet_Write32(ack,datap);
+	datap += 4;
+
 	// Copy over the type
 	*datap++ = type;
 
 	// Copy over the data
 	copy(data.begin(),data.end(),datap);
+}
+
+// Indicate the queueing order of this message
+void Message::setSequence(Uint32 _sequence) {
+	sequence = _sequence;
+}
+
+// Indicate how many message we've received
+void Message::setAck(Uint32 _ack) {
+	ack = _ack;
 }
 
 // Handle the contents of the message, probably by delegating to a child class

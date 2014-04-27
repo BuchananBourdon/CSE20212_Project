@@ -5,7 +5,7 @@ CPPFLAGS = -g -Wall -Werror -Wno-parentheses
 CPP_FILES = main.cpp ActionBar.cpp AttackUnitOrder.cpp BlackHole.cpp Bunny.cpp \
 	CreateUnitOrder.cpp Game.cpp HangupMessage.cpp IPaddress.cpp \
 	JoinMessage.cpp JoinResponseMessage.cpp Map.cpp Message.cpp \
-	MoveUnitOrder.cpp Order.cpp Path.cpp PlayerTurn.cpp \
+	MessageQueue.cpp MoveUnitOrder.cpp Order.cpp Path.cpp PlayerTurn.cpp \
 	PlayerTurnMessage.cpp Random.cpp Robot.cpp SpawnBunny.cpp Turn.cpp \
 	Unit.cpp View.cpp
 

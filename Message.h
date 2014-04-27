@@ -14,10 +14,17 @@ public:
 	Message(bool, Uint8); // For composing
 	Message(UDPpacket &); // For receiving
 
-	std::vector<Uint8> &getData()    { return data; }
-	IPaddress          &getAddress() { return address; }
+	bool operator<(const Message &); // By sequence
+
+	Uint32              getSequence() const { return sequence; }
+	Uint32              getAck()            { return ack; }
+	std::vector<Uint8> &getData()           { return data; }
+	IPaddress          &getAddress()        { return address; }
 
 	void getPacket(UDPpacket &); // For sending
+
+	void setSequence(Uint32); // For ordering
+	void setAck(Uint32);      // For re-sending
 
 	void handle(Game &); // Deserialize and execute
 
@@ -36,6 +43,8 @@ protected:
 	};
 
 	bool valid;              // Header OK?
+	Uint32 sequence;         // Ordering
+	Uint32 ack;              // Received
 	Uint8 type;              // Message type
 	std::vector<Uint8> data; // Message body
 

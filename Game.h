@@ -11,6 +11,7 @@ class Game;
 
 #include "Map.h"
 #include "Message.h"
+#include "MessageQueue.h"
 #include "Order.h"
 #include "PlayerTurn.h"
 #include "Random.h"
@@ -26,10 +27,11 @@ public:
 	Game(bool, IPaddress);
 	~Game();
 
-	bool      isHosting() { return hosting; }
-	UDPsocket getSocket() { return socket; }
-	Uint32    getSeed()   { return random->getSeed(); }
-	Map *&    getMap()    { return map; }
+	bool   isHosting() { return hosting; }
+	Uint32 getSeed()   { return random->getSeed(); }
+	Map *& getMap()    { return map; }
+
+	UDPsocket getSocket();
 
 	void setPlayerId(Uint8);
 	void setSeed(Uint32);
@@ -49,9 +51,8 @@ private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
 	static const int turndelay;    // Execution delay
 
-	bool hosting;     // Acting as host?
-	UDPsocket socket; // Network connection
-	bool playing;     // Stay in the game?
+	bool hosting; // Acting as host?
+	bool playing; // Still in the game?
 
 	Uint8 playerid; // Who am I?
 	int numplayers; // Players in the game
@@ -68,7 +69,7 @@ private:
 	Uint32 start;     // Start of the game
 	Uint32 lastframe; // For FPS-limiting
 
-	std::queue<Message *> messagequeue; // Send these soon
+	MessageQueue *messagequeue; // Communication manager
 
 	PlayerTurn *turn;            // For this turn
 	std::list<Turn *> turnqueue; // Play these soon
@@ -98,9 +99,7 @@ private:
         enum action_state state;
 
 	void handleEvents();     // Process all events
-	void handleMessages();   // Process all messages
 	void broadcastTurn();    // Send our current turn
-	void sendMessages();     // Empty out messagequeue
 	void updateSimulation(); // Deterministic simulation
 	void updateView();       // Move view
 	void draw();             // Update screen
