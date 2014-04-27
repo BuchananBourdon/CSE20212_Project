@@ -68,7 +68,8 @@ void Unit::drawSelected(View &view) {
 	SDL_Rect rect;
 	rect.x = (x - view.x)*view.zoom;
 	rect.y = (y - view.y)*view.zoom;
-	rect.w = rect.h = view.zoom;
+	rect.w = w*view.zoom;
+	rect.h = h*view.zoom;
 
 	// Draw the normal SDL_Surface indicator if the zoom is greater than 10
 	if(view.zoom > 10)
@@ -78,6 +79,9 @@ void Unit::drawSelected(View &view) {
 	// because it's easier to see when the resolution is so low
 	else roundedRectangleRGBA(screen,rect.x,rect.y,rect.x + rect.w,
 		rect.y + rect.h,3,0xFF,0,0,0xFF);
+
+	rect.w = w*view.zoom;
+	rect.h = h*view.zoom;
 
 	// Draw the health bar
 	Uint8 r, g, b;
