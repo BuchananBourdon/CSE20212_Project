@@ -1,7 +1,5 @@
 // Move unit order format: [unitid:2][x:2][y:2]
 
-#include <iostream>
-
 #include "MoveUnitOrder.h"
 
 using namespace std;

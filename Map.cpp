@@ -338,14 +338,14 @@ void Map::setClips() {
 	
 }
 
-void Map::occupy(Uint16 x, Uint16 y) {
+void Map::occupy(Uint16 x, Uint16 y, int unitid) {
 	// Sanity check
 	if(isOccupied(x,y)) {
 		cerr << "warning: attempt to occupy occupied tile" << endl;
 		return;
 	}
 
-	map[y][x].occupied = true;
+	map[y][x].unitid = unitid;
 }
 
 bool Map::isOccupied(Uint16 x, Uint16 y) {
@@ -356,12 +356,23 @@ bool Map::isOccupied(Uint16 x, Uint16 y) {
 		return true;
 	}
 
-	return map[y][x].occupied;
+	return map[y][x].unitid >= 0;
+}
+
+int Map::getOccupier(Uint16 x, Uint16 y) {
+	// Sanity check
+	if(x >= width || y >= height) {
+		cerr << "warning: attempt to access out-of-bounds tile (" << x
+			<< ", " << y << ")" << endl;
+		return 0;
+	}
+
+	return map[y][x].unitid;
 }
 
 void Map::clear(Uint16 x, Uint16 y) {
 	if(x < width && y < height)
-		map[y][x].occupied = false;
+		map[y][x].unitid = -1;
 }
 
 enum Map::tile_type Map::tileType(Uint16 x, Uint16 y) {

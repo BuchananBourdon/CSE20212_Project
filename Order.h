@@ -22,7 +22,8 @@ public:
 protected:
 	enum order_type {
 		OT_CREATE_UNIT,
-		OT_MOVE_UNIT
+		OT_MOVE_UNIT,
+		OT_ATTACK_UNIT
 	};
 
 	const int type;

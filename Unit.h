@@ -1,5 +1,9 @@
+class Unit;
+
 #ifndef UNIT_H
 #define UNIT_H
+
+#include <vector>
 
 #include <SDL/SDL.h>
 
@@ -9,8 +13,16 @@
 
 class Unit {
 public:
-	Unit(Map &, int, int, int, int, int, int, int, bool);
+	Unit(Map &, int, int, int, int, int, int, bool);
 	virtual ~Unit() {};
+
+	static Unit *getById(int id) { return units[id]; }
+
+	int    getId() { return id; }
+	Uint16 getX()  { return x; }
+	Uint16 getY()  { return y; }
+
+	bool isDead() { return hp == 0; }
 
 	virtual int getType() = 0;
 
@@ -20,8 +32,11 @@ public:
 	void drawSelected(View &);
 
 	void move(Uint16, Uint16);
+	void attack(Unit *);
 
 	void update(Map &);
+
+	void hit(Unit *, unsigned int);
 
 	enum unit_type {
 		UT_BLACK_HOLE,
@@ -30,10 +45,8 @@ public:
 		UT_SPAWN_BUNNY
 	};
 
-	
-
 protected:
-	virtual void drawUnit(View &) = 0; // Per-subclass
+	virtual void drawUnit(View &) = 0;
 	virtual void updateUnit(Map &) = 0;
 
 	const int id; // Which am I?
@@ -43,13 +56,19 @@ protected:
 
 	enum {
 		GOAL_NONE,
-		GOAL_MOVE
+		GOAL_DEAD,
+		GOAL_MOVE,
+		GOAL_ATTACK
 	} goal;
 
 	Path *path;
 
+	Unit *target;
+
 	const unsigned int maxhp;
 	unsigned int hp;
+
+	const unsigned int power;
 
 	int status;
 	int frame;
@@ -59,16 +78,18 @@ protected:
         static const int UP;
         static const int DOWN;
 
-
 private:
+	static int unitcount;             // For unique IDs
+	static std::vector<Unit *> units; // Indexed by id
+
 	void setOccupancy(Map &, bool); // Stake our claim
 
 	void setSelectionClips(); //sets the Rect dimensions for selection
 
-	static int unitcount; // For unique IDs
+	void followPath(Map &); // One step
 
 	//For the selection icon
-	static SDL_Surface * selectSurface;	
+	static SDL_Surface * selectSurface;
 	static SDL_Rect clipsSelect[17];
 
 	// Flags whether or not the unit can be moved on map

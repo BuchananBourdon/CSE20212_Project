@@ -4,6 +4,7 @@ class Map;
 #define MAP_H
 
 #include "Random.h"
+#include "Unit.h"
 #include "View.h"
 
 class Map {
@@ -29,8 +30,9 @@ public:
 
 	void draw(const View &);
 
-	void occupy(Uint16, Uint16);
+	void occupy(Uint16, Uint16, int);
 	bool isOccupied(Uint16, Uint16);
+	int getOccupier(Uint16, Uint16);
 	void clear(Uint16, Uint16);
 
 	enum tile_type tileType(Uint16, Uint16);
@@ -60,12 +62,15 @@ private:
 	const unsigned int height;
 
 	struct map_tile {
+		map_tile() : height(0), type(TILE_NONE), resource(RES_NONE),
+			unitid(-1) {}
+
 		Uint8 height;
 
 		enum tile_type type;
 		enum resource resource;
 
-		bool occupied;
+		int unitid;
 	} **map;
 
 	void perturb(int, Random *); // For generation

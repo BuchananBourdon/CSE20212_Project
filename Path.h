@@ -1,3 +1,5 @@
+struct Path;
+
 #ifndef PATH_H
 #define PATH_H
 
@@ -5,6 +7,7 @@
 #include <utility>
 
 #include "Map.h"
+#include "View.h"
 
 class Path {
 public:

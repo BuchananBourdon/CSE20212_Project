@@ -43,6 +43,7 @@ public:
 
 	void addUnit(Uint8, Unit *);                  // New unit
 	void moveUnit(Uint8, Uint16, Uint16, Uint16); // Order to move
+	void attackUnit(Uint8, Uint16, Uint16);       // Order to attack
 
 private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
@@ -80,7 +81,6 @@ private:
 	int resources;
 	bool showResources;	//for showing resource-count on mouse hover-over
 
-
 	std::vector<std::vector<Unit *> > units; // For each player
 	std::set<int> selected;                  // Currently active
 
@@ -113,8 +113,10 @@ private:
 	void handleMouseMove(SDL_Event &);
 	void handleQuit(SDL_Event &);
 
-	void selectUnits(bool, int, int, int, int); // Within bounds
-	void moveUnits(unsigned int, unsigned int); // Move selected
+	void defaultAction(unsigned int, unsigned int); // Contextual
+	void selectUnits(bool, int, int, int, int);     // Within bounds
+	void attackUnit(int);                           // Selected attack
+	void moveUnits(Uint16, Uint16);                 // Move selected
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
 

@@ -8,7 +8,7 @@ SDL_Surface* SpawnBunny::spawnbunnySurface = NULL;
 SDL_Rect SpawnBunny::clips[17];
 
 //constructor initializes isMovable to false so we can't move the spawn structures	
-SpawnBunny::SpawnBunny(Map &_map, int _x, int _y) : Unit(_map,_x,_y,3,2,100,DOWN,0,false)
+SpawnBunny::SpawnBunny(Map &_map, int _x, int _y) : Unit(_map,_x,_y,3,2,100,0,false)
 {
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(spawnbunnySurface == NULL) {

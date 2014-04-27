@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "AttackUnitOrder.h"
 #include "CreateUnitOrder.h"
 #include "MoveUnitOrder.h"
 #include "Order.h"
@@ -13,6 +14,7 @@ Order *Order::deserialize(Uint8 *&data) {
 	switch(type) {
 	case OT_CREATE_UNIT: return CreateUnitOrder::deserialize(data);
 	case OT_MOVE_UNIT:   return MoveUnitOrder::deserialize(data);
+	case OT_ATTACK_UNIT: return AttackUnitOrder::deserialize(data);
 
 	default:
 		cerr << "error: received order of unknown type" << endl;
