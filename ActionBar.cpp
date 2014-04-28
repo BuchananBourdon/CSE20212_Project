@@ -11,7 +11,7 @@ SDL_Surface* ActionBar::bar = NULL;
 SDL_Surface* ActionBar::button = NULL;
 
 SDL_Rect ActionBar::clipBar;
-SDL_Rect ActionBar::clipButton[2][2];
+SDL_Rect ActionBar::clipButton[3][2];
 
 ActionBar::ActionBar(int _height, int _width) 
 		: h(_height), w(_width) {
@@ -39,7 +39,7 @@ void ActionBar::setClip() {
 	clipBar.w = 400;
 	clipBar.h = 80;
 
-	for(int i=0; i<2; i++) {
+	for(int i=0; i<3; i++) {
 		for(int j=0; j<2; j++) {
 			clipButton[i][j].x = 50*j;
 			clipButton[i][j].y = 50*i;
@@ -50,7 +50,7 @@ void ActionBar::setClip() {
 }
 
 //draw method takes in number of resources, and whether or not to display the string resource count
-void ActionBar::draw(int resources, bool showResources) {
+void ActionBar::draw(int resources, bool showResources, int _state, int id) {
 	SDL_Surface* surface = SDL_GetVideoSurface();
 	SDL_Rect offSet;
 	offSet.x = (surface->w - w)/2;
@@ -64,7 +64,7 @@ void ActionBar::draw(int resources, bool showResources) {
 
 	// blit the buttons to the bar
 	SDL_BlitSurface(button,&clipButton[0][0],bar,&buttonOffsets[0]);
-	SDL_BlitSurface(button,&clipButton[1][0],bar,&buttonOffsets[1]);
+	SDL_BlitSurface(button,&clipButton[id+1][0],bar,&buttonOffsets[1]);
 	SDL_BlitSurface(bar,&clipBar,surface,&offSet); 	//blit the bar
 	boxRGBA(surface,(640-w)/2+15,(480-18),		//draw the gray underlying resource pane
                 (640-w)/2+385,480-2,100,100,100,150);
@@ -81,4 +81,8 @@ void ActionBar::draw(int resources, bool showResources) {
 		const char * cstr = str.c_str();	//need a c-style string for stringRGBA function
 		stringRGBA(surface,surface->w/2-80,480-10,cstr,255,255,255,255);
 	}
+
+	roundedRectangleRGBA(surface,offSet.x+buttonOffsets[_state].x,
+		buttonOffsets[_state].y+offSet.y,offSet.x+buttonOffsets[_state].x+50,
+		offSet.y+buttonOffsets[_state].y+50,3,150,150,15,255);
 }

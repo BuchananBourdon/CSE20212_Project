@@ -327,14 +327,14 @@ void Game::handleMouseUp(SDL_Event &e) {
 				Uint16 mapx = min(view.x + (float) e.button.x/view.zoom,view.x + view.w - 1u);
         			Uint16 mapy = min(view.y + (float) e.button.y/view.zoom,view.y + view.h - 1u);
 				int badTileCount = 0;
-				for(int i=0; i<2; i++) {
+				for(int i=0; i<2+playerid; i++) {
                         		for(int j=0; j<3; j++) {
                                 		if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2 ||
 							map->resourceType(mapx+j,mapy+i) != 0)
 							badTileCount++;
                         		}
                 		}
-				if(badTileCount==0) turn->addOrder(new CreateUnitOrder(3,mapx,mapy));
+				if(badTileCount==0) turn->addOrder(new CreateUnitOrder(3+playerid,mapx,mapy));
 			}
 		}
 		break;
@@ -494,7 +494,7 @@ void Game::draw() {
     		Uint16 mapx = min(view.x + (float) mousex/view.zoom,view.x + view.w - 1u);
         	Uint16 mapy = min(view.y + (float) mousey/view.zoom,view.y + view.h - 1u);
         	int drawx, drawy, drawh;
-        	for(int i=0; i<2; i++) {
+        	for(int i=0; i<2+playerid; i++) {
                 	for(int j=0; j<3; j++) {
                         	drawx = (mapx - view.x + j)*view.zoom;
                         	drawy = (mapy - view.y + i)*view.zoom;
@@ -508,7 +508,7 @@ void Game::draw() {
 	}
 
 	// Draw the ActionBar last, so it's drawn atop the map/unit layer
-	bar.draw(resources,showResources);
+	bar.draw(resources,showResources,state,playerid);
 
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());
