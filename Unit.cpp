@@ -46,7 +46,6 @@ Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 
 // Sets the clips for the selection indicator
 void Unit::setSelectionClips() {
-
 	for(int i=0;i<17;i++) {
 		clipsSelect[i].x = 0;
 		clipsSelect[i].y = 880-(16-i)*(55-3*i);
@@ -55,6 +54,7 @@ void Unit::setSelectionClips() {
 	}
 }
 
+//Set the clips for the dead unit graphics
 void Unit::setDeathClips() {
 	for(int i=0;i<17;i++) {
 		for(int j=0;j<2;j++) {
@@ -74,9 +74,8 @@ bool Unit::inView(View &view) {
 void Unit::draw(View &view) {
 //	if(path) path->draw(view);
 
-	if(!isDead()) {// TODO: add deadness frames
+	if(!isDead())
 		this->drawUnit(view);
-	}
 	else {
 		SDL_Rect rect;
                 rect.x = (x - view.x)*view.zoom;
@@ -90,7 +89,6 @@ void Unit::draw(View &view) {
 // Draw a selection indicator
 void Unit::drawSelected(View &view) {
 	SDL_Surface *screen = SDL_GetVideoSurface();
-
 	SDL_Rect rect;
 	rect.x = (x - view.x)*view.zoom;
 	rect.y = (y - view.y)*view.zoom;
