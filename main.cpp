@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
 	srand(time(NULL));
 
 	SDL_Init(SDL_INIT_EVERYTHING);
+	SDL_WM_SetCaption("Robot-Bunny Apocalypse",NULL);
 	SDL_SetVideoMode(640,480,0,0);
 
 	// Get connection settings from the command line
