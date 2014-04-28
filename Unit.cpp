@@ -81,8 +81,12 @@ void Unit::draw(View &view) {
                 rect.x = (x - view.x)*view.zoom;
                 rect.y = (y - view.y)*view.zoom;
                 rect.w = rect.h = view.zoom;
-		SDL_BlitSurface(deathSurface,&clipsDeath[16-(((view.zoom+2)/6)-1)][getType()-1],
-			SDL_GetVideoSurface(),&rect);
+		int type = getType();
+		if(type==1 || type==2) {
+			SDL_BlitSurface(deathSurface,
+				&clipsDeath[16-(((view.zoom+2)/6)-1)][type-1],
+				SDL_GetVideoSurface(),&rect);
+		}
 	}
 }
 
