@@ -86,6 +86,7 @@ private:
 	void setOccupancy(Map &, bool); // Stake our claim
 
 	void setSelectionClips(); //sets the Rect dimensions for selection
+	void setDeathClips();   // sets the Rect dimensions for the death gfx
 
 	void followPath(Map &); // One step
 
@@ -93,8 +94,12 @@ private:
 	static SDL_Surface * selectSurface;
 	static SDL_Rect clipsSelect[17];
 
+	static SDL_Surface * deathSurface;
+	static SDL_Rect clipsDeath[17][2];
+
 	// Flags whether or not the unit can be moved on map
 	bool isMovable;
+
 };
 
 #endif

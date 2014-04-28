@@ -16,7 +16,9 @@ const int Unit::UP = 2;
 const int Unit::DOWN = 3;
 
 SDL_Surface* Unit::selectSurface = NULL;
+SDL_Surface* Unit::deathSurface = NULL;
 SDL_Rect Unit::clipsSelect[17];
+SDL_Rect Unit::clipsDeath[17][2];
 
 Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 		bool _isMovable)
@@ -28,10 +30,15 @@ Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 	//The first time a unit is constructed, load the image and set the clips
 	if(selectSurface==NULL) {
 		SDL_Surface * loadedImage = IMG_Load("Select.png");
+		SDL_Surface * loadedImage2 = IMG_Load("Dead.png");
 		SDL_Surface * optimizedImage = SDL_DisplayFormatAlpha(loadedImage);
+		SDL_Surface * optimizedImage2 = SDL_DisplayFormatAlpha(loadedImage2);
 		SDL_FreeSurface(loadedImage);
+		SDL_FreeSurface(loadedImage2);
 		selectSurface = optimizedImage;
+		deathSurface = optimizedImage2;
 		setSelectionClips();
+		setDeathClips();
 	}
 
 	setOccupancy(map,true);
@@ -48,6 +55,16 @@ void Unit::setSelectionClips() {
 	}
 }
 
+void Unit::setDeathClips() {
+	for(int i=0;i<17;i++) {
+		for(int j=0;j<2;j++) {
+			clipsDeath[i][j].x = (100-i*6) * j;
+			clipsDeath[i][j].y = (880-(16-i)*(55-3*i));
+			clipsDeath[i][j].h = clipsDeath[i][j].w = 100-i*6;
+		}
+	}
+}
+
 bool Unit::inView(View &view) {
 	return x + w > view.x && x < view.x + view.w
 		&& y + h > view.y && y < view.y + view.h;
@@ -57,8 +74,17 @@ bool Unit::inView(View &view) {
 void Unit::draw(View &view) {
 //	if(path) path->draw(view);
 
-	if(!isDead()) // TODO: add deadness frames
+	if(!isDead()) {// TODO: add deadness frames
 		this->drawUnit(view);
+	}
+	else {
+		SDL_Rect rect;
+                rect.x = (x - view.x)*view.zoom;
+                rect.y = (y - view.y)*view.zoom;
+                rect.w = rect.h = view.zoom;
+		SDL_BlitSurface(deathSurface,&clipsDeath[16-(((view.zoom+2)/6)-1)][getType()-1],
+			SDL_GetVideoSurface(),&rect);
+	}
 }
 
 // Draw a selection indicator
