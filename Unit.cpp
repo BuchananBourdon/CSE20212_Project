@@ -108,8 +108,8 @@ void Unit::drawSelected(View &view) {
 	else roundedRectangleRGBA(screen,rect.x,rect.y,rect.x + rect.w,
 		rect.y + rect.h,3,0xFF,0,0,0xFF);
 
-	rect.w = w*view.zoom;
-	rect.h = h*view.zoom;
+	rect.w = rect.w*hp/maxhp;
+	rect.h = .1*rect.h;
 
 	// Draw the health bar
 	Uint8 r, g, b;
@@ -117,8 +117,8 @@ void Unit::drawSelected(View &view) {
 	else if(hp < 0.7*maxhp) r = 0xFF, g = 0xFF, b = 0;
 	else r = 0, g = 0xFF, b = 0;
 
-	boxRGBA(screen,rect.x,rect.y,rect.x + rect.w*hp/maxhp,
-		rect.y + 0.1*rect.h,r,g,b,0xFF);
+	boxRGBA(screen,rect.x,rect.y,rect.x + rect.w,
+		rect.y + rect.h,r,g,b,0xFF);
 }
 
 // Set the unit's goal to be to move to (newx, newy)
@@ -139,6 +139,7 @@ void Unit::attack(Unit *_target) {
 		target = _target;
 	}
 }
+
 
 // Deterministically update the unit according to whatever its current goal is
 void Unit::update(Map &map) {
