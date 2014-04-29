@@ -58,6 +58,12 @@ private:
 	static SDL_Rect grassClips[17];
 	static SDL_Rect waterClips[17];
 
+	//For resources
+	static SDL_Surface * candySurface;
+	static SDL_Surface * coalSurface;
+	static SDL_Rect candyClips[17];
+	static SDL_Rect coalClips[17];
+
 	const unsigned int width;
 	const unsigned int height;
 

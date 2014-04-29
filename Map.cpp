@@ -21,9 +21,13 @@ const int Map::fieldsize = 50;
 SDL_Surface* Map::mountainSurface = NULL;
 SDL_Surface* Map::grassSurface = NULL;
 SDL_Surface* Map::waterSurface = NULL;
+SDL_Surface* Map::candySurface = NULL;
+SDL_Surface* Map::coalSurface = NULL;
 SDL_Rect Map::mountainClips[17][5];
 SDL_Rect Map::grassClips[17];
 SDL_Rect Map::waterClips[17];
+SDL_Rect Map::candyClips[17];
+SDL_Rect Map::coalClips[17];
 
 Map::Map(unsigned int size, Random *r) : width(size), height(size) {
 	if(!size || size - 1 & size - 2)
@@ -69,15 +73,23 @@ Map::Map(unsigned int size, Random *r) : width(size), height(size) {
                 SDL_Surface * loadedImage = IMG_Load("Mountains.png");
 		SDL_Surface * loadedImage2 = IMG_Load("Grass.png");
 		SDL_Surface * loadedImage3 = IMG_Load("Water.png");
+		SDL_Surface * loadedImage4 = IMG_Load("Candy.png");
+		SDL_Surface * loadedImage5 = IMG_Load("Coal.png");
                 SDL_Surface * optimizedImage = SDL_DisplayFormatAlpha( loadedImage );
 		SDL_Surface * optimizedImage2 = SDL_DisplayFormatAlpha( loadedImage2 );
 		SDL_Surface * optimizedImage3 = SDL_DisplayFormatAlpha( loadedImage3 );
+		SDL_Surface * optimizedImage4 = SDL_DisplayFormatAlpha( loadedImage4 );
+		SDL_Surface * optimizedImage5 = SDL_DisplayFormatAlpha( loadedImage5 );
                 SDL_FreeSurface(loadedImage);
 		SDL_FreeSurface(loadedImage2);
 		SDL_FreeSurface(loadedImage3);
+		SDL_FreeSurface(loadedImage4);
+		SDL_FreeSurface(loadedImage5);
                 mountainSurface = optimizedImage;
 		grassSurface = optimizedImage2;
 		waterSurface = optimizedImage3;
+		candySurface = optimizedImage4;
+		coalSurface = optimizedImage5;
                 setClips();
         }
 	
@@ -125,17 +137,23 @@ void Map::draw(const View &view) {
 				case RES_NONE: break;
 
 				case RES_CANDY:
+					/*
 					boxRGBA(surface,rect.x,rect.y,
 						rect.x + rect.w,
 						rect.y + rect.h,
 						0xFF,0x00,0x00,0x80);
+					*/
+					SDL_BlitSurface(candySurface,&candyClips[16-(((view.zoom+2)/6)-1)],surface,&rect);
 					break;
 
 				case RES_COAL:
+					/*
 					boxRGBA(surface,rect.x,rect.y,
 						rect.x + rect.w,
 						rect.y + rect.h,
 						0x00,0x00,0x00,0x80);
+					*/
+					SDL_BlitSurface(coalSurface,&coalClips[16-(((view.zoom+2)/6)-1)],surface,&rect);
 					break;
 				}
 			}
@@ -334,6 +352,16 @@ void Map::setClips() {
 		waterClips[i].y = 880-(16-i)*(55-3*i);
 		waterClips[i].w = 100-i*6;
 		waterClips[i].h = 100-i*6;
+
+		candyClips[i].x = 0;
+		candyClips[i].y = 880-(16-i)*(55-3*i);
+		candyClips[i].w = 100-i*6;
+		candyClips[i].h = 100-i*6;
+
+		coalClips[i].x	= 0;
+                coalClips[i].y	= 880-(16-i)*(55-3*i);                
+                coalClips[i].w	= 100-i*6;
+                coalClips[i].h	= 100-i*6;
 	}
 	
 }
