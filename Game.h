@@ -46,6 +46,7 @@ public:
 	void addUnit(Uint8, Unit *);                  // New unit
 	void moveUnit(Uint8, Uint16, Uint16, Uint16); // Order to move
 	void attackUnit(Uint8, Uint16, Uint16);       // Order to attack
+	void spawnUnits(Unit *);
 
 private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
