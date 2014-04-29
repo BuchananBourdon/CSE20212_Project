@@ -137,22 +137,10 @@ void Map::draw(const View &view) {
 				case RES_NONE: break;
 
 				case RES_CANDY:
-					/*
-					boxRGBA(surface,rect.x,rect.y,
-						rect.x + rect.w,
-						rect.y + rect.h,
-						0xFF,0x00,0x00,0x80);
-					*/
 					SDL_BlitSurface(candySurface,&candyClips[16-(((view.zoom+2)/6)-1)],surface,&rect);
 					break;
 
 				case RES_COAL:
-					/*
-					boxRGBA(surface,rect.x,rect.y,
-						rect.x + rect.w,
-						rect.y + rect.h,
-						0x00,0x00,0x00,0x80);
-					*/
 					SDL_BlitSurface(coalSurface,&coalClips[16-(((view.zoom+2)/6)-1)],surface,&rect);
 					break;
 				}
