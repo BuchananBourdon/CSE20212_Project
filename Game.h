@@ -118,6 +118,8 @@ private:
 	void moveUnits(Uint16, Uint16);                 // Move selected
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
+	
+	void gatherResources(Unit *, Map &);
 
 };
 

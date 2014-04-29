@@ -38,6 +38,10 @@ public:
 	enum tile_type tileType(Uint16, Uint16);
 	enum resource resourceType(Uint16,Uint16);
 
+	void elim_resource(Uint16, Uint16); 	//remove resource from map
+	int getResourceAmount(Uint16,Uint16);	//get the resourceAmount at Map tile
+	void decrementResourceAmount(Uint16,Uint16);	//decrement the resourceAmount at tile
+
 private:
 	static const Uint8 roughness;
 
@@ -69,12 +73,14 @@ private:
 
 	struct map_tile {
 		map_tile() : height(0), type(TILE_NONE), resource(RES_NONE),
-			unitid(-1) {}
+			resourceAmount(0), unitid(-1) {}
 
 		Uint8 height;
 
 		enum tile_type type;
 		enum resource resource;
+
+		int resourceAmount;
 
 		int unitid;
 	} **map;
@@ -87,7 +93,7 @@ private:
 
 	void grow_resource(enum resource, Random *); // Add resource field
 	int density(int, int, enum resource);        // Resourceful neighbors?
-	
+
 	void setClips();
 };
 

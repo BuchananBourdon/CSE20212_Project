@@ -265,8 +265,10 @@ void Map::grow_resource(enum resource res, Random *r) {
 	int y = r->next()%height;
 
 	for(int i = 0; i < fieldsize; i++) {
-		if(map[y][x].resource == RES_NONE)
+		if(map[y][x].resource == RES_NONE) {
 			map[y][x].resource = res;
+			map[y][x].resourceAmount = 3;
+		}
 
 		int maxdensity = 0;
 		int newx = x, newy = y;
@@ -411,4 +413,17 @@ enum Map::resource Map::resourceType(Uint16 x, Uint16 y) {
         }
 
         return map[y][x].resource;
+}
+
+//sets the resource enum to RES_NONE for the inputted map tile coordinate
+void Map::elim_resource(Uint16 x, Uint16 y) {
+	map[y][x].resource=RES_NONE;
+}
+
+int Map::getResourceAmount(Uint16 x, Uint16 y) {
+	return map[y][x].resourceAmount;
+}
+
+void Map::decrementResourceAmount(Uint16 x, Uint16 y) {
+	map[y][x].resourceAmount--;
 }

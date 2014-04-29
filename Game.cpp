@@ -377,6 +377,24 @@ void Game::broadcastTurn() {
 	}
 }
 
+// Gather Resources, and eliminate the resource on the map
+void Game::gatherResources(Unit * unit, Map &map) {
+	if(resources<100){
+		int xlocation = unit->getX();
+		int ylocation = unit->getY();
+		int type = unit->getType();
+		//only gather resources if it's the correct unit on
+		//the correct resource, for the correct playerid
+		if((map.resourceType(xlocation,ylocation)==2 && type==2) || (map.resourceType(xlocation,ylocation)==1 && type==1)) {
+			map.decrementResourceAmount(xlocation,ylocation);
+			if(map.getResourceAmount(xlocation,ylocation)<=0)
+				map.elim_resource(xlocation,ylocation);
+			if(playerid==1&&type==2 || playerid==0&&type==1) 
+				resources++;
+		}
+	}
+}
+
 // Advance, if appropriate, the fully-determined part of the simulation
 void Game::updateSimulation() {
 	// Have we started actual gameplay, yet?
@@ -430,10 +448,22 @@ void Game::updateSimulation() {
 
 		turnqueue.pop_front();
 
-		// Update each unit
-		for(unsigned int i = 0; i < units.size(); i++)
-			for(unsigned int j = 0; j < units[i].size(); j++)
+		// Update each unit and gather resources
+		for(unsigned int i = 0; i < units.size(); i++) {
+			for(unsigned int j = 0; j < units[i].size(); j++) {
+				//start coordinates of the unit
+				int startX = units[i][j]->getX();
+				int startY = units[i][j]->getY();
 				units[i][j]->update(*map);
+				//end coordinates after updating
+				int endX = units[i][j]->getX();
+				int endY = units[i][j]->getY();
+				//only gather resources if the unit is stationary 
+				if(startX==endX && startY==endY) 
+					gatherResources(units[i][j],*map);
+			}
+		}
+				
 	}
 }
 
