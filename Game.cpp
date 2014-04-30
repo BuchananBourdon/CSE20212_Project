@@ -187,14 +187,6 @@ void Game::attackUnit(Uint8 playerid, Uint16 unitid, Uint16 targetid) {
 	units[playerid][unitid]->attack(target);
 }
 
-// Will spawn the correct unit, if the unit passed into it is a spawn structure
-void Game::spawnUnits(Unit * unit) {
-	if(turn->getTurnId()%5==0)
-		if(unit->getType()==playerid+3)
-			turn->addOrder(new CreateUnitOrder(playerid+1,
-				unit->getX()+1,unit->getY()+playerid+2));
-}
-
 // Process whatever SDL throws at us
 void Game::handleEvents() {
 	SDL_PumpEvents();
@@ -492,7 +484,6 @@ void Game::updateSimulation() {
 				//only gather resources if the unit is stationary
 				if(startX==endX && startY==endY)
 					gatherResources(units[i][j],*map);
-				spawnUnits(units[i][j]);
 			}
 		}
 	}

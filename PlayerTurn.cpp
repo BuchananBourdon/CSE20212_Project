@@ -1,4 +1,8 @@
+#include <iostream>
+
 #include "PlayerTurn.h"
+
+using namespace std;
 
 PlayerTurn::~PlayerTurn() {
 	for(unsigned int i = 0; i < orders.size(); i++)
@@ -15,6 +19,8 @@ void PlayerTurn::addOrder(Order *order) {
 }
 
 void PlayerTurn::execute(Game &game) {
+//	cerr << "executing player turn " << turnid << endl;
+
 	for(unsigned int i = 0; i < orders.size(); i++)
 		orders[i]->execute(game,playerid);
 }

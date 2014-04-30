@@ -1,5 +1,7 @@
 // Attack unit order format: [unitid:2][targetid:2]
 
+#include <iostream>
+
 #include "AttackUnitOrder.h"
 
 using namespace std;
@@ -15,6 +17,9 @@ Order *AttackUnitOrder::deserialize(Uint8 *&data) {
 }
 
 void AttackUnitOrder::execute(Game &game, Uint8 playerid) {
+//	cerr << "ordering player " << (int) playerid << "'s unit " << unitid
+//		<< " to attack unit " << targetid << endl;
+
 	game.attackUnit(playerid,unitid,targetid);
 }
 

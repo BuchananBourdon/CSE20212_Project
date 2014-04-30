@@ -75,6 +75,7 @@ void MessageQueue::receive(Game &game) {
 			break;
 		}
 
+//		cerr << "handling message " << message->getSequence() << endl;
 		message->handle(game);
 
 		numacked = max(numacked,message->getAck());

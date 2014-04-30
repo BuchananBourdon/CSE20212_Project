@@ -1,5 +1,7 @@
 // Move unit order format: [unitid:2][x:2][y:2]
 
+#include <iostream>
+
 #include "MoveUnitOrder.h"
 
 using namespace std;
@@ -18,6 +20,9 @@ Order *MoveUnitOrder::deserialize(Uint8 *&data) {
 }
 
 void MoveUnitOrder::execute(Game &game, Uint8 playerid) {
+//	cerr << "ordering player " << (int) playerid << "'s unit " << unitid
+//		<< " to move to (" << x << ", " << y << ")" << endl;
+
 	game.moveUnit(playerid,unitid,x,y);
 }
 
