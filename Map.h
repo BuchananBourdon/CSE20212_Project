@@ -32,6 +32,7 @@ public:
 
 	void occupy(Uint16, Uint16, int);
 	bool isOccupied(Uint16, Uint16);
+	bool isOccupied(Uint16, Uint16, Uint16, Uint16);
 	int getOccupier(Uint16, Uint16);
 	void clear(Uint16, Uint16);
 

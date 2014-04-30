@@ -368,13 +368,18 @@ void Map::occupy(Uint16 x, Uint16 y, int unitid) {
 
 bool Map::isOccupied(Uint16 x, Uint16 y) {
 	// Sanity check
-	if(x >= width || y >= height) {
-		cerr << "warning: attempt to access out-of-bounds tile (" << x
-			<< ", " << y << ")" << endl;
+	if(x >= width || y >= height)
 		return true;
-	}
 
 	return map[y][x].unitid >= 0;
+}
+
+bool Map::isOccupied(Uint16 x, Uint16 y, Uint16 w, Uint16 h) {
+	for(int ty = y; ty < y + h; ty++)
+		for(int tx = x; tx < x + w; tx++)
+			if(isOccupied(tx,ty))
+				return true;
+	return false;
 }
 
 int Map::getOccupier(Uint16 x, Uint16 y) {

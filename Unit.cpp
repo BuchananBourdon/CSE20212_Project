@@ -43,7 +43,34 @@ Unit::Unit(Map &_map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 	}
 
 	// Make sure we only occupy an empty location
-	
+	Uint16 newx, newy;
+	for(unsigned int radius = 0;
+		radius < max(map.getWidth(),map.getHeight()); radius++) {
+		for(unsigned int pos = 0; pos < 2*radius + 1; pos++) {	
+			if(!map.isOccupied(newx = x + radius,
+				newy = y + radius - pos,w,h))
+				goto empty_spot;
+
+			if(!map.isOccupied(newx = x - radius,
+				newy = y + radius - pos,w,h))
+				goto empty_spot;
+
+			if(!map.isOccupied(newx = x + radius - pos,
+				newy = y + radius,w,h))
+				goto empty_spot;
+
+			if(!map.isOccupied(newx = x + radius - pos,
+				newy = y - radius,w,h))
+				goto empty_spot;
+		}
+	}
+
+	// Somewhat unlikely in normal gameplay
+	cerr << "cannot find an empty location to create a unit" << endl;
+
+empty_spot:
+	x = newx;
+	y = newy;
 	
 	setOccupancy(true);
 }
