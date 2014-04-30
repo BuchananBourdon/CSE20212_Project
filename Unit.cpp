@@ -99,17 +99,20 @@ void Unit::drawSelected(View &view) {
 	rect.w = w*view.zoom;
 	rect.h = h*view.zoom;
 
-	// Draw the normal SDL_Surface indicator if the zoom is greater than 10
-	if(view.zoom > 10)
-		SDL_BlitSurface(selectSurface,
-			&clipsSelect[16-(((view.zoom+2)/6)-1)],screen,&rect);
-	// If the zoom is 10 or less, than just draw the gfxPrimitive red box,
-	// because it's easier to see when the resolution is so low
-	else roundedRectangleRGBA(screen,rect.x,rect.y,rect.x + rect.w,
-		rect.y + rect.h,3,0xFF,0,0,0xFF);
+	//Only draw the selection box for movable units
+	if(isMovable) {
+		// Draw the normal SDL_Surface indicator if the zoom is greater than 10
+		if(view.zoom > 10)
+			SDL_BlitSurface(selectSurface,
+				&clipsSelect[16-(((view.zoom+2)/6)-1)],screen,&rect);
+		// If the zoom is 10 or less, than just draw the gfxPrimitive red box,
+		// because it's easier to see when the resolution is so low
+		else roundedRectangleRGBA(screen,rect.x,rect.y,rect.x + rect.w,
+			rect.y + rect.h,3,0xFF,0,0,0xFF);
+	}
 
-	rect.w = rect.w*hp/maxhp;
-	rect.h = .1*rect.h;
+	rect.w = w*view.zoom;
+	rect.h = h*view.zoom;
 
 	// Draw the health bar
 	Uint8 r, g, b;
@@ -117,8 +120,9 @@ void Unit::drawSelected(View &view) {
 	else if(hp < 0.7*maxhp) r = 0xFF, g = 0xFF, b = 0;
 	else r = 0, g = 0xFF, b = 0;
 
-	boxRGBA(screen,rect.x,rect.y,rect.x + rect.w,
-		rect.y + rect.h,r,g,b,0xFF);
+	if(rect.x>0)
+		boxRGBA(screen,rect.x,rect.y,rect.x + rect.w*hp/maxhp,
+			rect.y + .1*rect.h,r,g,b,0xFF);
 }
 
 // Set the unit's goal to be to move to (newx, newy)
