@@ -4,6 +4,7 @@ class Game;
 #define GAME_H
 
 #include <list>
+#include <memory>
 #include <queue>
 #include <set>
 
@@ -32,9 +33,9 @@ public:
 	Uint8  getPlayerId() { return playerid; }
 	Uint32 getSeed()     { return random->getSeed(); }
 
-	PlayerTurn *&getTurn() { return turn; }
+	PlayerTurn *getTurn() { return turn.get(); }
 
-	Map *& getMap() { return map; }
+	Map *getMap() { return map.get(); }
 
 	UDPsocket getSocket();
 
@@ -64,7 +65,8 @@ private:
 
 	Uint8 playerid; // Who am I?
 	int numplayers; // Players in the game
-	Random *random; // Pseudorandom source
+
+	std::auto_ptr<Random> random; // Pseudorandom source
 
 	int xdown;	// Stores x location on screen on left click
 	int ydown; 	// Stores y location on screen on left click
@@ -77,13 +79,13 @@ private:
 	Uint32 start;     // Start of the game
 	Uint32 lastframe; // For FPS-limiting
 
-	MessageQueue *messagequeue; // Communication manager
+	std::auto_ptr<MessageQueue> messagequeue; // Communication manager
 
-	PlayerTurn *turn;            // For this turn
-	std::list<Turn *> turnqueue; // Play these soon
+	std::auto_ptr<PlayerTurn> turn; // For this turn
+	std::list<Turn *> turnqueue;    // Play these soon
 
-	Map *map;   // World to play in
-	View *view; // What we can see
+	std::auto_ptr<Map> map;   // World to play in
+	std::auto_ptr<View> view; // What we can see
 
 	ActionBar bar;
 

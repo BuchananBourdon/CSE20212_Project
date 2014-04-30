@@ -25,10 +25,9 @@ const int Game::turndelay = 2; // Delay between turn creation and execution
 const int Game::mapsize = 65;
 
 Game::Game(bool _hosting, IPaddress address)
-	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0),
-		xup(0), yup(0), moved(0), mousex(0), mousey(0), start(0),
-		turn(NULL), view(NULL), bar(80,400), resources(50),
-		showResources(false) {
+	: hosting(_hosting), numplayers(1), xdown(0), ydown(0), xup(0), yup(0),
+		moved(0), mousex(0), mousey(0), start(0), bar(80,400),
+		resources(50), showResources(false) {
 	// Prepare the connection
 	UDPsocket socket;
 	Uint16 port = SDLNet_Read16(&address.port);
@@ -43,7 +42,7 @@ Game::Game(bool _hosting, IPaddress address)
 			abort();
 		}
 
-		messagequeue = new MessageQueue(socket);
+		messagequeue.reset(new MessageQueue(socket));
 
 		cout << "listening for join request on port " << port << endl;
 	} else { // Joining a game
@@ -55,7 +54,7 @@ Game::Game(bool _hosting, IPaddress address)
 
 		SDLNet_UDP_Bind(socket,0,&address);
 
-		messagequeue = new MessageQueue(socket);
+		messagequeue.reset(new MessageQueue(socket));
 
 		sendMessage(new JoinMessage());
 	}
@@ -68,10 +67,6 @@ Game::Game(bool _hosting, IPaddress address)
 }
 
 Game::~Game() {
-	if(random) delete random;
-
-	if(messagequeue) delete messagequeue;
-
 	for(unsigned int i = 0; i < units.size(); i++)
 		for(unsigned int j = 0; j < units[i].size(); j++)
 			delete units[i][j];
@@ -94,13 +89,13 @@ void Game::setPlayerId(Uint8 _playerid) {
 
 void Game::setSeed(Uint32 seed) {
 	// Only do this once
-	if(random) {
+	if(random.get()) {
 		cerr << "warning: attempt to overwrite the random number"
 			" generator" << endl;
 		return;
 	}
 
-	random = new Random(seed);
+	random.reset(new Random(seed));
 }
 
 // Main game loop
@@ -368,16 +363,18 @@ void Game::broadcastTurn() {
 	if(!start) return;
 
 	// Is this our first turn?
-	if(!turn) turn = new PlayerTurn(0,playerid);
+	if(!turn.get())
+		turn.reset(new PlayerTurn(0,playerid));
 
 	int turnid = (SDL_GetTicks() - start)/ticksperturn;
 	if(turnid > turn->getTurnId()) {
 		// Tell every one about this
-		addPlayerTurn(turn);
-		sendMessage(new PlayerTurnMessage(turn));
+		sendMessage(new PlayerTurnMessage(turn.get()));
+		addPlayerTurn(turn.get());
 
 		// Time for a new turn
-		turn = new PlayerTurn(turn->getTurnId() + 1,playerid);
+		turn.reset(new PlayerTurn(turn.release()->getTurnId() + 1,
+			playerid));
 	}
 }
 
@@ -430,12 +427,12 @@ void Game::updateSimulation() {
 			}
 
 			// Generate the map
-			map = new Map(mapsize,random);
+			map.reset(new Map(mapsize,random.get()));
 			map->defog(defog.x,defog.y,20);
 
 			// Prepare the view
-			if(view) delete view;
-			view = new View(viewstart.x,viewstart.y,View::maxzoom);
+			view.reset(new View(viewstart.x,viewstart.y,
+				View::maxzoom));
 			updateView();
 
 			start = SDL_GetTicks();
