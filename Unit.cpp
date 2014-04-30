@@ -46,21 +46,25 @@ Unit::Unit(Map &_map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 	Uint16 newx, newy;
 	for(unsigned int radius = 0;
 		radius < max(map.getWidth(),map.getHeight()); radius++) {
-		for(unsigned int pos = 0; pos < 2*radius + 1; pos++) {	
+		for(unsigned int pos = 0; pos < 2*radius + 1; pos++) {
 			if(!map.isOccupied(newx = x + radius,
-				newy = y + radius - pos,w,h))
+				newy = y + radius - pos,w,h)
+				&& map.tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 
 			if(!map.isOccupied(newx = x - radius,
-				newy = y + radius - pos,w,h))
+				newy = y + radius - pos,w,h)
+				&& map.tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 
 			if(!map.isOccupied(newx = x + radius - pos,
-				newy = y + radius,w,h))
+				newy = y + radius,w,h)
+				&& map.tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 
 			if(!map.isOccupied(newx = x + radius - pos,
-				newy = y - radius,w,h))
+				newy = y - radius,w,h)
+				&& map.tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 		}
 	}
