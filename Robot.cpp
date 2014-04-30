@@ -35,7 +35,7 @@ void Robot::drawUnit(View & view) {
 	else if(status == DOWN)	SDL_BlitSurface(robotSurface,&clipsDown[16-(((view.zoom+2)/6)-1)][frame],screen,&rect);
 }
 
-void Robot::updateUnit(Map &map) {
+void Robot::updateUnit() {
 	//loop frame (robot animation has 4 frames)
 	if(frame>=4)	frame=0;
 }

@@ -12,7 +12,7 @@ public:
 
 private:
 	void drawUnit(View &);
-	void updateUnit(Map &);
+	void updateUnit();
 };
 
 #endif

@@ -32,7 +32,7 @@ void SpawnRobot::drawUnit(View & view) {
 }
 
 // Virtual method. No animation to be done for this unit
-void SpawnRobot::updateUnit(Map &map) { frame=0; }
+void SpawnRobot::updateUnit() { frame=0; }
 
 //Set the clips for the robot spawn structure
 void SpawnRobot::setClips() {

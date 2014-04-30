@@ -38,7 +38,7 @@ void Bunny::drawUnit(View & view) {
 }
 
 //Virtual update method handles Bunny frame and status 
-void Bunny::updateUnit(Map &map) {
+void Bunny::updateUnit() {
 	//loop frame (Bunny animation has 4 frames)
 	if(frame>=4)	frame=0;	
 }

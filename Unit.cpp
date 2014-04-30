@@ -20,11 +20,12 @@ SDL_Surface* Unit::deathSurface = NULL;
 SDL_Rect Unit::clipsSelect[17];
 SDL_Rect Unit::clipsDeath[17][2];
 
-Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
+Unit::Unit(Map &_map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 		bool _isMovable)
-		: id(unitcount++), x(_x), y(_y), w(_w), h(_h), goal(GOAL_NONE),
-			path(NULL), maxhp(_maxhp), hp(_maxhp), power(_power),
-			status(DOWN), frame(0), isMovable(_isMovable)  {
+		: id(unitcount++), map(_map), x(_x), y(_y), w(_w), h(_h),
+			goal(GOAL_NONE), path(NULL), maxhp(_maxhp), hp(_maxhp),
+			power(_power), status(DOWN), frame(0),
+			isMovable(_isMovable)  {
 	units.push_back(this);
 
 	//The first time a unit is constructed, load the image and set the clips
@@ -41,7 +42,10 @@ Unit::Unit(Map &map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 		setDeathClips();
 	}
 
-	setOccupancy(map,true);
+	// Make sure we only occupy an empty location
+	
+	
+	setOccupancy(true);
 }
 
 // Sets the clips for the selection indicator
@@ -146,7 +150,7 @@ void Unit::attack(Unit *_target) {
 
 
 // Deterministically update the unit according to whatever its current goal is
-void Unit::update(Map &map) {
+void Unit::update() {
 	int dx, dy;
 
 	// Dead men tell no tales...about goals
@@ -160,11 +164,10 @@ void Unit::update(Map &map) {
 		break;
 
 	case GOAL_DEAD:
-		setOccupancy(map,false);
 		break;
 
 	case GOAL_MOVE:
-		followPath(map);
+		followPath();
 
 		// Goal achieved?
 		if(path->isFinished())
@@ -180,7 +183,7 @@ void Unit::update(Map &map) {
 		if(abs(dx) > 1 || abs(dy) > 1) {
 			if(path) delete path;
 			path = new Path(x,y,target->getX(),target->getY(),w,h);
-			followPath(map);
+			followPath();
 		} else { // It's right where we want it
 			if(dx > 0) status = RIGHT;
 			if(dx < 0) status = LEFT;
@@ -200,10 +203,10 @@ void Unit::update(Map &map) {
 		break;
 	}
 
-	this->updateUnit(map);
+	this->updateUnit();
 }
 
-void Unit::setOccupancy(Map &map, bool occupy) {
+void Unit::setOccupancy(bool occupy) {
 	for(Uint16 r = y; r < y + h; r++) {
 		for(Uint16 c = x; c < x + w; c++) {
 			if(occupy) map.occupy(c,r,id);
@@ -213,8 +216,8 @@ void Unit::setOccupancy(Map &map, bool occupy) {
 }
 
 // Go one step along path
-void Unit::followPath(Map &map) {
-	setOccupancy(map,false);
+void Unit::followPath() {
+	setOccupancy(false);
 
 	Path::Location loc = path->step(map);
 
@@ -233,13 +236,20 @@ void Unit::followPath(Map &map) {
 	x = loc.x;
 	y = loc.y;
 
-	setOccupancy(map,true);
+	setOccupancy(true);
 }
 
 // Take damage proportional to power
 void Unit::hit(Unit *attacker, unsigned int power) {
 	if(hp > power) hp -= power;
 	else hp = 0;
+
+	// Did we die?
+	if(hp == 0) {
+		goal = GOAL_DEAD;
+
+		setOccupancy(false);
+	}
 
 	// Retaliate, if we're doing nothing else
 	if(goal == GOAL_NONE)

@@ -34,7 +34,7 @@ void SpawnBunny::drawUnit(View & view) {
 }
 
 //Virtual update method. No animation to be done for this unit 
-void SpawnBunny::updateUnit(Map &map) {frame=0;}
+void SpawnBunny::updateUnit() {frame=0;}
 
 //clip the rainbow sprite sheet
 void SpawnBunny::setClips() {

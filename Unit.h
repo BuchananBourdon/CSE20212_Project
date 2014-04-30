@@ -34,7 +34,7 @@ public:
 	void move(Uint16, Uint16);
 	void attack(Unit *);
 
-	void update(Map &);
+	void update();
 
 	void hit(Unit *, unsigned int);
 
@@ -48,10 +48,11 @@ public:
 
 protected:
 	virtual void drawUnit(View &) = 0;
-	virtual void updateUnit(Map &) = 0;
+	virtual void updateUnit() = 0;
 
 	const int id; // Which am I?
 
+	Map &map;
 	Uint16 x, y;       // Where am I?
 	const Uint16 w, h; // How big am I?
 
@@ -83,12 +84,12 @@ private:
 	static int unitcount;             // For unique IDs
 	static std::vector<Unit *> units; // Indexed by id
 
-	void setOccupancy(Map &, bool); // Stake our claim
+	void setOccupancy(bool); // Stake our claim
 
 	void setSelectionClips(); //sets the Rect dimensions for selection
 	void setDeathClips();   // sets the Rect dimensions for the death gfx
 
-	void followPath(Map &); // One step
+	void followPath(); // One step
 
 	//For the selection icon
 	static SDL_Surface * selectSurface;

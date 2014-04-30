@@ -16,6 +16,6 @@ void BlackHole::drawUnit(View &view) {
 	SDL_FillRect(surface,&rect,color);
 }
 
-void BlackHole::updateUnit(Map &) {
+void BlackHole::updateUnit() {
 }
 

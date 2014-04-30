@@ -18,7 +18,7 @@ private:
 	static SDL_Rect clipsDown[ 17 ][ 4 ];
 
 	void drawUnit(View &);
-	void updateUnit(Map &);
+	void updateUnit();
 	void setClips();
 };
 

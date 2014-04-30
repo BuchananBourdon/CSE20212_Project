@@ -13,7 +13,7 @@ private:
 	static SDL_Rect clips[ 17 ];
 
 	void drawUnit(View &);
-	void updateUnit(Map &);
+	void updateUnit();
 	void setClips();
 };
 

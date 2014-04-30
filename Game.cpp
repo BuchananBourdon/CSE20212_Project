@@ -462,7 +462,7 @@ void Game::updateSimulation() {
 				//start coordinates of the unit
 				int startX = units[i][j]->getX();
 				int startY = units[i][j]->getY();
-				units[i][j]->update(*map);
+				units[i][j]->update();
 				//end coordinates after updating
 				int endX = units[i][j]->getX();
 				int endY = units[i][j]->getY();
