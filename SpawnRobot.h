@@ -5,7 +5,7 @@
 
 class SpawnRobot : public Unit {
 public:
-	SpawnRobot(Map &, int, int);
+	SpawnRobot(Map &, int, int, bool);
 	
 	int getType();
 private:

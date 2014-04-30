@@ -27,9 +27,10 @@ public:
 	Game(bool, IPaddress);
 	~Game();
 
-	bool   isHosting() { return hosting; }
-	Uint32 getSeed()   { return random->getSeed(); }
-	Map *& getMap()    { return map; }
+	bool   isHosting()   { return hosting; }
+	Uint8  getPlayerId() { return playerid; }
+	Uint32 getSeed()     { return random->getSeed(); }
+	Map *& getMap()      { return map; }
 
 	UDPsocket getSocket();
 

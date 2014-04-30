@@ -187,7 +187,7 @@ void Game::attackUnit(Uint8 playerid, Uint16 unitid, Uint16 targetid) {
 
 // Will spawn the correct unit, if the unit passed into it is a spawn structure
 void Game::spawnUnits(Unit * unit) {
-	if(turn->getTurnId()%50==0)
+	if(turn->getTurnId()%5==0)
 		if(unit->getType()==playerid+3)
 			turn->addOrder(new CreateUnitOrder(playerid+1,unit->getX()+1,
                         	unit->getY()+playerid+2));
@@ -414,6 +414,8 @@ void Game::updateSimulation() {
 
 			// Generate the map
 			map = new Map(65,random);
+			map->defog(playerid ? 0 : map->getWidth() - 1,
+				playerid ? 0 : map->getHeight() - 1,20);
 
 			// Prepare the view
 			SDL_Surface *surface = SDL_GetVideoSurface();

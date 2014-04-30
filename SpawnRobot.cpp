@@ -8,8 +8,8 @@ SDL_Surface* SpawnRobot::spawnrobotSurface = NULL;
 SDL_Rect SpawnRobot::clips[17];
 
 
-SpawnRobot::SpawnRobot(Map &_map, int _x, int _y) 
-	: Unit(_map,_x,_y,3,3,100,0,false) {
+SpawnRobot::SpawnRobot(Map &_map, int _x, int _y, bool _local) 
+	: Unit(_map,_x,_y,3,3,100,0,false,_local) {
 	// Load the spawn image if it hasn't been loaded yet
 	if(spawnrobotSurface == NULL) {
 		SDL_Surface * loadedImage = IMG_Load("RobotSpawn.png");

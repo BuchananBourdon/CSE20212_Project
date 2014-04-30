@@ -27,25 +27,28 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 //	cerr << "creating a unit of type " << (int) unittype << " at (" << x
 //		<< ", " << y << ")" << endl;
 
+	Map &map = *game.getMap();
+	bool local = playerid == game.getPlayerId();
+
 	switch(unittype) {
 	case Unit::UT_BLACK_HOLE:
-		game.addUnit(playerid,new BlackHole(*game.getMap(),x,y));
+		game.addUnit(playerid,new BlackHole(map,x,y,local));
 		break;
 	
 	case Unit::UT_BUNNY:
-		game.addUnit(playerid,new Bunny(*game.getMap(),x,y));
+		game.addUnit(playerid,new Bunny(map,x,y,local));
 		break;
 
 	case Unit::UT_ROBOT:
-		game.addUnit(playerid,new Robot(*game.getMap(),x,y));
+		game.addUnit(playerid,new Robot(map,x,y,local));
 		break;
 
 	case Unit::UT_SPAWN_BUNNY:
-		game.addUnit(playerid,new SpawnBunny(*game.getMap(),x,y));
+		game.addUnit(playerid,new SpawnBunny(map,x,y,local));
 		break;
 	
 	case Unit::UT_SPAWN_ROBOT:
-		game.addUnit(playerid, new SpawnRobot(*game.getMap(),x,y));
+		game.addUnit(playerid, new SpawnRobot(map,x,y,local));
 		break;
 	
 	default:

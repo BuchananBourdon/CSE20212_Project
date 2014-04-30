@@ -108,6 +108,8 @@ void Map::draw(const View &view) {
 	for(unsigned int y = view.y; y < height && y < view.y + view.h; y++) {
 		for(unsigned int x = view.x;
 			x < width && x < view.x + view.w; x++) {
+			if(map[y][x].fog) continue;
+
 			SDL_Rect rect;
 			rect.x = (x - view.x)*view.zoom;
 			rect.y = (y - view.y)*view.zoom;
@@ -324,7 +326,6 @@ int Map::density(int x, int y, enum resource res) {
 
 // set the clips for the 3 different surfaces
 void Map::setClips() {
-	
 	for(int i = 0;i<17;i++) {
 		for(int j = 0;j<5;j++) {	//double for-loop eliminates ~300 lines of manual code here
 			mountainClips[i][j].x = (100-i*6) * j;
@@ -396,6 +397,24 @@ int Map::getOccupier(Uint16 x, Uint16 y) {
 void Map::clear(Uint16 x, Uint16 y) {
 	if(x < width && y < height)
 		map[y][x].unitid = -1;
+}
+
+void Map::defog(Uint16 x, Uint16 y, Uint16 r) {
+	for(int ty = y - r;  ty <= y + r; ty++)
+		for(int tx = x - r; tx <= x + r; tx++)
+			if(tx >= 0 && tx < (signed) width && ty >= 0
+				&& ty < (signed) height)
+				map[ty][tx].fog = false;
+}
+
+// Returns whether the area is wholly covered by fog
+bool Map::isFoggy(Uint16 x, Uint16 y, Uint16 w, Uint16 h) {
+	for(Uint16 ty = y; ty < y + h; ty++)
+		for(Uint16 tx = x; tx < x + w; tx++)
+			if(tx < width && ty < height)
+				if(!map[y][x].fog)
+					return false;
+	return true;
 }
 
 enum Map::tile_type Map::tileType(Uint16 x, Uint16 y) {

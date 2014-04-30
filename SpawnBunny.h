@@ -5,7 +5,7 @@
 
 class SpawnBunny : public Unit {
 public:
-	SpawnBunny(Map &, int, int);
+	SpawnBunny(Map &, int, int, bool);
 	
 	int getType();
 	

@@ -5,7 +5,7 @@
 
 class Robot : public Unit {
 public:
-	Robot(Map &, int, int);
+	Robot(Map &, int, int, bool);
 
 	int getType();
 

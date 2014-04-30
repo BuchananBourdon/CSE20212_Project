@@ -13,7 +13,7 @@ class Unit;
 
 class Unit {
 public:
-	Unit(Map &, int, int, int, int, int, int, bool);
+	Unit(Map &, int, int, int, int, int, int, bool, bool);
 	virtual ~Unit() {};
 
 	static Unit *getById(int id) { return units[id]; }
@@ -51,6 +51,8 @@ protected:
 	virtual void updateUnit() = 0;
 
 	const int id; // Which am I?
+
+	bool local; // Belong to the local player?
 
 	Map &map;
 	Uint16 x, y;       // Where am I?

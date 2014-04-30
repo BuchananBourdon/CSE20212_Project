@@ -36,6 +36,9 @@ public:
 	int getOccupier(Uint16, Uint16);
 	void clear(Uint16, Uint16);
 
+	void defog(Uint16, Uint16, Uint16);
+	bool isFoggy(Uint16, Uint16, Uint16, Uint16);
+
 	enum tile_type tileType(Uint16, Uint16);
 	enum resource resourceType(Uint16,Uint16);
 
@@ -74,14 +77,16 @@ private:
 
 	struct map_tile {
 		map_tile() : height(0), type(TILE_NONE), resource(RES_NONE),
-			resourceAmount(0), unitid(-1) {}
+			resourceAmount(0), fog(true), unitid(-1) {}
 
 		Uint8 height;
 
 		enum tile_type type;
-		enum resource resource;
 
+		enum resource resource;
 		int resourceAmount;
+
+		bool fog;
 
 		int unitid;
 	} **map;

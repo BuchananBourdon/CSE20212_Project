@@ -21,11 +21,11 @@ SDL_Rect Unit::clipsSelect[17];
 SDL_Rect Unit::clipsDeath[17][2];
 
 Unit::Unit(Map &_map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
-		bool _isMovable)
-		: id(unitcount++), map(_map), x(_x), y(_y), w(_w), h(_h),
-			goal(GOAL_NONE), path(NULL), maxhp(_maxhp), hp(_maxhp),
-			power(_power), status(DOWN), frame(0),
-			isMovable(_isMovable)  {
+		bool _isMovable, bool _local)
+		: id(unitcount++), local(_local), map(_map), x(_x), y(_y),
+			w(_w), h(_h), goal(GOAL_NONE), path(NULL),
+			maxhp(_maxhp), hp(_maxhp), power(_power), status(DOWN),
+			frame(0), isMovable(_isMovable) {
 	units.push_back(this);
 
 	//The first time a unit is constructed, load the image and set the clips
@@ -103,6 +103,9 @@ bool Unit::inView(View &view) {
 
 // Handle generic stuff, then delegate to the sub-class
 void Unit::draw(View &view) {
+	// Don't draw if we're in the fog
+	if(map.isFoggy(x,y,w,h)) return;
+
 //	if(path) path->draw(view);
 
 	if(!isDead())
@@ -240,6 +243,8 @@ void Unit::setOccupancy(bool occupy) {
 			else map.clear(c,r);
 		}
 	}
+
+	if(local && occupy) map.defog(x,y,max(w,h) + 2);
 }
 
 // Go one step along path
