@@ -22,10 +22,12 @@ const int Game::ticksperturn = 400; // For the deterministic simulation
 
 const int Game::turndelay = 2; // Delay between turn creation and execution
 
+const int Game::mapsize = 65;
+
 Game::Game(bool _hosting, IPaddress address)
 	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0),
 		xup(0), yup(0), moved(0), mousex(0), mousey(0), start(0),
-		turn(NULL), view(0,0,0,0,0), bar(80,400), resources(50),
+		turn(NULL), view(0,0,0), bar(80,400), resources(50),
 		showResources(false) {
 	// Prepare the connection
 	UDPsocket socket;
@@ -189,8 +191,8 @@ void Game::attackUnit(Uint8 playerid, Uint16 unitid, Uint16 targetid) {
 void Game::spawnUnits(Unit * unit) {
 	if(turn->getTurnId()%5==0)
 		if(unit->getType()==playerid+3)
-			turn->addOrder(new CreateUnitOrder(playerid+1,unit->getX()+1,
-                        	unit->getY()+playerid+2));
+			turn->addOrder(new CreateUnitOrder(playerid+1,
+				unit->getX()+1,unit->getY()+playerid+2));
 }
 
 // Process whatever SDL throws at us
@@ -232,7 +234,7 @@ void Game::handleKeyDown(SDL_Event &e) {
 
 	case SDLK_q: // For testing the creation of robot spawn structures
 		turn->addOrder(new CreateUnitOrder(4,rand()%map->getWidth(),
-                        rand()%map->getHeight()));
+			rand()%map->getHeight()));
 		break;
 
 	case SDLK_r: // For testing the creation of robots
@@ -333,15 +335,17 @@ void Game::handleMouseUp(SDL_Event &e) {
 				defaultAction(e.button.x,e.button.y);
 			} else if(state==AS_SPAWN) {
 				Uint16 mapx = min(view.x + (float) e.button.x/view.zoom,view.x + view.w - 1u);
-        			Uint16 mapy = min(view.y + (float) e.button.y/view.zoom,view.y + view.h - 1u);
+				Uint16 mapy = min(view.y + (float) e.button.y/view.zoom,view.y + view.h - 1u);
 				int badTileCount = 0;
 				for(int i=0; i<2+playerid; i++) {
-                        		for(int j=0; j<3; j++) {
-                                		if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2 ||
-							map->resourceType(mapx+j,mapy+i) != 0)
+					for(int j=0; j<3; j++) {
+						if(map->isOccupied(mapx+j,mapy+i)
+							|| map->isFoggy(mapx + j,mapy + i)
+							|| map->tileType(mapx+j,mapy+i) != 2
+							|| map->resourceType(mapx+j,mapy+i) != 0)
 							badTileCount++;
-                        		}
-                		}
+					}
+				}
 				if(badTileCount==0) turn->addOrder(new CreateUnitOrder(3+playerid,mapx,mapy));
 			}
 		}
@@ -397,7 +401,7 @@ void Game::gatherResources(Unit * unit, Map &map) {
 			map.decrementResourceAmount(xlocation,ylocation);
 			if(map.getResourceAmount(xlocation,ylocation)<=0)
 				map.elim_resource(xlocation,ylocation);
-			if(playerid==1&&type==2 || playerid==0&&type==1) 
+			if(playerid==1&&type==2 || playerid==0&&type==1)
 				resources++;
 		}
 	}
@@ -412,17 +416,34 @@ void Game::updateSimulation() {
 			cout << "game has at least two players; starting play"
 				<< endl;
 
+			struct { Uint16 x, y; } defog, viewstart;
+			switch(playerid) {
+			case 0:
+				defog.x = defog.y = 0;
+				viewstart.x = viewstart.y = 0;
+				break;
+
+			case 1:
+				defog.x = mapsize - 1;
+				defog.y = mapsize - 1;
+
+				viewstart.x = mapsize - 1;
+				viewstart.y = mapsize - 1;
+				break;
+
+			default:
+				cerr << "warning: unexpected player ID ("
+					<< (int) playerid << ")" << endl;
+				break;
+			}
+
 			// Generate the map
-			map = new Map(65,random);
-			map->defog(playerid ? 0 : map->getWidth() - 1,
-				playerid ? 0 : map->getHeight() - 1,20);
+			map = new Map(mapsize,random);
+			map->defog(defog.x,defog.y,20);
 
 			// Prepare the view
-			SDL_Surface *surface = SDL_GetVideoSurface();
-			view = View(0,0,
-				ceil((float) surface->w/View::maxzoom),
-				ceil((float) surface->h/View::maxzoom),
-				View::maxzoom);
+			view = View(viewstart.x,viewstart.y,View::maxzoom);
+			updateView();
 
 			start = SDL_GetTicks();
 		}
@@ -451,7 +472,7 @@ void Game::updateSimulation() {
 			cerr << "warning: executing turn " << turn->getTurnId()
 				<< " " << (SDL_GetTicks() - (start
 				+ (turn->getTurnId() + turndelay + 1)
- 				*ticksperturn)) << " ms late" << endl;
+				*ticksperturn)) << " ms late" << endl;
 
 		// All systems are go
 		turn->execute(*this);
@@ -468,33 +489,26 @@ void Game::updateSimulation() {
 				//end coordinates after updating
 				int endX = units[i][j]->getX();
 				int endY = units[i][j]->getY();
-				//only gather resources if the unit is stationary 
-				if(startX==endX && startY==endY) 
+				//only gather resources if the unit is stationary
+				if(startX==endX && startY==endY)
 					gatherResources(units[i][j],*map);
 				spawnUnits(units[i][j]);
 			}
 		}
-				
 	}
 }
 
 //Change the view if not at the extents
 void Game::updateView() {
-	//x velocity can only be applied if view is within reasonable range
-	if(viewVelocity_x < 0) {
-		if(view.x > 0) view.x += viewVelocity_x;
-	}
-	else if(viewVelocity_x > 0){
-		if(view.x < map->getWidth() - 2u) view.x += viewVelocity_x;
-	}
-	//y velocity can only be applied if view is within reasonable range
-	if(viewVelocity_y < 0){
-		if(view.y > 0) view.y += viewVelocity_y;
-	}
-	else if(viewVelocity_y > 0){
-		if(view.y < map->getHeight() - 2u) view.y += viewVelocity_y;
-	}
+	SDL_Surface *screen = SDL_GetVideoSurface();
 
+	view.x += viewVelocity_x;
+	view.x = max(view.x,0.f);
+	view.x = min(view.x,map->getWidth() - (float) screen->w/view.zoom);
+
+	view.y += viewVelocity_y;
+	view.y = max(view.y,0.f);
+	view.y = min(view.y,map->getHeight() - (float) screen->h/view.zoom);
 }
 
 // Put everything on the screen
@@ -532,20 +546,22 @@ void Game::draw() {
 	}
 	// Draw the spawn availability box
 	else if(state==AS_SPAWN) {
-    		Uint16 mapx = min(view.x + (float) mousex/view.zoom,view.x + view.w - 1u);
-        	Uint16 mapy = min(view.y + (float) mousey/view.zoom,view.y + view.h - 1u);
-        	int drawx, drawy, drawh;
-        	for(int i=0; i<2+playerid; i++) {
-                	for(int j=0; j<3; j++) {
-                        	drawx = (mapx - view.x + j)*view.zoom;
-                        	drawy = (mapy - view.y + i)*view.zoom;
-                        	drawh = view.zoom;
-                        	if(map->isOccupied(mapx+j,mapy+i) || map->tileType(mapx+j,mapy+i) != 2 ||
-					map->resourceType(mapx+j,mapy+i) != 0)
+		Uint16 mapx = min(view.x + (float) mousex/view.zoom,view.x + view.w - 1u);
+		Uint16 mapy = min(view.y + (float) mousey/view.zoom,view.y + view.h - 1u);
+		int drawx, drawy, drawh;
+		for(int i=0; i<2+playerid; i++) {
+			for(int j=0; j<3; j++) {
+				drawx = (mapx - view.x + j)*view.zoom;
+				drawy = (mapy - view.y + i)*view.zoom;
+				drawh = view.zoom;
+				if(map->isOccupied(mapx+j,mapy+i)
+					|| map->isFoggy(mapx + j,mapy + i)
+					|| map->tileType(mapx+j,mapy+i) != 2
+					|| map->resourceType(mapx+j,mapy+i) != 0)
 					boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
-                        	else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
-                	}
-        	}
+				else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
+			}
+		}
 	}
 
 	// Draw the ActionBar last, so it's drawn atop the map/unit layer

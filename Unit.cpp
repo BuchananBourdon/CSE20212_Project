@@ -75,7 +75,7 @@ Unit::Unit(Map &_map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 empty_spot:
 	x = newx;
 	y = newy;
-	
+
 	setOccupancy(true);
 }
 
@@ -116,9 +116,9 @@ void Unit::draw(View &view) {
 		this->drawUnit(view);
 	else {
 		SDL_Rect rect;
-                rect.x = (x - view.x)*view.zoom;
-                rect.y = (y - view.y)*view.zoom;
-                rect.w = rect.h = view.zoom;
+		rect.x = (x - view.x)*view.zoom;
+		rect.y = (y - view.y)*view.zoom;
+		rect.w = rect.h = view.zoom;
 		int type = getType();
 		if(type==1 || type==2) {
 			SDL_BlitSurface(deathSurface,

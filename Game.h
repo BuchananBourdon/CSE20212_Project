@@ -53,6 +53,8 @@ private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
 	static const int turndelay;    // Execution delay
 
+	static const int mapsize; // Width and height
+
 	bool hosting; // Acting as host?
 	bool playing; // Still in the game?
 

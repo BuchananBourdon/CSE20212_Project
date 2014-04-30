@@ -407,13 +407,16 @@ void Map::defog(Uint16 x, Uint16 y, Uint16 r) {
 				map[ty][tx].fog = false;
 }
 
+bool Map::isFoggy(Uint16 x, Uint16 y) {
+	return x >= width || y >= height || map[y][x].fog;
+}
+
 // Returns whether the area is wholly covered by fog
 bool Map::isFoggy(Uint16 x, Uint16 y, Uint16 w, Uint16 h) {
 	for(Uint16 ty = y; ty < y + h; ty++)
 		for(Uint16 tx = x; tx < x + w; tx++)
-			if(tx < width && ty < height)
-				if(!map[y][x].fog)
-					return false;
+			if(!isFoggy(tx,ty))
+				return false;
 	return true;
 }
 

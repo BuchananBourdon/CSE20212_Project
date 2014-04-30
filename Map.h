@@ -37,6 +37,7 @@ public:
 	void clear(Uint16, Uint16);
 
 	void defog(Uint16, Uint16, Uint16);
+	bool isFoggy(Uint16, Uint16);
 	bool isFoggy(Uint16, Uint16, Uint16, Uint16);
 
 	enum tile_type tileType(Uint16, Uint16);
