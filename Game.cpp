@@ -27,8 +27,7 @@ const int Game::mapsize = 65;
 Game::Game(bool _hosting, IPaddress address)
 	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0),
 		xup(0), yup(0), moved(0), mousex(0), mousey(0), start(0),
-		turn(NULL), view(0,0,0), bar(80,400), resources(50),
-		showResources(false) {
+		turn(NULL), bar(80,400), resources(50), showResources(false) {
 	// Prepare the connection
 	UDPsocket socket;
 	Uint16 port = SDLNet_Read16(&address.port);
@@ -282,11 +281,11 @@ void Game::handleMouseDown(SDL_Event &e) {
 
 	switch(e.button.button) {
 	case SDL_BUTTON_WHEELUP: // Zoom in
-		view.adjustZoom(*map,1,mx,my);
+		view->adjustZoom(*map,1,mx,my);
 		break;
 
 	case SDL_BUTTON_WHEELDOWN: // Zoom out
-		view.adjustZoom(*map,-1,mx,my);
+		view->adjustZoom(*map,-1,mx,my);
 		break;
 
 	case SDL_BUTTON_LEFT: // Selection box
@@ -326,8 +325,8 @@ void Game::handleMouseUp(SDL_Event &e) {
 			if(state==AS_SELECT) {
 				defaultAction(e.button.x,e.button.y);
 			} else if(state==AS_SPAWN) {
-				Uint16 mapx = min(view.x + (float) e.button.x/view.zoom,view.x + view.w - 1u);
-				Uint16 mapy = min(view.y + (float) e.button.y/view.zoom,view.y + view.h - 1u);
+				Uint16 mapx = min(view->x + (float) e.button.x/view->zoom,view->x + view->w - 1u);
+				Uint16 mapy = min(view->y + (float) e.button.y/view->zoom,view->y + view->h - 1u);
 				int badTileCount = 0;
 				for(int i=0; i<2+playerid; i++) {
 					for(int j=0; j<3; j++) {
@@ -434,7 +433,8 @@ void Game::updateSimulation() {
 			map->defog(defog.x,defog.y,20);
 
 			// Prepare the view
-			view = View(viewstart.x,viewstart.y,View::maxzoom);
+			if(view) delete view;
+			view = new View(viewstart.x,viewstart.y,View::maxzoom);
 			updateView();
 
 			start = SDL_GetTicks();
@@ -493,13 +493,13 @@ void Game::updateSimulation() {
 void Game::updateView() {
 	SDL_Surface *screen = SDL_GetVideoSurface();
 
-	view.x += viewVelocity_x;
-	view.x = max(view.x,0.f);
-	view.x = min(view.x,map->getWidth() - (float) screen->w/view.zoom);
+	view->x += viewVelocity_x;
+	view->x = max(view->x,0.f);
+	view->x = min(view->x,map->getWidth() - (float) screen->w/view->zoom);
 
-	view.y += viewVelocity_y;
-	view.y = max(view.y,0.f);
-	view.y = min(view.y,map->getHeight() - (float) screen->h/view.zoom);
+	view->y += viewVelocity_y;
+	view->y = max(view->y,0.f);
+	view->y = min(view->y,map->getHeight() - (float) screen->h/view->zoom);
 }
 
 // Put everything on the screen
@@ -516,17 +516,17 @@ void Game::draw() {
 	updateView();
 
 	// Draw the background
-	map->draw(view);
+	map->draw(*view);
 
 	// Draw all the units
 	for(unsigned int i = 0; i < units.size(); i++)
 		for(unsigned int j = 0; j < units[i].size(); j++)
-			if(units[i][j]->inView(view))
-				units[i][j]->draw(view);
+			if(units[i][j]->inView(*view))
+				units[i][j]->draw(*view);
 
 	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
 		iter++)
-		units[playerid][*iter]->drawSelected(view);
+		units[playerid][*iter]->drawSelected(*view);
 
 	// draw selection box, transparent blue/gray
 	if(state==AS_SELECT) {
@@ -537,14 +537,14 @@ void Game::draw() {
 	}
 	// Draw the spawn availability box
 	else if(state==AS_SPAWN) {
-		Uint16 mapx = min(view.x + (float) mousex/view.zoom,view.x + view.w - 1u);
-		Uint16 mapy = min(view.y + (float) mousey/view.zoom,view.y + view.h - 1u);
+		Uint16 mapx = min(view->x + (float) mousex/view->zoom,view->x + view->w - 1u);
+		Uint16 mapy = min(view->y + (float) mousey/view->zoom,view->y + view->h - 1u);
 		int drawx, drawy, drawh;
 		for(int i=0; i<2+playerid; i++) {
 			for(int j=0; j<3; j++) {
-				drawx = (mapx - view.x + j)*view.zoom;
-				drawy = (mapy - view.y + i)*view.zoom;
-				drawh = view.zoom;
+				drawx = (mapx - view->x + j)*view->zoom;
+				drawy = (mapy - view->y + i)*view->zoom;
+				drawh = view->zoom;
 				if(map->isOccupied(mapx+j,mapy+i)
 					|| map->isFoggy(mapx + j,mapy + i)
 					|| map->tileType(mapx+j,mapy+i) != 2
@@ -564,17 +564,19 @@ void Game::draw() {
 
 // Decide what to do based on what was clicked
 void Game::defaultAction(unsigned int x, unsigned int y) {
-	Uint16 mapx = min(view.x + (float) x/view.zoom,view.x + view.w - 1u);
-	Uint16 mapy = min(view.y + (float) y/view.zoom,view.y + view.h - 1u);
+	Uint16 mapx = min(view->x + (float) x/view->zoom,view->x + view->w - 1u);
+	Uint16 mapy = min(view->y + (float) y/view->zoom,view->y + view->h - 1u);
 
 	if(map->isOccupied(mapx,mapy)) {
-		int unitid = map->getOccupier(mapx,mapy);
+		Unit *unit = Unit::getById(map->getOccupier(mapx,mapy));
 
-		vector<Unit *>::iterator begin = units[playerid].begin(),
-			end = units[playerid].end();
-
-		if(find(begin,end,Unit::getById(unitid)) == end)
-			attackUnit(unitid);
+		// Enemy unit?
+		if(unit->getOwnerId() != playerid) attackUnit(unit);
+		// Friendly unit: already selected?
+		else if(selected.size() == 1
+			&& units[playerid][*selected.begin()] == unit)
+			unit->act();
+		// Friendly unit: select it
 		else selectUnits(false,x,y,x,y);
 	} else moveUnits(mapx,mapy);
 }
@@ -586,9 +588,9 @@ void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 	if(x1 > x2) swap(x1,x2);
 	if(y1 > y2) swap(y1,y2);
 
-	View selection(view.x + x1/view.zoom,view.y + y1/view.zoom,
-		x2/view.zoom - x1/view.zoom + 1,
-		y2/view.zoom - y1/view.zoom + 1,view.zoom);
+	View selection(view->x + x1/view->zoom,view->y + y1/view->zoom,
+		x2/view->zoom - x1/view->zoom + 1,
+		y2/view->zoom - y1/view->zoom + 1,view->zoom);
 
 	// Deselect previous selection?
 	if(!add) selected.clear();
@@ -600,10 +602,10 @@ void Game::selectUnits(bool add, int x1, int y1, int x2, int y2) {
 			selected.insert(i);
 }
 
-void Game::attackUnit(int unitid) {
+void Game::attackUnit(Unit *unit) {
 	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
 		iter++)
-		turn->addOrder(new AttackUnitOrder(*iter,unitid));
+		turn->addOrder(new AttackUnitOrder(*iter,unit->getId()));
 }
 
 void Game::moveUnits(Uint16 mapx, Uint16 mapy) {

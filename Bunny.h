@@ -5,7 +5,7 @@
 
 class Bunny : public Unit {
 public:
-	Bunny(Map &, int, int, bool);
+	Bunny(Game &, int, int, int);
 	
 	int getType();
 	

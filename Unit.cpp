@@ -20,10 +20,10 @@ SDL_Surface* Unit::deathSurface = NULL;
 SDL_Rect Unit::clipsSelect[17];
 SDL_Rect Unit::clipsDeath[17][2];
 
-Unit::Unit(Map &_map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
-		bool _isMovable, bool _local)
-		: id(unitcount++), local(_local), map(_map), x(_x), y(_y),
-			w(_w), h(_h), goal(GOAL_NONE), path(NULL),
+Unit::Unit(Game &_game, int _ownerid, int _x, int _y, int _w, int _h,
+		int _maxhp, int _power, bool _isMovable)
+		: id(unitcount++), ownerid(_ownerid), game(_game), x(_x),
+			y(_y), w(_w), h(_h), goal(GOAL_NONE), path(NULL),
 			maxhp(_maxhp), hp(_maxhp), power(_power), status(DOWN),
 			frame(0), isMovable(_isMovable) {
 	units.push_back(this);
@@ -44,27 +44,28 @@ Unit::Unit(Map &_map, int _x, int _y, int _w, int _h, int _maxhp, int _power,
 
 	// Make sure we only occupy an empty location
 	Uint16 newx, newy;
+	Map *map = game.getMap();
 	for(unsigned int radius = 0;
-		radius < max(map.getWidth(),map.getHeight()); radius++) {
+		radius < max(map->getWidth(),map->getHeight()); radius++) {
 		for(unsigned int pos = 0; pos < 2*radius + 1; pos++) {
-			if(!map.isOccupied(newx = x + radius,
+			if(!map->isOccupied(newx = x + radius,
 				newy = y + radius - pos,w,h)
-				&& map.tileType(newx,newy) == Map::TILE_LAND)
+				&& map->tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 
-			if(!map.isOccupied(newx = x - radius,
+			if(!map->isOccupied(newx = x - radius,
 				newy = y + radius - pos,w,h)
-				&& map.tileType(newx,newy) == Map::TILE_LAND)
+				&& map->tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 
-			if(!map.isOccupied(newx = x + radius - pos,
+			if(!map->isOccupied(newx = x + radius - pos,
 				newy = y + radius,w,h)
-				&& map.tileType(newx,newy) == Map::TILE_LAND)
+				&& map->tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 
-			if(!map.isOccupied(newx = x + radius - pos,
+			if(!map->isOccupied(newx = x + radius - pos,
 				newy = y - radius,w,h)
-				&& map.tileType(newx,newy) == Map::TILE_LAND)
+				&& map->tileType(newx,newy) == Map::TILE_LAND)
 				goto empty_spot;
 		}
 	}
@@ -108,7 +109,7 @@ bool Unit::inView(View &view) {
 // Handle generic stuff, then delegate to the sub-class
 void Unit::draw(View &view) {
 	// Don't draw if we're in the fog
-	if(map.isFoggy(x,y,w,h)) return;
+	if(game.getMap()->isFoggy(x,y,w,h)) return;
 
 //	if(path) path->draw(view);
 
@@ -182,10 +183,10 @@ void Unit::attack(Unit *_target) {
 	}
 }
 
-
 // Deterministically update the unit according to whatever its current goal is
 void Unit::update() {
 	int dx, dy;
+	Unit *enemy;
 
 	// Dead men tell no tales...about goals
 	if(isDead()) {
@@ -195,6 +196,19 @@ void Unit::update() {
 	switch(goal) {
 	case GOAL_NONE:
 		frame = 0;
+
+		// Attack if an enemy is nearby
+		enemy = NULL;
+		for(int r = 1; !enemy && r < 2; r++) {
+			for(int p = 0; !enemy && p < r; p++) {
+				if((enemy = getEnemy(x + r,y + r - p))
+				|| (enemy = getEnemy(x - r,y + r - p))
+				|| (enemy = getEnemy(x + r - p,y + r))
+				|| (enemy = getEnemy(x + r - p,y - r)));
+			}
+		}
+
+		if(enemy) attack(enemy);
 		break;
 
 	case GOAL_DEAD:
@@ -240,29 +254,48 @@ void Unit::update() {
 	this->updateUnit();
 }
 
+Unit *Unit::getEnemy(Uint16 x, Uint16 y) {
+	Unit *unit;
+
+	Map *map = game.getMap();
+	if(map->isOccupied(x,y)) {
+		unit = Unit::getById(map->getOccupier(x,y));
+
+		if(!unit->isDead() && ownerid != unit->getOwnerId())
+			return unit;
+	}
+
+	return NULL;
+}
+
 void Unit::setOccupancy(bool occupy) {
+	Map *map = game.getMap();
+
 	for(Uint16 r = y; r < y + h; r++) {
 		for(Uint16 c = x; c < x + w; c++) {
-			if(occupy) map.occupy(c,r,id);
-			else map.clear(c,r);
+			if(occupy) map->occupy(c,r,id);
+			else map->clear(c,r);
 		}
 	}
 
-	if(local && occupy) map.defog(x,y,max(w,h) + 2);
+	if(occupy && ownerid == game.getPlayerId())
+		map->defog(x,y,max(w,h) + 2);
 }
 
 // Go one step along path
 void Unit::followPath() {
+	Map *map = game.getMap();
+
 	setOccupancy(false);
 
-	Path::Location loc = path->step(map);
+	Path::Location loc = path->step(*map);
 
 	if(loc.x > x) status = RIGHT;
 	if(loc.x < x) status = LEFT;
 	if(loc.y > y) status = DOWN;
 	if(loc.y < y) status = UP;
 
-	if(map.isOccupied(loc.x,loc.y))
+	if(map->isOccupied(loc.x,loc.y))
 		cerr << "warning: ordered to move to occupied location ("
 			<< loc.x << ", " << loc.y << ")" << endl;
 
@@ -281,7 +314,7 @@ void Unit::hit(Unit *attacker, unsigned int power) {
 	else hp = 0;
 
 	// Did we die?
-	if(hp == 0) {
+	if(isDead()) {
 		goal = GOAL_DEAD;
 
 		setOccupancy(false);

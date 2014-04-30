@@ -1,16 +1,17 @@
-#include <SDL/SDL.h>
-#include "SDL/SDL_image.h"
-
-#include "SpawnBunny.h"
 #include <cmath>
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+
+#include "CreateUnitOrder.h"
+#include "SpawnBunny.h"
 
 SDL_Surface* SpawnBunny::spawnbunnySurface = NULL;
 SDL_Rect SpawnBunny::clips[17];
 
 //constructor initializes isMovable to false so we can't move the spawn structures	
-SpawnBunny::SpawnBunny(Map &_map, int _x, int _y, bool _local)
-	: Unit(_map,_x,_y,3,2,100,0,false,_local)
-{
+SpawnBunny::SpawnBunny(Game &_game, int _ownerid, int _x, int _y)
+	: Unit(_game,_ownerid,_x,_y,3,2,100,0,false) {
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(spawnbunnySurface == NULL) {
 		SDL_Surface * loadedImage = IMG_Load("Rainbow.png");
@@ -21,8 +22,12 @@ SpawnBunny::SpawnBunny(Map &_map, int _x, int _y, bool _local)
 	}
 }
 
-
 int SpawnBunny::getType() { return UT_SPAWN_BUNNY; }
+
+void SpawnBunny::act() {
+	game.getTurn()->addOrder(new CreateUnitOrder(Unit::UT_BUNNY,x + w/2,
+		y + h));
+}
 
 //Draw those pretty rainbows
 void SpawnBunny::drawUnit(View & view) {

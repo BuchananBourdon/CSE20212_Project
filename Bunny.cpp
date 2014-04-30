@@ -10,8 +10,8 @@ SDL_Rect Bunny::clipsLeft[17][ 4 ];
 SDL_Rect Bunny::clipsUp[17][ 4 ];
 SDL_Rect Bunny::clipsDown[17][ 4 ];
 	
-Bunny::Bunny(Map &_map, int _x, int _y, bool _local)
-	: Unit(_map,_x,_y,1,1,100,10,true,_local) {
+Bunny::Bunny(Game &_game, int _ownerid, int _x, int _y)
+	: Unit(_game,_ownerid,_x,_y,1,1,100,10,true) {
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(bunnySurface == NULL) {
 		SDL_Surface * loadedImage = IMG_Load("Bunny.png");

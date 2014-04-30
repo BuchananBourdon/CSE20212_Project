@@ -9,8 +9,8 @@ SDL_Rect Robot::clipsLeft[17][ 4 ];
 SDL_Rect Robot::clipsUp[17][ 4 ];
 SDL_Rect Robot::clipsDown[17][ 4 ];
 	
-Robot::Robot(Map &_map, int _x, int _y, bool _local)
-	: Unit(_map,_x,_y,1,1,100,10,true,_local)
+Robot::Robot(Game &_game, int _ownerid, int _x, int _y)
+	: Unit(_game,_ownerid,_x,_y,1,1,100,10,true)
 {
 	//If it's the first robot, then handle the image loading and clip dimensions
 	if(robotSurface == NULL) {

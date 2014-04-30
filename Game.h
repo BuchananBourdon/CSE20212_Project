@@ -9,6 +9,7 @@ class Game;
 
 #include <SDL/SDL_net.h>
 
+#include "ActionBar.h"
 #include "Map.h"
 #include "Message.h"
 #include "MessageQueue.h"
@@ -18,7 +19,6 @@ class Game;
 #include "Turn.h"
 #include "Unit.h"
 #include "View.h"
-#include "ActionBar.h"
 
 class Game {
 	friend class Message;
@@ -28,9 +28,13 @@ public:
 	~Game();
 
 	bool   isHosting()   { return hosting; }
+
 	Uint8  getPlayerId() { return playerid; }
 	Uint32 getSeed()     { return random->getSeed(); }
-	Map *& getMap()      { return map; }
+
+	PlayerTurn *&getTurn() { return turn; }
+
+	Map *& getMap() { return map; }
 
 	UDPsocket getSocket();
 
@@ -78,8 +82,8 @@ private:
 	PlayerTurn *turn;            // For this turn
 	std::list<Turn *> turnqueue; // Play these soon
 
-	Map *map;  // World to play in
-	View view; // What we can see
+	Map *map;   // World to play in
+	View *view; // What we can see
 
 	ActionBar bar;
 
@@ -89,18 +93,18 @@ private:
 	std::vector<std::vector<Unit *> > units; // For each player
 	std::set<int> selected;                  // Currently active
 
- 	int viewVelocity_x;	// x velocity for how fast the view is panning
+	int viewVelocity_x;	// x velocity for how fast the view is panning
 	int viewVelocity_y;	// y velocity for how fast the view is panning
 
 	 enum action_state {
-                AS_SELECT,
-                AS_SPAWN,
-                AS_TURRET,
-                AS_BARRIER,
-                AS_STRUCTURE
-        };
+		AS_SELECT,
+		AS_SPAWN,
+		AS_TURRET,
+		AS_BARRIER,
+		AS_STRUCTURE
+	};
 
-        enum action_state state;
+	enum action_state state;
 
 	void handleEvents();     // Process all events
 	void broadcastTurn();    // Send our current turn
@@ -118,13 +122,12 @@ private:
 
 	void defaultAction(unsigned int, unsigned int); // Contextual
 	void selectUnits(bool, int, int, int, int);     // Within bounds
-	void attackUnit(int);                           // Selected attack
+	void attackUnit(Unit *);                        // Selected attack
 	void moveUnits(Uint16, Uint16);                 // Move selected
 
 	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
-	
-	void gatherResources(Unit *, Map &);
 
+	void gatherResources(Unit *, Map &);
 };
 
 #endif

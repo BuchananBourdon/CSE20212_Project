@@ -5,9 +5,12 @@
 
 class SpawnRobot : public Unit {
 public:
-	SpawnRobot(Map &, int, int, bool);
+	SpawnRobot(Game &, int, int, int);
 	
 	int getType();
+
+	void act();
+
 private:
 	static SDL_Surface * spawnrobotSurface;
 	static SDL_Rect clips[ 17 ];

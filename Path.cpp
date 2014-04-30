@@ -11,7 +11,7 @@
 
 using namespace std;
 
-const int Path::maxcost = 10;
+const int Path::maxcost = 100;
 
 bool Path::Location::operator==(const Location &that) {
 	return x == that.x && y == that.y;

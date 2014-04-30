@@ -370,7 +370,7 @@ void Map::occupy(Uint16 x, Uint16 y, int unitid) {
 bool Map::isOccupied(Uint16 x, Uint16 y) {
 	// Sanity check
 	if(x >= width || y >= height)
-		return true;
+		return false;
 
 	return map[y][x].unitid >= 0;
 }
@@ -422,22 +422,16 @@ bool Map::isFoggy(Uint16 x, Uint16 y, Uint16 w, Uint16 h) {
 
 enum Map::tile_type Map::tileType(Uint16 x, Uint16 y) {
 	// Sanity check
-	if(x >= width || y >= height) {
-		cerr << "warning: attempt to get type of out-of-bounds tile"
-			<< endl;
+	if(x >= width || y >= height)
 		return TILE_NONE;
-	}
 
 	return map[y][x].type;
 }
 
 enum Map::resource Map::resourceType(Uint16 x, Uint16 y) {
 	// Sanity check
-        if(x >= width || y >= height) {
-                cerr << "warning: attempt to get type of out-of-bounds tile"
-                        << endl;
+        if(x >= width || y >= height)
                 return RES_NONE;
-        }
 
         return map[y][x].resource;
 }

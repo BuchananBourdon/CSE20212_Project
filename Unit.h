@@ -7,22 +7,31 @@ class Unit;
 
 #include <SDL/SDL.h>
 
-#include "Map.h"
+#include "Game.h"
 #include "Path.h"
 #include "View.h"
 
 class Unit {
 public:
-	Unit(Map &, int, int, int, int, int, int, bool, bool);
+	Unit(Game &, int, int, int, int, int, int, int, bool);
 	virtual ~Unit() {};
+
+	enum unit_type {
+		UT_BLACK_HOLE,
+		UT_BUNNY,
+		UT_ROBOT,
+		UT_SPAWN_BUNNY,
+		UT_SPAWN_ROBOT
+	};
 
 	static Unit *getById(int id) { return units[id]; }
 
-	int    getId() { return id; }
-	Uint16 getX()  { return x; }
-	Uint16 getY()  { return y; }
+	int    getId()      { return id; }
+	int    getOwnerId() { return ownerid; }
+	Uint16 getX()       { return x; }
+	Uint16 getY()       { return y; }
 
-	bool isDead() { return hp == 0; }
+	bool isDead()  { return hp == 0; }
 
 	virtual int getType() = 0;
 
@@ -38,13 +47,7 @@ public:
 
 	void hit(Unit *, unsigned int);
 
-	enum unit_type {
-		UT_BLACK_HOLE,
-		UT_BUNNY,
-		UT_ROBOT,
-		UT_SPAWN_BUNNY,
-		UT_SPAWN_ROBOT
-	};
+	virtual void act() {}; // For double, etc. clicks
 
 protected:
 	virtual void drawUnit(View &) = 0;
@@ -52,9 +55,9 @@ protected:
 
 	const int id; // Which am I?
 
-	bool local; // Belong to the local player?
+	int ownerid; // Which player?
 
-	Map &map;
+	Game &game;
 	Uint16 x, y;       // Where am I?
 	const Uint16 w, h; // How big am I?
 
@@ -78,13 +81,15 @@ protected:
 	int frame;
 
 	static const int LEFT;
-        static const int RIGHT;
-        static const int UP;
-        static const int DOWN;
+	static const int RIGHT;
+	static const int UP;
+	static const int DOWN;
 
 private:
 	static int unitcount;             // For unique IDs
 	static std::vector<Unit *> units; // Indexed by id
+
+	Unit *getEnemy(Uint16, Uint16); // If there is one
 
 	void setOccupancy(bool); // Stake our claim
 
@@ -102,7 +107,6 @@ private:
 
 	// Flags whether or not the unit can be moved on map
 	bool isMovable;
-
 };
 
 #endif

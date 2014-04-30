@@ -5,9 +5,11 @@
 
 class SpawnBunny : public Unit {
 public:
-	SpawnBunny(Map &, int, int, bool);
+	SpawnBunny(Game &, int, int, int);
 	
 	int getType();
+
+	void act();
 	
 private:
 	// Has static Surface and Rect for blitting
