@@ -319,25 +319,35 @@ void Game::handleMouseUp(SDL_Event &e) {
 
 			if(e.button.x>145 && e.button.x<195 && e.button.y >406 && e.button.y < 456) state=AS_SELECT;
 			else if(e.button.x > 220 && e.button.x < 270 && e.button.y >406 && e.button.y < 456) state = AS_SPAWN;
+			else if(e.button.x > 295 && e.button.x < 345 && e.button.y >406 && e.button.y < 456) state = AS_TURRET;
 		// Move units and place spawns
 		} else {
 			if(state==AS_SELECT) {
 				defaultAction(e.button.x,e.button.y);
-			} else if(state==AS_SPAWN) {
-				Uint16 mapx = min(view->x + (float) e.button.x/view->zoom,view->x + view->w - 1u);
-				Uint16 mapy = min(view->y + (float) e.button.y/view->zoom,view->y + view->h - 1u);
-				int badTileCount = 0;
-				for(int i=0; i<2+playerid; i++) {
-					for(int j=0; j<3; j++) {
-						if(map->isOccupied(mapx+j,mapy+i)
-							|| map->isFoggy(mapx + j,mapy + i)
-							|| map->tileType(mapx+j,mapy+i) != 2
-							|| map->resourceType(mapx+j,mapy+i) != 0)
-							badTileCount++;
-					}
-				}
-				if(badTileCount==0) turn->addOrder(new CreateUnitOrder(3+playerid,mapx,mapy));
-			}
+			} else if(state==AS_SPAWN || state==AS_TURRET) {
+                                Uint16 mapx = min(view->x + (float) e.button.x/view->zoom,view->x + view->w - 1u);
+                                Uint16 mapy = min(view->y + (float) e.button.y/view->zoom,view->y + view->h - 1u);
+                                int badTileCount = 0;
+                                int xlength,ylength;
+                                if(state==AS_SPAWN) xlength=3,ylength=2;
+                                if(state==AS_TURRET) xlength=1,ylength=1-playerid;
+                                for(int i=0; i<ylength+playerid; i++) {
+                                        for(int j=0; j<xlength; j++) {
+                                                if(map->isOccupied(mapx+j,mapy+i)
+                                                        || map->isFoggy(mapx + j,mapy + i)
+                                                        || map->tileType(mapx+j,mapy+i) != 2
+                                                        || map->resourceType(mapx+j,mapy+i) != 0)
+                                                        badTileCount++;
+                                        }
+                                }
+                                if(badTileCount==0) {
+                                        if(state==AS_SPAWN)
+                                                turn->addOrder(new CreateUnitOrder(3+playerid,mapx,mapy));
+                                        else if(state==AS_TURRET)
+                                                turn->addOrder(new CreateUnitOrder(5,mapx,mapy));
+                                }
+                        }
+
 		}
 		break;
 
@@ -544,24 +554,27 @@ void Game::draw() {
 		}
 	}
 	// Draw the spawn availability box
-	else if(state==AS_SPAWN) {
-		Uint16 mapx = min(view->x + (float) mousex/view->zoom,view->x + view->w - 1u);
-		Uint16 mapy = min(view->y + (float) mousey/view->zoom,view->y + view->h - 1u);
-		int drawx, drawy, drawh;
-		for(int i=0; i<2+playerid; i++) {
-			for(int j=0; j<3; j++) {
-				drawx = (mapx - view->x + j)*view->zoom;
-				drawy = (mapy - view->y + i)*view->zoom;
-				drawh = view->zoom;
-				if(map->isOccupied(mapx+j,mapy+i)
-					|| map->isFoggy(mapx + j,mapy + i)
-					|| map->tileType(mapx+j,mapy+i) != 2
-					|| map->resourceType(mapx+j,mapy+i) != 0)
-					boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
-				else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
-			}
-		}
-	}
+	else if(state==AS_SPAWN || state==AS_TURRET) {
+        	Uint16 mapx = min(view->x + (float) mousex/view->zoom,view->x + view->w - 1u);
+                Uint16 mapy = min(view->y + (float) mousey/view->zoom,view->y + view->h - 1u);
+                int drawx, drawy, drawh;
+                int xlength,ylength;
+                if(state==AS_SPAWN) xlength=3,ylength=2;
+                if(state==AS_TURRET) xlength=1,ylength=1-playerid;
+                for(int i=0; i<ylength+playerid; i++) {
+                        for(int j=0; j<xlength; j++) {
+                                drawx = (mapx - view->x + j)*view->zoom;
+                                drawy = (mapy - view->y + i)*view->zoom;
+                                drawh = view->zoom;
+                                if(map->isOccupied(mapx+j,mapy+i)
+                                        || map->isFoggy(mapx + j,mapy + i)
+                                        || map->tileType(mapx+j,mapy+i) != 2
+                                        || map->resourceType(mapx+j,mapy+i) != 0)
+                                        boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
+                                else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
+                        }
+                }
+        }
 
 	// Draw the ActionBar last, so it's drawn atop the map/unit layer
 	bar.draw(resources,showResources,state,playerid);

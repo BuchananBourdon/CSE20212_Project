@@ -17,7 +17,7 @@ private:
 	static SDL_Surface* button;
 
 	static SDL_Rect clipBar; //clip for action bar surface
-	static SDL_Rect clipButton[3][2];
+	static SDL_Rect clipButton[5][2];
 
 	void setClip();		//method that sets the action bar clip
 };

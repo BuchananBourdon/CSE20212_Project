@@ -8,6 +8,7 @@
 #include "Robot.h"
 #include "SpawnBunny.h"
 #include "SpawnRobot.h"
+#include "Cannon.h"
 
 using namespace std;
 
@@ -46,6 +47,10 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 	
 	case Unit::UT_SPAWN_ROBOT:
 		game.addUnit(playerid, new SpawnRobot(game,playerid,x,y));
+		break;
+
+	case Unit::UT_TURRET:
+		game.addUnit(playerid, new Cannon(game,playerid,x,y));
 		break;
 	
 	default:

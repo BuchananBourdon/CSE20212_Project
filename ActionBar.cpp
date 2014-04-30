@@ -11,7 +11,7 @@ SDL_Surface* ActionBar::bar = NULL;
 SDL_Surface* ActionBar::button = NULL;
 
 SDL_Rect ActionBar::clipBar;
-SDL_Rect ActionBar::clipButton[3][2];
+SDL_Rect ActionBar::clipButton[5][2];
 
 ActionBar::ActionBar(int _height, int _width) 
 		: h(_height), w(_width) {
@@ -39,7 +39,7 @@ void ActionBar::setClip() {
 	clipBar.w = 400;
 	clipBar.h = 80;
 
-	for(int i=0; i<3; i++) {
+	for(int i=0; i<5; i++) {
 		for(int j=0; j<2; j++) {
 			clipButton[i][j].x = 50*j;
 			clipButton[i][j].y = 50*i;
@@ -56,8 +56,8 @@ void ActionBar::draw(int resources, bool showResources, int _state, int id) {
 	offSet.x = (surface->w - w)/2;
 	offSet.y = (surface->h - h);
 
-	SDL_Rect buttonOffsets[2];
-	for(int i=0; i<2; i++) {
+	SDL_Rect buttonOffsets[3];
+	for(int i=0; i<3; i++) {
 		buttonOffsets[i].x = 25*(i+1)+50*i;
 		buttonOffsets[i].y = 6;
 	}
@@ -65,6 +65,7 @@ void ActionBar::draw(int resources, bool showResources, int _state, int id) {
 	// blit the buttons to the bar
 	SDL_BlitSurface(button,&clipButton[0][0],bar,&buttonOffsets[0]);
 	SDL_BlitSurface(button,&clipButton[id+1][0],bar,&buttonOffsets[1]);
+	SDL_BlitSurface(button,&clipButton[id+3][0],bar,&buttonOffsets[2]);
 	SDL_BlitSurface(bar,&clipBar,surface,&offSet); 	//blit the bar
 	boxRGBA(surface,(640-w)/2+15,(480-18),		//draw the gray underlying resource pane
                 (640-w)/2+385,480-2,100,100,100,150);

@@ -7,7 +7,7 @@ CPP_FILES = main.cpp ActionBar.cpp AttackUnitOrder.cpp BlackHole.cpp Bunny.cpp \
 	JoinMessage.cpp JoinResponseMessage.cpp Map.cpp Message.cpp \
 	MessageQueue.cpp MoveUnitOrder.cpp Order.cpp Path.cpp PlayerTurn.cpp \
 	PlayerTurnMessage.cpp Random.cpp Robot.cpp SpawnBunny.cpp Turn.cpp \
-	SpawnRobot.cpp Unit.cpp View.cpp
+	Cannon.cpp SpawnRobot.cpp Unit.cpp View.cpp
 
 DEPENDS = $(CPP_FILES:.cpp=.d)
 OBJECTS = $(CPP_FILES:.cpp=.o)

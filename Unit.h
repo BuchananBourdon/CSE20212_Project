@@ -21,7 +21,8 @@ public:
 		UT_BUNNY,
 		UT_ROBOT,
 		UT_SPAWN_BUNNY,
-		UT_SPAWN_ROBOT
+		UT_SPAWN_ROBOT,
+		UT_TURRET
 	};
 
 	static Unit *getById(int id) { return units[id]; }
