@@ -11,7 +11,7 @@ SDL_Rect SpawnBunny::clips[17];
 
 //constructor initializes isMovable to false so we can't move the spawn structures	
 SpawnBunny::SpawnBunny(Game &_game, int _ownerid, int _x, int _y)
-	: Unit(_game,_ownerid,_x,_y,3,2,100,0,false) {
+	: Unit(_game,_ownerid,_x,_y,3,2,10000,0,false) {
 	//If it's the first Bunny, then handle the image loading and clip dimensions
 	if(spawnbunnySurface == NULL) {
 		SDL_Surface * loadedImage = IMG_Load("Rainbow.png");

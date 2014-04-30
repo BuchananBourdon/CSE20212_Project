@@ -165,9 +165,11 @@ void Unit::drawSelected(View &view) {
 }
 
 // Set the unit's goal to be to move to (newx, newy)
-void Unit::move(Uint16 newx, Uint16 newy) {
+void Unit::move(Uint16 newgroup, Uint16 newx, Uint16 newy) {
 	if(isMovable) {
 		goal = GOAL_MOVE;
+
+		group = newgroup;
 
 		if(path) delete path;
 		path = new Path(x,y,newx,newy,w,h);
@@ -215,10 +217,10 @@ void Unit::update() {
 		break;
 
 	case GOAL_MOVE:
-		followPath();
+		if(followPath()) game.groupMove(group);
 
-		// Goal achieved?
-		if(path->isFinished())
+		// Goal achieved/giving up?
+		if(path->isFinished() || !game.groupMoved(group))
 			goal = GOAL_NONE;
 		break;
 
@@ -239,11 +241,11 @@ void Unit::update() {
 			if(dy < 0) status = UP;
 
 			target->hit(this,power);
-
-			// Did we win?
-			if(target->isDead())
-				goal = GOAL_NONE;
 		}
+
+		// Did we win?
+		if(target->isDead())
+			goal = GOAL_NONE;
 		break;
 
 	default:
@@ -282,8 +284,10 @@ void Unit::setOccupancy(bool occupy) {
 		map->defog(x,y,max(w,h) + 2);
 }
 
-// Go one step along path
-void Unit::followPath() {
+// Returns whether we actually moved along the path
+bool Unit::followPath() {
+	bool moved = false;
+
 	Map *map = game.getMap();
 
 	setOccupancy(false);
@@ -299,13 +303,17 @@ void Unit::followPath() {
 		cerr << "warning: ordered to move to occupied location ("
 			<< loc.x << ", " << loc.y << ")" << endl;
 
-	if(x != loc.x || y != loc.y)
+	if(x != loc.x || y != loc.y) {
+		moved = true;
 		frame++;
+	}
 
 	x = loc.x;
 	y = loc.y;
 
 	setOccupancy(true);
+
+	return moved;
 }
 
 // Take damage proportional to power

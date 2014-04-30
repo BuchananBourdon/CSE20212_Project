@@ -5,8 +5,9 @@
 
 class MoveUnitOrder : public Order {
 public:
-	MoveUnitOrder(int _unitid, int _x, int _y)
-		: Order(OT_MOVE_UNIT), unitid(_unitid), x(_x), y(_y) {};
+	MoveUnitOrder(Uint16 _unitid, Uint16 _group, Uint16 _x, Uint16 _y)
+		: Order(OT_MOVE_UNIT), unitid(_unitid), group(_group), x(_x),
+			y(_y) {};
 
 	// From Order
 	static Order *deserialize(Uint8 *&);
@@ -15,8 +16,9 @@ public:
 	void serialize(std::vector<Uint8> &);
 
 private:
-	const int unitid; // What?
-	const int x, y;   // Where to?
+	const Uint16 unitid; // What?
+	const Uint16 group;  // With whom?
+	const Uint16 x, y;   // Where to?
 };
 
 #endif

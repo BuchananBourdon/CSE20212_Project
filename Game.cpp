@@ -172,8 +172,11 @@ void Game::addUnit(Uint8 playerid, Unit *unit) {
 }
 
 // Tell a unit to move to a location
-void Game::moveUnit(Uint8 playerid, Uint16 unitid, Uint16 x, Uint16 y) {
-	units[playerid][unitid]->move(x,y);
+void Game::moveUnit(Uint8 playerid, Uint16 unitid, Uint16 group, Uint16 x,
+	Uint16 y) {
+	movegroups.insert(pair<Uint16,pair<bool,bool> >(group,
+		pair<bool,bool>(false,true)));
+	units[playerid][unitid]->move(group,x,y);
 }
 
 // Tell a unit to attack another unit
@@ -484,6 +487,13 @@ void Game::updateSimulation() {
 					gatherResources(units[i][j],*map);
 			}
 		}
+
+		// Cycle the move groups
+		for(std::map<Uint16,pair<bool,bool> >::iterator it
+			= movegroups.begin(); it != movegroups.end(); it++) {
+			it->second.second = it->second.first;
+			it->second.first = false;
+		}
 	}
 }
 
@@ -607,8 +617,20 @@ void Game::attackUnit(Unit *unit) {
 }
 
 void Game::moveUnits(Uint16 mapx, Uint16 mapy) {
+	Uint16 group = movegroups.size() ? (*movegroups.end()--).first + 1 : 0;
+
 	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
 		iter++)
-		turn->addOrder(new MoveUnitOrder(*iter,mapx,mapy));
+		turn->addOrder(new MoveUnitOrder(*iter,group,mapx,mapy));
+}
+
+// Indicate a member of group has moved
+void Game::groupMove(Uint16 group) {
+	movegroups[group].first = true;
+}
+
+// Returns whether a member of group moved last turn
+bool Game::groupMoved(Uint16 group) {
+	return movegroups[group].second;
 }
 

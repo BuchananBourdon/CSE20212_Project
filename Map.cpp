@@ -364,7 +364,8 @@ void Map::occupy(Uint16 x, Uint16 y, int unitid) {
 		return;
 	}
 
-	map[y][x].unitid = unitid;
+	if(x < width && y < height)
+		map[y][x].unitid = unitid;
 }
 
 bool Map::isOccupied(Uint16 x, Uint16 y) {

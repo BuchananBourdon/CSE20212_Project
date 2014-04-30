@@ -40,7 +40,7 @@ public:
 	void draw(View &);
 	void drawSelected(View &);
 
-	void move(Uint16, Uint16);
+	void move(Uint16, Uint16, Uint16);
 	void attack(Unit *);
 
 	void update();
@@ -68,6 +68,7 @@ protected:
 		GOAL_ATTACK
 	} goal;
 
+	Uint16 group;
 	Path *path;
 
 	Unit *target;
@@ -96,7 +97,7 @@ private:
 	void setSelectionClips(); //sets the Rect dimensions for selection
 	void setDeathClips();   // sets the Rect dimensions for the death gfx
 
-	void followPath(); // One step
+	bool followPath(); // One step
 
 	//For the selection icon
 	static SDL_Surface * selectSurface;

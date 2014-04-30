@@ -4,6 +4,7 @@ class Game;
 #define GAME_H
 
 #include <list>
+#include <map>
 #include <memory>
 #include <queue>
 #include <set>
@@ -49,10 +50,12 @@ public:
 	void addPlayerTurn(PlayerTurn *); // Add to queue
 	void sendMessage(Message *);      // Add to queue
 
-	void addUnit(Uint8, Unit *);                  // New unit
-	void moveUnit(Uint8, Uint16, Uint16, Uint16); // Order to move
-	void attackUnit(Uint8, Uint16, Uint16);       // Order to attack
-	void spawnUnits(Unit *);
+	void addUnit(Uint8, Unit *);
+	void moveUnit(Uint8, Uint16, Uint16, Uint16, Uint16);
+	void attackUnit(Uint8, Uint16, Uint16);
+
+	void groupMove(Uint16);  // Set
+	bool groupMoved(Uint16); // Query
 
 private:
 	static const int ticksperturn; // 1 SDL tick = 1 ms
@@ -95,6 +98,8 @@ private:
 	std::vector<std::vector<Unit *> > units; // For each player
 	std::set<int> selected;                  // Currently active
 
+	std::map<Uint16,std::pair<bool,bool> > movegroups; // Units moving
+
 	int viewVelocity_x;	// x velocity for how fast the view is panning
 	int viewVelocity_y;	// y velocity for how fast the view is panning
 
@@ -126,8 +131,6 @@ private:
 	void selectUnits(bool, int, int, int, int);     // Within bounds
 	void attackUnit(Unit *);                        // Selected attack
 	void moveUnits(Uint16, Uint16);                 // Move selected
-
-	void handleJoinMessage(Uint8 *, IPaddress *); // Request to join game
 
 	void gatherResources(Unit *, Map &);
 };

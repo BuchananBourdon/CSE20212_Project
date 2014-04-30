@@ -11,7 +11,7 @@ SDL_Rect SpawnRobot::clips[17];
 
 
 SpawnRobot::SpawnRobot(Game &_game, int _playerid, int _x, int _y)
-	: Unit(_game,_playerid,_x,_y,3,3,100,0,false) {
+	: Unit(_game,_playerid,_x,_y,3,3,10000,0,false) {
 	// Load the spawn image if it hasn't been loaded yet
 	if(spawnrobotSurface == NULL) {
 		SDL_Surface * loadedImage = IMG_Load("RobotSpawn.png");
