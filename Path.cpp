@@ -11,6 +11,8 @@
 
 using namespace std;
 
+const int Path::maxcost = 10;
+
 bool Path::Location::operator==(const Location &that) {
 	return x == that.x && y == that.y;
 }
@@ -128,6 +130,9 @@ void Path::calcPath(Map &map) {
 
 		if(s->getDistance().first < best->getDistance().first)
 			best = s;
+
+		// Don't search beyond the maximum cost
+		if(s->cost > maxcost) continue;
 
 		for(int dir = 0; dir < 8; dir++) {
 			int dx = (dir&3) == 1 ? 0 : !(dir&4) ^ !(dir&2)
