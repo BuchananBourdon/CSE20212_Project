@@ -7,6 +7,8 @@
 
 using namespace std;
 
+const int Unit::attackradius = 4;
+
 int Unit::unitcount = 0;
 vector<Unit *> Unit::units;
 
@@ -201,12 +203,12 @@ void Unit::update() {
 
 		// Attack if an enemy is nearby
 		enemy = NULL;
-		for(int r = 1; !enemy && r < 2; r++) {
+		for(int r = 1; !enemy && r <= attackradius; r++) {
 			for(int p = 0; !enemy && p < r; p++) {
-				if((enemy = getEnemy(x + r,y + r - p))
+				   (enemy = getEnemy(x + r,y + r - p))
 				|| (enemy = getEnemy(x - r,y + r - p))
 				|| (enemy = getEnemy(x + r - p,y + r))
-				|| (enemy = getEnemy(x + r - p,y - r)));
+				|| (enemy = getEnemy(x + r - p,y - r));
 			}
 		}
 

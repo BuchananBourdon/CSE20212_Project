@@ -87,6 +87,8 @@ protected:
 	static const int DOWN;
 
 private:
+	static const int attackradius;
+
 	static int unitcount;             // For unique IDs
 	static std::vector<Unit *> units; // Indexed by id
 
