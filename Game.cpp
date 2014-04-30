@@ -27,7 +27,8 @@ const int Game::mapsize = 65;
 Game::Game(bool _hosting, IPaddress address)
 	: hosting(_hosting), numplayers(1), random(NULL), xdown(0), ydown(0),
 		xup(0), yup(0), moved(0), mousex(0), mousey(0), start(0),
-		turn(NULL), bar(80,400), resources(50), showResources(false) {
+		turn(NULL), view(NULL), bar(80,400), resources(50),
+		showResources(false) {
 	// Prepare the connection
 	UDPsocket socket;
 	Uint16 port = SDLNet_Read16(&address.port);

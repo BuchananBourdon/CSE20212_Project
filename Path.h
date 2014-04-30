@@ -51,7 +51,7 @@ private:
 		bool operator() (Step *&, Step *&);
 	};
 
-	static const int maxcost;
+	static const unsigned int maxcost;
 
 	bool canStep(Map &, Location &); // Valid step?
 	void calcPath(Map &);            // Generate path
