@@ -133,6 +133,11 @@ void Map::draw(const View &view) {
 				break;
 			}
 
+			// SDL_BlitSurface writes to rect, so recalculate it
+			rect.x = (x - view.x)*view.zoom;
+			rect.y = (y - view.y)*view.zoom;
+			rect.w = rect.h = view.zoom;
+
 			// Indicate the tile's resource, if any
 			if(map[y][x].type == TILE_LAND) {
 				switch(map[y][x].resource) {
