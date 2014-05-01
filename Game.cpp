@@ -91,6 +91,10 @@ void Game::setPlayerId(Uint8 _playerid) {
 	playerid = _playerid;
 }
 
+void Game::setWon(bool _won) {
+	won = _won;
+}
+
 void Game::setSeed(Uint32 seed) {
 	// Only do this once
 	if(random.get()) {

@@ -41,6 +41,7 @@ public:
 	UDPsocket getSocket();
 
 	void setPlayerId(Uint8);
+	void setWon(bool);
 	void setSeed(Uint32);
 
 	void play(); // Game loop
