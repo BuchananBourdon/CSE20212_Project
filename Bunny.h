@@ -7,7 +7,9 @@ class Bunny : public Unit {
 public:
 	Bunny(Game &, int, int, int);
 	
-	int getType();
+	static int getCost() { return 5; }
+
+	int getType() { return UT_BUNNY; }
 	
 private:
 	// Has static Surface and Rect for blitting

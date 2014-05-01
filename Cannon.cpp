@@ -20,8 +20,6 @@ Cannon::Cannon(Game &_game, int _ownerid, int _x, int _y)
 	}
 }
 
-int Cannon::getType() { return UT_TURRET; }
-
 void Cannon::drawUnit(View & view) {
 	SDL_Surface * surface = SDL_GetVideoSurface();
 	SDL_Rect rect;

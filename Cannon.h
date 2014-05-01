@@ -7,7 +7,9 @@ class Cannon : public Unit {
 public:
 	Cannon(Game &, int, int, int);
 	
-	int getType();
+	static int getCost() { return 10; }
+
+	int getType() { return UT_TURRET; }
 
 private:
 

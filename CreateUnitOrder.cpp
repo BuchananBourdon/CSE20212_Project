@@ -32,7 +32,7 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 	case Unit::UT_BLACK_HOLE:
 		game.addUnit(playerid,new BlackHole(game,playerid,x,y));
 		break;
-	
+
 	case Unit::UT_BUNNY:
 		game.addUnit(playerid,new Bunny(game,playerid,x,y));
 		break;
@@ -44,7 +44,7 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 	case Unit::UT_SPAWN_BUNNY:
 		game.addUnit(playerid,new SpawnBunny(game,playerid,x,y));
 		break;
-	
+
 	case Unit::UT_SPAWN_ROBOT:
 		game.addUnit(playerid, new SpawnRobot(game,playerid,x,y));
 		break;
@@ -52,7 +52,7 @@ void CreateUnitOrder::execute(Game &game, Uint8 playerid) {
 	case Unit::UT_TURRET:
 		game.addUnit(playerid, new Cannon(game,playerid,x,y));
 		break;
-	
+
 	default:
 		cerr << "warning: order to create unknown unit type "
 			<< unittype << endl;

@@ -23,8 +23,6 @@ Bunny::Bunny(Game &_game, int _ownerid, int _x, int _y)
 	}
 }
 
-int Bunny::getType() { return UT_BUNNY; }
-
 void Bunny::drawUnit(View & view) {
 	//blit the bunny to the screen if it's in view
 	SDL_Surface * screen = SDL_GetVideoSurface();

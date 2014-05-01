@@ -6,8 +6,10 @@
 class SpawnBunny : public Unit {
 public:
 	SpawnBunny(Game &, int, int, int);
-	
-	int getType();
+
+	static int getCost() { return 80; }
+
+	int getType() { return UT_SPAWN_BUNNY; }
 
 	void act();
 	
@@ -22,3 +24,4 @@ private:
 };
 
 #endif
+

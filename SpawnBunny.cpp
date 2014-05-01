@@ -3,6 +3,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
+#include "Bunny.h"
 #include "CreateUnitOrder.h"
 #include "SpawnBunny.h"
 
@@ -22,11 +23,10 @@ SpawnBunny::SpawnBunny(Game &_game, int _ownerid, int _x, int _y)
 	}
 }
 
-int SpawnBunny::getType() { return UT_SPAWN_BUNNY; }
-
 void SpawnBunny::act() {
-	game.getTurn()->addOrder(new CreateUnitOrder(Unit::UT_BUNNY,x + w/2,
-		y + h));
+	if(game.useResources(Bunny::getCost()))
+		game.getTurn()->addOrder(new CreateUnitOrder(Unit::UT_BUNNY,
+			x + w/2,y + h));
 }
 
 //Draw those pretty rainbows

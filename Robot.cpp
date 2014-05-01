@@ -22,8 +22,6 @@ Robot::Robot(Game &_game, int _ownerid, int _x, int _y)
 	}
 }
 
-int Robot::getType() { return UT_ROBOT; }
-
 void Robot::drawUnit(View & view) {
 
 	SDL_Surface * screen = SDL_GetVideoSurface();

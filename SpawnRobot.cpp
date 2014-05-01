@@ -4,6 +4,7 @@
 #include <SDL/SDL_image.h>
 
 #include "CreateUnitOrder.h"
+#include "Robot.h"
 #include "SpawnRobot.h"
 
 SDL_Surface* SpawnRobot::spawnrobotSurface = NULL;
@@ -22,11 +23,10 @@ SpawnRobot::SpawnRobot(Game &_game, int _playerid, int _x, int _y)
 	}
 }
 
-int SpawnRobot::getType() { return UT_SPAWN_ROBOT; }
-
 void SpawnRobot::act() {
-	game.getTurn()->addOrder(new CreateUnitOrder(Unit::UT_ROBOT,x + w/2,
-		y + h));
+	if(game.useResources(Robot::getCost()))
+		game.getTurn()->addOrder(new CreateUnitOrder(Unit::UT_ROBOT,
+			x + w/2,y + h));
 }
 
 // Blit the robot spawn structure to the screen

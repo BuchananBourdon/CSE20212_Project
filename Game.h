@@ -54,6 +54,8 @@ public:
 	void moveUnit(Uint8, Uint16, Uint16, Uint16, Uint16);
 	void attackUnit(Uint8, Uint16, Uint16);
 
+	bool useResources(int); // If we can
+
 	void groupMove(Uint16);  // Set
 	bool groupMoved(Uint16); // Query
 

@@ -6,8 +6,10 @@
 class SpawnRobot : public Unit {
 public:
 	SpawnRobot(Game &, int, int, int);
+
+	static int getCost() { return 80; }
 	
-	int getType();
+	int getType() { return UT_SPAWN_ROBOT; }
 
 	void act();
 
@@ -21,3 +23,4 @@ private:
 };
 
 #endif
+

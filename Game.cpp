@@ -1,6 +1,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
-#include "SDL/SDL_gfxPrimitives.h"
+#include <SDL/SDL_gfxPrimitives.h>
 
 #include <algorithm>
 #include <cmath>
@@ -9,12 +9,15 @@
 #include <iostream>
 
 #include "AttackUnitOrder.h"
+#include "Cannon.h"
 #include "CreateUnitOrder.h"
 #include "Game.h"
 #include "HangupMessage.h"
 #include "JoinMessage.h"
 #include "MoveUnitOrder.h"
 #include "PlayerTurnMessage.h"
+#include "SpawnBunny.h"
+#include "SpawnRobot.h"
 
 using namespace std;
 
@@ -27,7 +30,7 @@ const int Game::mapsize = 65;
 Game::Game(bool _hosting, IPaddress address)
 	: hosting(_hosting), numplayers(1), xdown(0), ydown(0), xup(0), yup(0),
 		moved(0), mousex(0), mousey(0), start(0), bar(80,400),
-		resources(50), showResources(false) {
+		resources(100), showResources(false) {
 	// Prepare the connection
 	UDPsocket socket;
 	Uint16 port = SDLNet_Read16(&address.port);
@@ -325,29 +328,45 @@ void Game::handleMouseUp(SDL_Event &e) {
 			if(state==AS_SELECT) {
 				defaultAction(e.button.x,e.button.y);
 			} else if(state==AS_SPAWN || state==AS_TURRET) {
-                                Uint16 mapx = min(view->x + (float) e.button.x/view->zoom,view->x + view->w - 1u);
-                                Uint16 mapy = min(view->y + (float) e.button.y/view->zoom,view->y + view->h - 1u);
-                                int badTileCount = 0;
-                                int xlength,ylength;
-                                if(state==AS_SPAWN) xlength=3,ylength=2;
-                                if(state==AS_TURRET) xlength=1,ylength=1-playerid;
-                                for(int i=0; i<ylength+playerid; i++) {
-                                        for(int j=0; j<xlength; j++) {
-                                                if(map->isOccupied(mapx+j,mapy+i)
-                                                        || map->isFoggy(mapx + j,mapy + i)
-                                                        || map->tileType(mapx+j,mapy+i) != 2
-                                                        || map->resourceType(mapx+j,mapy+i) != 0)
-                                                        badTileCount++;
-                                        }
-                                }
-                                if(badTileCount==0) {
-                                        if(state==AS_SPAWN)
-                                                turn->addOrder(new CreateUnitOrder(3+playerid,mapx,mapy));
-                                        else if(state==AS_TURRET)
-                                                turn->addOrder(new CreateUnitOrder(5,mapx,mapy));
-                                }
-                        }
+				Uint16 mapx = min(view->x + (float) e.button.x/view->zoom,view->x + view->w - 1u);
+				Uint16 mapy = min(view->y + (float) e.button.y/view->zoom,view->y + view->h - 1u);
+				int badTileCount = 0;
+				int xlength,ylength;
+				if(state==AS_SPAWN) xlength=3,ylength=2;
+				if(state==AS_TURRET) xlength=1,ylength=1-playerid;
+				for(int i=0; i<ylength+playerid; i++) {
+					for(int j=0; j<xlength; j++) {
+						if(map->isOccupied(mapx+j,mapy+i)
+							|| map->isFoggy(mapx + j,mapy + i)
+							|| map->tileType(mapx+j,mapy+i) != 2
+							|| map->resourceType(mapx+j,mapy+i) != 0)
+							badTileCount++;
+					}
+				}
 
+				int cost;
+				enum Unit::unit_type type;
+				if(state == AS_SPAWN) {
+					switch(playerid) {
+					default:
+					case 0:
+						type = Unit::UT_SPAWN_BUNNY;
+						cost = SpawnBunny::getCost();
+						break;
+
+					case 1:
+						type = Unit::UT_SPAWN_ROBOT;
+						cost = SpawnRobot::getCost();
+						break;
+					}
+				} else if(state == AS_TURRET) {
+					type = Unit::UT_TURRET;
+					cost = Cannon::getCost();
+				}
+
+				if(badTileCount == 0 && useResources(cost))
+					turn->addOrder(new CreateUnitOrder(type,mapx,mapy));
+			}
 		}
 		break;
 
@@ -555,26 +574,26 @@ void Game::draw() {
 	}
 	// Draw the spawn availability box
 	else if(state==AS_SPAWN || state==AS_TURRET) {
-        	Uint16 mapx = min(view->x + (float) mousex/view->zoom,view->x + view->w - 1u);
-                Uint16 mapy = min(view->y + (float) mousey/view->zoom,view->y + view->h - 1u);
-                int drawx, drawy, drawh;
-                int xlength,ylength;
-                if(state==AS_SPAWN) xlength=3,ylength=2;
-                if(state==AS_TURRET) xlength=1,ylength=1-playerid;
-                for(int i=0; i<ylength+playerid; i++) {
-                        for(int j=0; j<xlength; j++) {
-                                drawx = (mapx - view->x + j)*view->zoom;
-                                drawy = (mapy - view->y + i)*view->zoom;
-                                drawh = view->zoom;
-                                if(map->isOccupied(mapx+j,mapy+i)
-                                        || map->isFoggy(mapx + j,mapy + i)
-                                        || map->tileType(mapx+j,mapy+i) != 2
-                                        || map->resourceType(mapx+j,mapy+i) != 0)
-                                        boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
-                                else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
-                        }
-                }
-        }
+		Uint16 mapx = min(view->x + (float) mousex/view->zoom,view->x + view->w - 1u);
+		Uint16 mapy = min(view->y + (float) mousey/view->zoom,view->y + view->h - 1u);
+		int drawx, drawy, drawh;
+		int xlength,ylength;
+		if(state==AS_SPAWN) xlength=3,ylength=2;
+		if(state==AS_TURRET) xlength=1,ylength=1-playerid;
+		for(int i=0; i<ylength+playerid; i++) {
+			for(int j=0; j<xlength; j++) {
+				drawx = (mapx - view->x + j)*view->zoom;
+				drawy = (mapy - view->y + i)*view->zoom;
+				drawh = view->zoom;
+				if(map->isOccupied(mapx+j,mapy+i)
+					|| map->isFoggy(mapx + j,mapy + i)
+					|| map->tileType(mapx+j,mapy+i) != 2
+					|| map->resourceType(mapx+j,mapy+i) != 0)
+					boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,255,0,0,125);
+				else boxRGBA(surface,drawx,drawy,drawx+drawh,drawy+drawh,0,255,0,125);
+			}
+		}
+	}
 
 	// Draw the ActionBar last, so it's drawn atop the map/unit layer
 	bar.draw(resources,showResources,state,playerid);
@@ -635,6 +654,15 @@ void Game::moveUnits(Uint16 mapx, Uint16 mapy) {
 	for(set<int>::iterator iter = selected.begin(); iter != selected.end();
 		iter++)
 		turn->addOrder(new MoveUnitOrder(*iter,group,mapx,mapy));
+}
+
+// Returns whether we had enough
+bool Game::useResources(int cost) {
+	if(resources < cost) return false;
+
+	resources -= cost;
+
+	return true;
 }
 
 // Indicate a member of group has moved

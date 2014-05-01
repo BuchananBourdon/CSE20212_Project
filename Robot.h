@@ -7,7 +7,9 @@ class Robot : public Unit {
 public:
 	Robot(Game &, int, int, int);
 
-	int getType();
+	static int getCost() { return 5; }
+
+	int getType() { return UT_ROBOT; }
 
 private:
   	// Has static Surface and Rect for blitting, will modify clip when MoveUnitOrder is finished

@@ -8,6 +8,8 @@ public:
 	BlackHole(Game &_game, int _ownerid, int _x, int _y)
 		: Unit(_game,_ownerid,_x,_y,1,1,100,10,true) {};
 
+	static int getCost() { return 5; }
+
 	int getType() { return UT_BLACK_HOLE; }
 
 private:
