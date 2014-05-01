@@ -316,9 +316,12 @@ void Game::handleMouseUp(SDL_Event &e) {
 			&& e.button.x < (surface->w - (surface->w - bar.getWidth())/2)
 			&& e.button.y > (surface->h - bar.getHeight())) {
 
-			if(e.button.x>145 && e.button.x<195 && e.button.y >406 && e.button.y < 456) state=AS_SELECT;
-			else if(e.button.x > 220 && e.button.x < 270 && e.button.y >406 && e.button.y < 456) state = AS_SPAWN;
-			else if(e.button.x > 295 && e.button.x < 345 && e.button.y >406 && e.button.y < 456) state = AS_TURRET;
+			if(e.button.x>145 && e.button.x<195 && e.button.y >406 && e.button.y < 456) 
+				state=AS_SELECT;
+			else if(e.button.x > 220 && e.button.x < 270 && e.button.y >406 && e.button.y < 456 && resources >= 80) 
+				state = AS_SPAWN;
+			else if(e.button.x > 295 && e.button.x < 345 && e.button.y >406 && e.button.y < 456 && resources >= 10) 
+				state = AS_TURRET;
 		// Move units and place spawns
 		} else {
 			if(state==AS_SELECT) {
@@ -520,6 +523,11 @@ void Game::updateSimulation() {
 		}
 
 		checkEndState();
+
+		if(state==AS_TURRET && resources < 10)
+			state = AS_SELECT;
+		else if (state==AS_SPAWN && resources < 80)
+			state = AS_SELECT;
 
 		// Cycle the move groups
 		for(std::map<Uint16,pair<bool,bool> >::iterator it
