@@ -1,6 +1,7 @@
 #include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
 #include <SDL/SDL_gfxPrimitives.h>
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_net.h>
 
 #include <algorithm>
 #include <cmath>
@@ -105,6 +106,7 @@ void Game::setSeed(Uint32 seed) {
 void Game::play() {
 	playing = true;
 
+	// Play the game
 	while(playing) {
 		handleEvents();
 
@@ -117,6 +119,22 @@ void Game::play() {
 		updateSimulation();
 
 		draw();
+
+		// Max out at 60 fps
+		if(SDL_GetTicks() - lastframe < 16)
+			SDL_Delay(16-(SDL_GetTicks() - lastframe));
+		lastframe = SDL_GetTicks();
+	}
+
+	drawEndFrame();
+
+	// Did we win or lose?
+	playing = true;
+	while(playing) {
+		handleEvents();
+
+		// Just in case the others don't know, yet
+		messagequeue->send();
 
 		// Max out at 60 fps
 		if(SDL_GetTicks() - lastframe < 16)
@@ -491,6 +509,8 @@ void Game::updateSimulation() {
 			}
 		}
 
+		checkEndState();
+
 		// Cycle the move groups
 		for(std::map<Uint16,pair<bool,bool> >::iterator it
 			= movegroups.begin(); it != movegroups.end(); it++) {
@@ -574,6 +594,38 @@ void Game::draw() {
 
 	// Make sure this shows up on the screen
 	SDL_Flip(SDL_GetVideoSurface());
+}
+
+// Stop playing if one player has won
+void Game::checkEndState() {
+	for(unsigned int i = 0; i < units.size(); i++) {
+		// Are all of these player's units dead?
+		bool alive = false;
+		for(unsigned int j = 0; j < units[i].size(); j++)
+			if(!units[i][j]->isDead())
+				alive = true;
+
+		if(units[i].size() && !alive) {
+			if(i == playerid) won = false;
+			else won = true;
+
+			playing = false;
+		}
+	}
+}
+
+// Tell the user what happened
+void Game::drawEndFrame() {
+	cout << "game over; you have " << (won ? "won" : "lost") << endl;
+
+	if(endframe = IMG_Load(won ? "win.png" : "lose.png"), !endframe) {
+		cerr << "cannot load end-game image" << endl;
+		return;
+	}
+
+	SDL_Surface *screen = SDL_GetVideoSurface();
+	SDL_BlitSurface(endframe,NULL,screen,NULL);
+	SDL_Flip(screen);
 }
 
 // Decide what to do based on what was clicked

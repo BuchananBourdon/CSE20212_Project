@@ -67,6 +67,7 @@ private:
 
 	bool hosting; // Acting as host?
 	bool playing; // Still in the game?
+	bool won;     // Yeah?
 
 	Uint8 playerid; // Who am I?
 	int numplayers; // Players in the game
@@ -83,6 +84,8 @@ private:
 
 	Uint32 start;     // Start of the game
 	Uint32 lastframe; // For FPS-limiting
+
+	SDL_Surface *endframe;
 
 	std::auto_ptr<MessageQueue> messagequeue; // Communication manager
 
@@ -120,6 +123,9 @@ private:
 	void updateSimulation(); // Deterministic simulation
 	void updateView();       // Move view
 	void draw();             // Update screen
+
+	void checkEndState(); // All units dead?
+	void drawEndFrame();  // Win or lose
 
 	// Helper functions for handleEvents()
 	void handleKeyDown(SDL_Event &);
