@@ -215,38 +215,12 @@ void Game::handleKeyDown(SDL_Event &e) {
 		exit();
 		break;
 
-	case SDLK_b: // For testing the creation of bunnies
-		turn->addOrder(new CreateUnitOrder(1,rand()%map->getWidth(),
-			rand()%map->getHeight()));
-		break;
-
-	case SDLK_p: // For testing the creation of rainbows
-		turn->addOrder(new CreateUnitOrder(3,rand()%map->getWidth(),
-			rand()%map->getHeight()));
-		break;
-
-	case SDLK_q: // For testing the creation of robot spawn structures
-		turn->addOrder(new CreateUnitOrder(4,rand()%map->getWidth(),
-			rand()%map->getHeight()));
-		break;
-
-	case SDLK_r: // For testing the creation of robots
-		turn->addOrder(new CreateUnitOrder(2,rand()%map->getWidth(),
-			rand()%map->getHeight()));
-		break;
-
 	case SDLK_UP: // Scroll up the map
 		viewVelocity_y += -1;
-
-		// For testing resources
-		if(resources < 100) resources++;
 		break;
 
 	case SDLK_DOWN: // Scroll down the map
 		viewVelocity_y += 1;
-
-		// For testing resources
-		if(resources > 0) resources--;
 		break;
 
 	case SDLK_LEFT: // Scroll left across the map
