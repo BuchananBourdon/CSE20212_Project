@@ -29,9 +29,9 @@ const int Game::turndelay = 2; // Delay between turn creation and execution
 const int Game::mapsize = 65;
 
 Game::Game(bool _hosting, IPaddress address)
-	: hosting(_hosting), numplayers(1), xdown(0), ydown(0), xup(0), yup(0),
-		moved(0), mousex(0), mousey(0), start(0), bar(80,400),
-		resources(100), showResources(false) {
+	: hosting(_hosting), won(false), numplayers(1), xdown(0), ydown(0),
+		xup(0), yup(0), moved(0), mousex(0), mousey(0), start(0),
+		bar(80,400), resources(100), showResources(false) {
 	// Prepare the connection
 	UDPsocket socket;
 	Uint16 port = SDLNet_Read16(&address.port);
