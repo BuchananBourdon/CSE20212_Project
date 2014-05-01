@@ -231,18 +231,18 @@ void Unit::update() {
 		dx = (signed) target->getX() - x;
 		dy = (signed) target->getY() - y;
 
-		// Do we need to get closer?
-		if(abs(dx) > 1 || abs(dy) > 1) {
-			if(path) delete path;
-			path = new Path(x,y,target->getX(),target->getY(),w,h);
-			followPath();
-		} else { // It's right where we want it
+		// Is it where we want it?
+		if(isAdjacent(target)) {
 			if(dx > 0) status = RIGHT;
 			if(dx < 0) status = LEFT;
 			if(dy > 0) status = DOWN;
 			if(dy < 0) status = UP;
 
 			target->hit(this,power);
+		} else { // We need to get closer
+			if(path) delete path;
+			path = new Path(x,y,target->getX(),target->getY(),w,h);
+			followPath();
 		}
 
 		// Did we win?
@@ -316,6 +316,27 @@ bool Unit::followPath() {
 	setOccupancy(true);
 
 	return moved;
+}
+
+// Returns whether there is no space between this and that
+bool Unit::isAdjacent(Unit *that) {
+	struct { int x, y, w, h; } thisbb = {
+		x - 1, y - 1,
+		w + 2, h + 2
+	}, thatbb = {
+		that->getX(), that->getY(),
+		that->getWidth(), that->getHeight()
+	};
+
+	// thisbb and thatbb intersect iff
+	//  thisbb.{x,y} is in thatbb
+	// or
+	//  thatbb.{x,y} is in thisbb
+
+	return (thisbb.x >= thatbb.x && thisbb.x < thatbb.x + thatbb.w
+		&& thisbb.y >= thatbb.y && thisbb.y < thatbb.y + thatbb.h)
+	|| (thatbb.x >= thisbb.x && thatbb.x < thisbb.x + thisbb.w
+		&& thatbb.y >= thisbb.y && thatbb.y < thisbb.y + thisbb.h);
 }
 
 // Take damage proportional to power

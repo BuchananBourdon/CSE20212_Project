@@ -31,6 +31,8 @@ public:
 	int    getOwnerId() { return ownerid; }
 	Uint16 getX()       { return x; }
 	Uint16 getY()       { return y; }
+	Uint16 getWidth()   { return w; }
+	Uint16 getHeight()  { return h; }
 
 	bool isDead()  { return hp == 0; }
 
@@ -46,6 +48,7 @@ public:
 
 	void update();
 
+	bool isAdjacent(Unit *);
 	void hit(Unit *, unsigned int);
 
 	virtual void act() {}; // For double, etc. clicks
