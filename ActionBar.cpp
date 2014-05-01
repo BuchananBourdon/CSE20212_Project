@@ -58,15 +58,15 @@ void ActionBar::draw(int resources, bool showResources, int _state, int id) {
 
 	SDL_Rect buttonOffsets[3];
 	for(int i=0; i<3; i++) {
-		buttonOffsets[i].x = 25*(i+1)+50*i;
-		buttonOffsets[i].y = 6;
+		buttonOffsets[i].x = 25*(i+1)+50*i + offSet.x;
+		buttonOffsets[i].y = 6 + offSet.y;
 	}
 
-	// blit the buttons to the bar
-	SDL_BlitSurface(button,&clipButton[0][0],bar,&buttonOffsets[0]);
-	SDL_BlitSurface(button,&clipButton[id+1][0],bar,&buttonOffsets[1]);
-	SDL_BlitSurface(button,&clipButton[id+3][0],bar,&buttonOffsets[2]);
 	SDL_BlitSurface(bar,&clipBar,surface,&offSet); 	//blit the bar
+	// blit the buttons to the screen, else transparency won't show
+	SDL_BlitSurface(button,&clipButton[0][0],surface,&buttonOffsets[0]); //select button
+	SDL_BlitSurface(button,&clipButton[id+1][resources >= 80 ? 0:1],surface,&buttonOffsets[1]); //spawn button
+	SDL_BlitSurface(button,&clipButton[id+3][resources >= 10 ? 0:1],surface,&buttonOffsets[2]); //turret button
 	boxRGBA(surface,(640-w)/2+15,(480-18),		//draw the gray underlying resource pane
                 (640-w)/2+385,480-2,100,100,100,150);
 	boxRGBA(surface,(640-w)/2+20,(480-15),		//draw the red resource bar
@@ -83,7 +83,7 @@ void ActionBar::draw(int resources, bool showResources, int _state, int id) {
 		stringRGBA(surface,surface->w/2-80,480-10,cstr,255,255,255,255);
 	}
 
-	roundedRectangleRGBA(surface,offSet.x+buttonOffsets[_state].x,
-		buttonOffsets[_state].y+offSet.y,offSet.x+buttonOffsets[_state].x+50,
-		offSet.y+buttonOffsets[_state].y+50,3,150,150,15,255);
+	roundedRectangleRGBA(surface,buttonOffsets[_state].x,
+		buttonOffsets[_state].y,buttonOffsets[_state].x+50,
+		buttonOffsets[_state].y+50,3,150,150,15,255);
 }
