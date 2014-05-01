@@ -454,6 +454,12 @@ void Game::updateSimulation() {
 				break;
 			}
 
+			// Randomly reverse the x direction
+			if(random->next()&(1 << playerid)) {
+				defog.x = mapsize - 1 - defog.x;
+				viewstart.x = mapsize - 1 - viewstart.x;
+			}
+
 			// Generate the map
 			map.reset(new Map(mapsize,random.get()));
 			map->defog(defog.x,defog.y,20);
