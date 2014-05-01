@@ -111,8 +111,8 @@ void Map::draw(const View &view) {
 			if(map[y][x].fog) continue;
 
 			SDL_Rect rect;
-			rect.x = (x - view.x)*view.zoom;
-			rect.y = (y - view.y)*view.zoom;
+			rect.x = x*view.zoom - view.x*view.zoom;
+			rect.y = y*view.zoom - view.y*view.zoom;
 			rect.w = rect.h = view.zoom;
 			
 			//these variables are used in the surface blitting of the moutains. Confines snow-capped mountains to specific regions
@@ -134,8 +134,8 @@ void Map::draw(const View &view) {
 			}
 
 			// SDL_BlitSurface writes to rect, so recalculate it
-			rect.x = (x - view.x)*view.zoom;
-			rect.y = (y - view.y)*view.zoom;
+			rect.x = x*view.zoom - view.x*view.zoom;
+			rect.y = y*view.zoom - view.y*view.zoom;
 			rect.w = rect.h = view.zoom;
 
 			// Indicate the tile's resource, if any
