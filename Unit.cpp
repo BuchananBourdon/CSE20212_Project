@@ -161,7 +161,7 @@ void Unit::drawSelected(View &view) {
 	else if(hp < 0.7*maxhp) r = 0xFF, g = 0xFF, b = 0;
 	else r = 0, g = 0xFF, b = 0;
 
-	if(rect.x>0)
+	if(rect.x>0 && rect.y>0)
 		boxRGBA(screen,rect.x,rect.y,rect.x + rect.w*hp/maxhp,
 			rect.y + .1*rect.h,r,g,b,0xFF);
 }
