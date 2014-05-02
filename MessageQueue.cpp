@@ -14,9 +14,9 @@ MessageQueue::~MessageQueue() {
 		sendqueue.pop_front();
 	}
 
-	for(set<Message *>::iterator it = receivequeue.begin();
+	for(map<Uint32,Message *>::iterator it = receivequeue.begin();
 		it != receivequeue.end(); it++)
-		delete *it;
+		delete it->second;
 }
 
 void MessageQueue::add(Message *message) {
@@ -36,13 +36,16 @@ void MessageQueue::send() {
 		sendqueue.pop_front();
 
 	// (Re)send everything else
-	for(list<Message *>::iterator it = sendqueue.begin();
-		it != sendqueue.end(); it++) {
-		(*it)->setAck(numreceived);
+	if(SDL_GetTicks() - lastsend > 300) {
+		lastsend = SDL_GetTicks();
+		for(list<Message *>::iterator it = sendqueue.begin();
+			it != sendqueue.end(); it++) {
+			(*it)->setAck(numreceived);
 
-		(*it)->getPacket(packet);
+			(*it)->getPacket(packet);
 
-		SDLNet_UDP_Send(socket,0,&packet);
+			SDLNet_UDP_Send(socket,0,&packet);
+		}
 	}
 }
 
@@ -57,30 +60,24 @@ void MessageQueue::receive(Game &game) {
 	// Save the packets as we get them
 	while(SDLNet_UDP_Recv(socket,&packet) == 1) {
 		Message *message = new Message(packet);
+		Uint32 sequence = message->getSequence();
 
 		// Only save new ones
-		if(message->getSequence() >= numreceived)
-			receivequeue.insert(new Message(packet));
+		if(sequence >= numreceived && !receivequeue.count(sequence))
+			receivequeue.insert(make_pair(sequence,message));
+		else delete message;
 	}
 
 	// Process as many as we can, in order
-	while(receivequeue.size()) {
-		Message *message = *receivequeue.begin();
-		if(message->getSequence() != numreceived) {
-			if(message->getSequence() < numreceived) {
-				receivequeue.erase(receivequeue.begin());
-				delete message;
-			}
-
-			break;
-		}
+	while(receivequeue.count(numreceived)) {
+		Message *message = receivequeue[numreceived];
 
 //		cerr << "handling message " << message->getSequence() << endl;
 		message->handle(game);
 
 		numacked = max(numacked,message->getAck());
 
-		receivequeue.erase(receivequeue.begin());
+		receivequeue.erase(numreceived);
 		delete message;
 
 		numreceived++;
