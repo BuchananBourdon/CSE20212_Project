@@ -22,6 +22,12 @@ int main(int argc, char **argv) {
 	SDL_WM_SetCaption("Robot-Bunny Apocalypse",NULL);
 	SDL_SetVideoMode(640,480,0,0);
 
+	// Initialize SDL_Net
+	if(SDLNet_Init() < 0) {
+		cerr << "error: cannot initialize SDL_Net" << endl;
+		exit(EXIT_FAILURE);
+	}
+
 	// Get connection settings from the command line
 	if(argc != 3) print_help_and_die();
 
