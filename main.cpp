@@ -47,9 +47,9 @@ int main(int argc, char **argv) {
 	if(sscanf(argv[2],"%hhu.%hhu.%hhu.%hhu:%hu",ip + 0,ip + 1,ip + 2,
 		ip + 3,&port) == 5) {
 		// IPv4 address and port
-		address.host = (Uint32) ip[0] << 24 | (Uint32) ip[1] << 16
-			| (Uint32) ip[2] << 8 | ip[3];
-		address.port = port;
+		SDLNet_Write32((Uint32) ip[0] << 24 | (Uint32) ip[1] << 16
+			| (Uint32) ip[2] << 8 | ip[3],&address.host);
+		SDLNet_Write16(port,&address.port);
 	} else if(sscanf(argv[2]," %255[^:]:%hu",name,&port) == 2) {
 		// Domain name and port
 		if(SDLNet_ResolveHost(&address,name,port) != 0) {
