@@ -34,3 +34,6 @@ Once the host game has been instantiated, it will wait for a join request. In th
 
 ##Gameplay
 Players control robots or bunnies who must collect resourses (coal and candy, respectively). Resource count is shown on a progress bar at the bottom of the action bar, which contains buttons that, when selected, determine mouse actions. Each user can place spawn structures at valid locations of their choosing and can spawn their minions by selecting (click-dragging a selection box over the unit) the spawn structure and then left-clicking on it. Creating spawn structures and spawning minions both cost resources. Users can select multiple minions at once with the selection box and order them to move by left-clicking on a location on the map. Additionally, minions can be ordered to attack by selecting them and then left-clicking on an enemy unit. The game ends when all of a player's units have been destroyed.
+
+
+![](Gameplay.png?raw=true "Gameplay")
