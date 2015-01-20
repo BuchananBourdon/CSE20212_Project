@@ -5,7 +5,7 @@ This project was developed for and works ideally on <b>Linux. </b>
 
 To download the source code using git, you can simply type:
 ```
-git clone http://github.com/BuchananBourdon/CSE20212_Project
+git clone git://github.com/BuchananBourdon/CSE20212_Project
 ```
 
 SDL1.2 is used for graphics rendering so you'll want to ensure you have the necessary dev/runtime libraries installed.
